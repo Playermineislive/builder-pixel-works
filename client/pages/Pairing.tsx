@@ -381,7 +381,14 @@ export default function Pairing({ onPaired }: PairingProps) {
                         id="connectCode"
                         type="text"
                         value={connectCode}
-                        onChange={(e) => setConnectCode(e.target.value.toUpperCase())}
+                        onChange={(e) => {
+                          const value = e.target.value.toUpperCase();
+                          setConnectCode(value);
+                          // Auto-submit when 6 characters are entered
+                          if (value.length === 6 && !isConnecting) {
+                            setTimeout(() => connectWithCode(), 500);
+                          }
+                        }}
                         className="bg-white/10 border-white/20 text-white placeholder:text-purple-200 focus:border-white/40 font-mono text-center text-lg tracking-wider"
                         placeholder="ENTER CODE"
                         disabled={isConnecting}
