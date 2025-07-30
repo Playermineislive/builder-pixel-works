@@ -96,7 +96,7 @@ export default function Pairing({ onPaired }: PairingProps) {
 
   // Continuous polling to check for partner connections
   useEffect(() => {
-    if (!connectionStatus?.isConnected && !isCheckingConnection) {
+    if (!connectionStatus?.isConnected && !isCheckingStatus) {
       const pollInterval = setInterval(async () => {
         try {
           console.log('Polling for connection status...');
