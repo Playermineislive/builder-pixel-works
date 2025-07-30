@@ -363,6 +363,15 @@ export default function Pairing({ onPaired }: PairingProps) {
                     </Alert>
                   )}
 
+                  {connectSuccess && (
+                    <Alert className="bg-green-500/20 border-green-400/50 text-white">
+                      <AlertDescription className="flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
+                        Successfully connected! Starting secure chat...
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="connectCode" className="text-white font-medium">
