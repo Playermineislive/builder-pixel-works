@@ -180,7 +180,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-blue-700 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-blue-700 relative overflow-hidden prevent-horizontal-scroll">
       {/* Background elements */}
       <div className="absolute top-20 left-20 w-32 h-32 bg-white/5 rounded-full blur-xl animate-pulse-glow"></div>
       <div className="absolute bottom-32 right-32 w-24 h-24 bg-purple-300/10 rounded-full blur-lg animate-bounce"></div>
