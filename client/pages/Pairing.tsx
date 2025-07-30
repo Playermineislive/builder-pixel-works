@@ -98,12 +98,12 @@ export default function Pairing({ onPaired }: PairingProps) {
     }
   }, [codeExpiry]);
 
-  // Polling effect to check for partner connections when code is generated
+  // Continuous polling to check for partner connections
   useEffect(() => {
-    if (generatedCode && !polling) {
-      setPolling(true);
+    if (!connectionStatus?.isConnected && !isCheckingConnection) {
       const pollInterval = setInterval(async () => {
         try {
+          console.log('Polling for connection status...');
           const response = await fetch('/api/pairing/status', {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -112,36 +112,33 @@ export default function Pairing({ onPaired }: PairingProps) {
 
           if (response.ok) {
             const status: ConnectionStatus = await response.json();
+            console.log('Connection status:', status);
 
             if (status.isConnected && status.partnerEmail) {
+              console.log('Partner connected! Transitioning to chat...');
               setPartner({
                 id: status.partnerId!,
                 email: status.partnerEmail,
               });
               clearMessages();
-              setPolling(false);
-              clearInterval(pollInterval);
 
-              // Transition to chat
-              setTimeout(() => {
-                onPaired({
-                  id: status.partnerId!,
-                  email: status.partnerEmail,
-                });
-              }, 500);
+              // Transition to chat immediately
+              onPaired({
+                id: status.partnerId!,
+                email: status.partnerEmail,
+              });
             }
           }
         } catch (error) {
           console.error('Polling error:', error);
         }
-      }, 2000); // Poll every 2 seconds
+      }, 3000); // Poll every 3 seconds
 
       return () => {
         clearInterval(pollInterval);
-        setPolling(false);
       };
     }
-  }, [generatedCode, polling, token, onPaired, clearMessages]);
+  }, [connectionStatus?.isConnected, isCheckingConnection, token, onPaired, clearMessages]);
 
   const checkConnectionStatus = async () => {
     try {
