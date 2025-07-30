@@ -385,12 +385,21 @@ export default function Pairing({ onPaired }: PairingProps) {
                           </Button>
                         </div>
                         
-                        {timeLeft > 0 && (
-                          <div className="mt-3 flex items-center justify-center space-x-2 text-purple-200">
-                            <Clock className="w-4 h-4" />
-                            <span className="text-sm">Expires in {formatTime(timeLeft)}</span>
-                          </div>
-                        )}
+                        <div className="mt-3 space-y-2">
+                          {timeLeft > 0 && (
+                            <div className="flex items-center justify-center space-x-2 text-purple-200">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm">Expires in {formatTime(timeLeft)}</span>
+                            </div>
+                          )}
+
+                          {polling && (
+                            <div className="flex items-center justify-center space-x-2 text-blue-300">
+                              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                              <span className="text-sm">Waiting for partner to connect...</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="text-center">
