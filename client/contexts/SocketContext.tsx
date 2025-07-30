@@ -64,6 +64,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         transports: ['polling', 'websocket'], // Fallback to polling if websocket fails
         upgrade: true,
         rememberUpgrade: true,
+        timeout: 5000, // 5 second timeout
+        forceNew: true, // Force new connection
       });
 
       newSocket.on('connect', () => {
