@@ -129,16 +129,23 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             console.log('✅ Adding partner message to chat');
 
             let content = wsMessage.data.content;
+            console.log('📦 Message content type:', typeof content);
+            console.log('📦 Message content:', content);
+            console.log('🔐 Key exchange complete:', keyExchangeComplete);
 
-            // Try to decrypt if it's an encrypted message
-            if (typeof content === 'object' && isValidEncryptedMessage(content)) {
+            // Only try to decrypt if it's actually an encrypted object
+            if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
+              console.log('🔓 Attempting to decrypt message...');
               const decryptedContent = decryptFromPartner(content as EncryptedMessage);
               if (decryptedContent) {
+                console.log('✅ Successfully decrypted message');
                 content = decryptedContent;
               } else {
+                console.error('❌ Failed to decrypt received message');
                 content = '[Failed to decrypt message]';
-                console.error('Failed to decrypt received message');
               }
+            } else {
+              console.log('📝 Message is plain text, no decryption needed');
             }
 
             const chatMessage: ChatMessage = {
