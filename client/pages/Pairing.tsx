@@ -134,7 +134,7 @@ export default function Pairing({ onPaired }: PairingProps) {
         clearInterval(pollInterval);
       };
     }
-  }, [connectionStatus?.isConnected, isCheckingConnection, token, onPaired, clearMessages]);
+  }, [connectionStatus?.isConnected, isCheckingStatus, token, onPaired, clearMessages]);
 
   const checkConnectionStatus = async () => {
     try {
