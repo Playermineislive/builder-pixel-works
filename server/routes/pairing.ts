@@ -119,13 +119,17 @@ export const handleConnectCode: RequestHandler = (req: any, res) => {
       return res.status(400).json(response);
     }
 
-    // Check if user already has an active connection
-    if (userConnections.has(userId)) {
-      const response: ConnectCodeResponse = {
-        success: false,
-        message: "You are already connected to a partner",
-      };
-      return res.status(409).json(response);
+    // Clean up any stale connections for this user first
+    const existingConnectionId = userConnections.get(userId);
+    if (existingConnectionId) {
+      const existingConnection = connections.get(existingConnectionId);
+      if (existingConnection) {
+        // Remove stale connection
+        userConnections.delete(existingConnection.userId1);
+        userConnections.delete(existingConnection.userId2);
+        connections.delete(existingConnectionId);
+        console.log(`Cleaned up stale connection ${existingConnectionId} for user ${userId}`);
+      }
     }
 
     // Find the pairing code
