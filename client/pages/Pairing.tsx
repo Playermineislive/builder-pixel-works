@@ -246,7 +246,7 @@ export default function Pairing({ onPaired }: PairingProps) {
       <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse-glow"></div>
       <div className="absolute bottom-32 right-32 w-24 h-24 bg-purple-300/20 rounded-full blur-lg animate-bounce"></div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
