@@ -219,13 +219,20 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       let messageContent: string | EncryptedMessage = content;
       
       // Encrypt message if keys are available
+      console.log('🔐 Key exchange complete:', keyExchangeComplete);
+      console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
+
       if (keyExchangeComplete) {
+        console.log('🔒 Encrypting message...');
         const encrypted = encryptForPartner(content);
         if (encrypted) {
+          console.log('✅ Message encrypted successfully');
           messageContent = encrypted;
         } else {
-          console.error('Failed to encrypt message, sending plain text');
+          console.error('❌ Failed to encrypt message, sending plain text');
         }
+      } else {
+        console.log('📝 Sending plain text (encryption not ready)');
       }
       
       // Add message to local state immediately for better UX
