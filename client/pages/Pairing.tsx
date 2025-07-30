@@ -25,7 +25,7 @@ import {
 } from '@shared/api';
 
 interface PairingProps {
-  onPaired: () => void;
+  onPaired: (partnerInfo: { id: string; email: string }) => void;
 }
 
 export default function Pairing({ onPaired }: PairingProps) {
