@@ -58,6 +58,19 @@ function expressPlugin(): Plugin {
             socket.userEmail = data.userEmail;
             connectedUsers.set(data.userId, socket.id);
             console.log(`User joined: ${data.userEmail} (${data.userId})`);
+
+            // Notify other users about new connection
+            const otherUsers = Array.from(connectedUsers.entries()).filter(([userId, socketId]) =>
+              userId !== socket.userId
+            );
+
+            otherUsers.forEach(([userId, socketId]) => {
+              io.to(socketId).emit('message', {
+                type: 'user_connected',
+                data: { userId: socket.userId, email: socket.userEmail },
+                timestamp: new Date().toISOString(),
+              });
+            });
           });
 
           socket.on('disconnect', () => {
