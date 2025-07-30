@@ -233,6 +233,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       
       // Send to server (encrypted or plain) or simulate in fallback mode
       if (socket && socket.connected) {
+        console.log('📤 Sending message via socket:', content);
         socket.emit('send_message', { content: messageContent, type });
       } else {
         console.log('📤 Sending message in fallback mode:', content);
