@@ -187,7 +187,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   }, [isAuthenticated, token, isKeysGenerated, keyPair]);
 
   const sendMessage = (content: string, type: string = 'text') => {
-    if (socket && isConnected) {
+    if (isConnected) { // Remove socket dependency for fallback mode
       let messageContent: string | EncryptedMessage = content;
       
       // Encrypt message if keys are available
