@@ -116,11 +116,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         
         switch (wsMessage.type) {
           case 'message':
+            console.log('📨 Received message:', wsMessage.data);
+            console.log('👤 Current user ID:', user?.id);
+            console.log('📤 Message sender ID:', wsMessage.data.senderId);
+
             // Don't add messages from the current user to avoid duplicates
             if (wsMessage.data.senderId === user?.id) {
-              console.log('Ignoring echo message from self');
+              console.log('❌ Ignoring echo message from self');
               break;
             }
+
+            console.log('✅ Adding partner message to chat');
 
             let content = wsMessage.data.content;
 
