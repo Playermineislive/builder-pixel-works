@@ -154,8 +154,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }
       });
 
+      newSocket.on('connect_error', (error: any) => {
+        console.error('❌ Socket connection error:', error);
+      });
+
       newSocket.on('error', (error: any) => {
-        console.error('Socket error:', error);
+        console.error('❌ Socket error:', error);
       });
 
       setSocket(newSocket);
