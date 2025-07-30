@@ -54,9 +54,9 @@ export default function Index() {
     }
   };
 
-  const handlePaired = () => {
+  const handlePaired = (partnerInfo: { id: string; email: string }) => {
+    setPartner(partnerInfo);
     setAppState('chat');
-    // The partner info will be set by the Pairing component
   };
 
   const handleDisconnect = () => {
