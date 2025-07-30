@@ -154,9 +154,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
               <p className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
                 {formatTime(message.timestamp)}
               </p>
-              {keyExchangeComplete && (
-                <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-              )}
+              {/* Temporarily disabled encryption indicator */}
             </div>
           </div>
         </div>
