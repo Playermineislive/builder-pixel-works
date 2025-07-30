@@ -85,7 +85,6 @@ export default function Pairing({ onPaired }: PairingProps) {
           setTimeLeft(0);
           setGeneratedCode('');
           setCodeExpiry(null);
-          setPolling(false);
         } else {
           setTimeLeft(Math.floor(diff / 1000));
         }
