@@ -158,6 +158,9 @@ export default function Pairing({ onPaired }: PairingProps) {
     setConnectSuccess(false);
 
     try {
+      // First, clean up any existing connections
+      await disconnectExisting();
+
       const response = await fetch('/api/pairing/connect-code', {
         method: 'POST',
         headers: {
@@ -186,7 +189,8 @@ export default function Pairing({ onPaired }: PairingProps) {
         setConnectError(data.message || 'Failed to connect');
       }
     } catch (error) {
-      setConnectError('Network error occurred');
+      console.error('Connection error:', error);
+      setConnectError('Network error occurred. Please try again.');
     } finally {
       setIsConnecting(false);
     }
