@@ -1,62 +1,105 @@
-import { DemoResponse } from "@shared/api";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { SocketProvider } from '../contexts/SocketContext';
+import Auth from './Auth';
+import Pairing from './Pairing';
+import Chat from './Chat';
+import { Loader2 } from 'lucide-react';
+import { ConnectionStatus } from '@shared/api';
+
+type AppState = 'auth' | 'pairing' | 'chat';
 
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
-  useEffect(() => {
-    fetchDemo();
-  }, []);
+  const { isAuthenticated, isLoading, token } = useAuth();
+  const [appState, setAppState] = useState<AppState>('auth');
+  const [partner, setPartner] = useState<{ id: string; email: string } | null>(null);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
 
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
+  // Check connection status when authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      checkConnectionStatus();
+    }
+  }, [isAuthenticated, token]);
+
+  const checkConnectionStatus = async () => {
+    setIsCheckingConnection(true);
     try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
+      const response = await fetch('/api/pairing/status', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const status: ConnectionStatus = await response.json();
+        
+        if (status.isConnected && status.partnerEmail) {
+          setPartner({
+            id: status.partnerId!,
+            email: status.partnerEmail,
+          });
+          setAppState('chat');
+        } else {
+          setAppState('pairing');
+        }
+      } else {
+        setAppState('pairing');
+      }
     } catch (error) {
-      console.error("Error fetching hello:", error);
+      console.error('Failed to check connection status:', error);
+      setAppState('pairing');
+    } finally {
+      setIsCheckingConnection(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
-          >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-            />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
+  const handlePaired = () => {
+    setAppState('chat');
+    // The partner info will be set by the Pairing component
+  };
+
+  const handleDisconnect = () => {
+    setPartner(null);
+    setAppState('pairing');
+  };
+
+  // Show loading while checking authentication
+  if (isLoading || isCheckingConnection) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-blue-700 flex items-center justify-center">
+        <div className="glass bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+          <div className="flex items-center space-x-3 text-white">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Loading SecureChat...</span>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Show authentication if not logged in
+  if (!isAuthenticated) {
+    return <Auth />;
+  }
+
+  // Wrap chat-related components with SocketProvider
+  if (appState === 'chat' && partner) {
+    return (
+      <SocketProvider>
+        <Chat partner={partner} onDisconnect={handleDisconnect} />
+      </SocketProvider>
+    );
+  }
+
+  if (appState === 'pairing') {
+    return (
+      <SocketProvider>
+        <Pairing onPaired={handlePaired} />
+      </SocketProvider>
+    );
+  }
+
+  // Fallback
+  return <Auth />;
 }
