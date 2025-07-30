@@ -53,9 +53,6 @@ export default function Pairing({ onPaired }: PairingProps) {
   // Timer for code expiry
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
-  // Polling to check for partner connections
-  const [polling, setPolling] = useState(false);
-
   // Check connection status on mount and clean up any stale connections
   useEffect(() => {
     // First, try to disconnect any existing connection
