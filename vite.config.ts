@@ -147,6 +147,18 @@ function expressPlugin(): Plugin {
           // Handle key exchange
           socket.on('key_exchange', (data) => {
             console.log('Key exchange from', socket.userId);
+
+            // Send public key to other users
+            const otherUsers = Array.from(connectedUsers.entries()).filter(([userId, socketId]) =>
+              userId !== socket.userId
+            );
+
+            otherUsers.forEach(([userId, socketId]) => {
+              io.to(socketId).emit('key_exchange', {
+                publicKey: data.publicKey,
+                userId: socket.userId
+              });
+            });
           });
         });
       }
