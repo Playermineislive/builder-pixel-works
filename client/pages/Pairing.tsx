@@ -158,7 +158,11 @@ export default function Pairing({ onPaired }: PairingProps) {
         };
         setPartner(partnerInfo);
         clearMessages();
-        onPaired(partnerInfo);
+
+        // Add a small delay for smooth transition
+        setTimeout(() => {
+          onPaired(partnerInfo);
+        }, 500);
       } else {
         setConnectError(data.message || 'Failed to connect');
       }
