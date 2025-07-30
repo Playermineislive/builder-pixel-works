@@ -116,8 +116,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         
         switch (wsMessage.type) {
           case 'message':
+            // Don't add messages from the current user to avoid duplicates
+            if (wsMessage.data.senderId === user?.id) {
+              console.log('Ignoring echo message from self');
+              break;
+            }
+
             let content = wsMessage.data.content;
-            
+
             // Try to decrypt if it's an encrypted message
             if (typeof content === 'object' && isValidEncryptedMessage(content)) {
               const decryptedContent = decryptFromPartner(content as EncryptedMessage);
@@ -128,7 +134,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 console.error('Failed to decrypt received message');
               }
             }
-            
+
             const chatMessage: ChatMessage = {
               id: `${wsMessage.data.senderId}-${wsMessage.timestamp}`,
               senderId: wsMessage.data.senderId,
