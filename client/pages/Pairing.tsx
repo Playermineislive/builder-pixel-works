@@ -227,6 +227,14 @@ export default function Pairing({ onPaired }: PairingProps) {
         setConnectSuccess(true);
         clearMessages();
 
+        // Update connection status to stop polling
+        setConnectionStatus({
+          isConnected: true,
+          partnerId: partnerInfo.id,
+          partnerEmail: partnerInfo.email,
+          connectionId: 'new-connection'
+        });
+
         // Add a small delay for smooth transition
         setTimeout(() => {
           onPaired(partnerInfo);
