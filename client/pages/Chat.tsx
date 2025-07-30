@@ -153,7 +153,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
         key={message.id}
         className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4 message-appear`}
       >
-        <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
+        <div className={`message-bubble max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
           <div
             className={`
               px-4 py-3 rounded-2xl glass backdrop-blur-sm
