@@ -83,11 +83,12 @@ export default function Pairing({ onPaired }: PairingProps) {
       const interval = setInterval(() => {
         const now = new Date();
         const diff = codeExpiry.getTime() - now.getTime();
-        
+
         if (diff <= 0) {
           setTimeLeft(0);
           setGeneratedCode('');
           setCodeExpiry(null);
+          setPolling(false);
         } else {
           setTimeLeft(Math.floor(diff / 1000));
         }
@@ -96,6 +97,51 @@ export default function Pairing({ onPaired }: PairingProps) {
       return () => clearInterval(interval);
     }
   }, [codeExpiry]);
+
+  // Polling effect to check for partner connections when code is generated
+  useEffect(() => {
+    if (generatedCode && !polling) {
+      setPolling(true);
+      const pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch('/api/pairing/status', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const status: ConnectionStatus = await response.json();
+
+            if (status.isConnected && status.partnerEmail) {
+              setPartner({
+                id: status.partnerId!,
+                email: status.partnerEmail,
+              });
+              clearMessages();
+              setPolling(false);
+              clearInterval(pollInterval);
+
+              // Transition to chat
+              setTimeout(() => {
+                onPaired({
+                  id: status.partnerId!,
+                  email: status.partnerEmail,
+                });
+              }, 500);
+            }
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+        }
+      }, 2000); // Poll every 2 seconds
+
+      return () => {
+        clearInterval(pollInterval);
+        setPolling(false);
+      };
+    }
+  }, [generatedCode, polling, token, onPaired, clearMessages]);
 
   const checkConnectionStatus = async () => {
     try {
