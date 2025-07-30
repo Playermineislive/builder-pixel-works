@@ -105,16 +105,20 @@ export function decryptMessage(
       encryptedMessage.encryptedKey,
       privateKey
     );
-    const aesKey = CryptoJS.lib.WordArray.create(
-      CryptoJS.enc.Utf8.parse(decryptedKeyBytes.toString(CryptoJS.enc.Utf8)).words
-    );
-    
+
+    // Convert decrypted key bytes to string and then parse as WordArray
+    const keyString = decryptedKeyBytes.toString(CryptoJS.enc.Utf8);
+    const aesKey = CryptoJS.enc.Utf8.parse(keyString);
+
+    // Parse IV correctly
+    const iv = CryptoJS.enc.Utf8.parse(encryptedMessage.iv);
+
     // Decrypt the message using AES
     const decryptedMessage = CryptoJS.AES.decrypt(
       encryptedMessage.encryptedContent,
       aesKey,
       {
-        iv: CryptoJS.lib.WordArray.create(CryptoJS.enc.Utf8.parse(encryptedMessage.iv).words),
+        iv: iv,
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       }
