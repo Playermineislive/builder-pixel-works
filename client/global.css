@@ -186,4 +186,45 @@
   .animate-slide-in-left {
     animation: slideInFromLeft 0.3s ease-out;
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    .glass {
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+    }
+
+    .message-appear {
+      animation-duration: 0.2s;
+    }
+
+    /* Improve touch targets on mobile */
+    button {
+      min-height: 44px;
+    }
+
+    input {
+      min-height: 44px;
+    }
+  }
+
+  /* Mobile viewport fix */
+  @supports (-webkit-touch-callout: none) {
+    .min-h-screen {
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  .prevent-horizontal-scroll {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Mobile-friendly message bubbles */
+  @media (max-width: 640px) {
+    .message-bubble {
+      max-width: 85%;
+    }
+  }
 }
