@@ -210,8 +210,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       };
       setMessages(prev => [...prev, localMessage]);
       
-      // Send to server (encrypted or plain)
-      socket.emit('send_message', { content: messageContent, type });
+      // Send to server (encrypted or plain) or simulate in fallback mode
+      if (socket && socket.connected) {
+        socket.emit('send_message', { content: messageContent, type });
+      } else {
+        console.log('📤 Sending message in fallback mode:', content);
+        // In fallback mode, messages are only stored locally
+      }
     }
   };
 
