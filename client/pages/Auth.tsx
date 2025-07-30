@@ -61,7 +61,7 @@ export default function Auth() {
       <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-blue-300/15 rounded-full blur-lg animate-pulse"></div>
 
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md space-y-8">
           {/* Brand header */}
           <div className="text-center space-y-4">
