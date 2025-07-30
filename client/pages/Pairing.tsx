@@ -53,10 +53,26 @@ export default function Pairing({ onPaired }: PairingProps) {
   // Timer for code expiry
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
-  // Check connection status on mount
+  // Check connection status on mount and clean up any stale connections
   useEffect(() => {
-    checkConnectionStatus();
+    // First, try to disconnect any existing connection
+    disconnectExisting().then(() => {
+      checkConnectionStatus();
+    });
   }, []);
+
+  const disconnectExisting = async () => {
+    try {
+      await fetch('/api/pairing/disconnect', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.log('No existing connection to disconnect');
+    }
+  };
 
   // Update timer for code expiry
   useEffect(() => {
