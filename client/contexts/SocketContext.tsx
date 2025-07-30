@@ -87,6 +87,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         if (!newSocket.connected) {
           console.log('⚠️ Socket connection timeout, using fallback mode');
           setIsConnected(true); // Allow chat to work without real-time features
+          setPartnerOnline(true); // Assume partner is online for better UX
         }
       }, 3000);
 
