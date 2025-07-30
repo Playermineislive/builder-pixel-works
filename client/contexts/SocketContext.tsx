@@ -56,10 +56,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && token && !socket && isKeysGenerated) {
+      console.log('Initializing Socket.IO connection...');
       const newSocket = io('/', {
         auth: {
           token,
         },
+        transports: ['polling', 'websocket'], // Fallback to polling if websocket fails
+        upgrade: true,
+        rememberUpgrade: true,
       });
 
       newSocket.on('connect', () => {
