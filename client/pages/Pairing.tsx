@@ -43,6 +43,7 @@ export default function Pairing({ onPaired }: PairingProps) {
   const [connectCode, setConnectCode] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectError, setConnectError] = useState('');
+  const [connectSuccess, setConnectSuccess] = useState(false);
   
   // Connection status
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
