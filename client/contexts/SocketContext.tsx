@@ -67,13 +67,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to chat server');
+        console.log('✅ Connected to chat server');
         setIsConnected(true);
-        
+
         // Send public key for key exchange
         if (keyPair?.publicKey) {
-          newSocket.emit('key_exchange', { 
-            publicKey: keyPair.publicKey 
+          console.log('📤 Sending public key for key exchange');
+          newSocket.emit('key_exchange', {
+            publicKey: keyPair.publicKey
           });
         }
       });
