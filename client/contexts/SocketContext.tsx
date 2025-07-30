@@ -133,29 +133,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             console.log('📦 Message content:', content);
             console.log('🔐 Key exchange complete:', keyExchangeComplete);
 
-            // Only try to decrypt if it's actually an encrypted object
-            if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
-              console.log('🔓 Attempting to decrypt message...');
-              try {
-                const decryptedContent = decryptFromPartner(content as EncryptedMessage);
-                if (decryptedContent) {
-                  console.log('✅ Successfully decrypted message');
-                  content = decryptedContent;
-                } else {
-                  console.error('❌ Failed to decrypt received message');
-                  content = '[Decryption failed]';
-                }
-              } catch (error) {
-                console.error('❌ Decryption error:', error);
-                content = '[Message could not be decrypted]';
-              }
-            } else {
-              console.log('📝 Message is plain text, no decryption needed');
-              // Ensure content is a string
-              if (typeof content !== 'string') {
-                console.warn('⚠️ Non-string content received:', content);
-                content = String(content);
-              }
+            // Temporarily handle all messages as plain text
+            // TODO: Re-enable encryption when implementation is fixed
+            console.log('📝 Processing message as plain text');
+
+            // Ensure content is a string
+            if (typeof content !== 'string') {
+              console.warn('⚠️ Non-string content received, converting:', content);
+              content = String(content);
             }
 
             const chatMessage: ChatMessage = {
