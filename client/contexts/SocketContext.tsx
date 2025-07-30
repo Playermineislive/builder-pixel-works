@@ -182,6 +182,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setSocket(null);
         setIsConnected(false);
       }
+      clearTimeout(connectionTimeout);
     };
   }, [isAuthenticated, token, isKeysGenerated, keyPair]);
 
