@@ -79,8 +79,9 @@ export function createAppServer() {
     next();
   });
 
-  // Store active socket connections
+  // Store active socket connections and public keys
   const userSockets = new Map<string, string>(); // userId -> socketId
+  const userPublicKeys = new Map<string, string>(); // userId -> publicKey
 
   // WebSocket connection handling
   io.on("connection", (socket: any) => {
@@ -100,11 +101,50 @@ export function createAppServer() {
           timestamp: new Date().toISOString(),
         };
         io.to(partnerSocketId).emit("message", message);
+
+        // Exchange public keys if both users have them
+        const partnerPublicKey = userPublicKeys.get(partnerId);
+        const userPublicKey = userPublicKeys.get(socket.userId);
+        
+        if (partnerPublicKey) {
+          socket.emit("key_exchange", { 
+            publicKey: partnerPublicKey, 
+            userId: partnerId 
+          });
+        }
+        
+        if (userPublicKey && partnerSocketId) {
+          io.to(partnerSocketId).emit("key_exchange", { 
+            publicKey: userPublicKey, 
+            userId: socket.userId 
+          });
+        }
       }
     }
 
-    // Handle incoming messages
-    socket.on("send_message", (data: { content: string; type: string }) => {
+    // Handle key exchange
+    socket.on("key_exchange", (data: { publicKey: string }) => {
+      console.log(`Received public key from ${socket.userEmail}`);
+      
+      // Store the public key
+      userPublicKeys.set(socket.userId, data.publicKey);
+      
+      // Send to partner if connected
+      const partnerId = getPartnerIdForUser(socket.userId);
+      if (partnerId) {
+        const partnerSocketId = userSockets.get(partnerId);
+        if (partnerSocketId) {
+          io.to(partnerSocketId).emit("key_exchange", {
+            publicKey: data.publicKey,
+            userId: socket.userId
+          });
+          console.log(`Forwarded public key to partner ${partnerId}`);
+        }
+      }
+    });
+
+    // Handle incoming messages (can be encrypted or plain text)
+    socket.on("send_message", (data: { content: string | object; type: string }) => {
       try {
         const partnerId = getPartnerIdForUser(socket.userId);
         if (!partnerId) {
@@ -122,7 +162,7 @@ export function createAppServer() {
           type: "message",
           data: {
             senderId: socket.userId,
-            content: data.content,
+            content: data.content, // Can be encrypted object or plain string
             type: data.type || "text",
             timestamp: new Date().toISOString(),
           },
@@ -170,6 +210,7 @@ export function createAppServer() {
       
       // Remove from active connections
       userSockets.delete(socket.userId);
+      userPublicKeys.delete(socket.userId);
 
       // Notify partner about disconnection
       const partnerId = getPartnerIdForUser(socket.userId);
