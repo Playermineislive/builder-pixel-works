@@ -100,6 +100,22 @@ function expressPlugin(): Plugin {
           // Handle typing indicators
           socket.on('typing', (data) => {
             console.log('Typing indicator from', socket.userId, ':', data.isTyping);
+
+            // Send typing indicator to other users
+            const otherUsers = Array.from(connectedUsers.entries()).filter(([userId, socketId]) =>
+              userId !== socket.userId
+            );
+
+            otherUsers.forEach(([userId, socketId]) => {
+              io.to(socketId).emit('message', {
+                type: 'typing',
+                data: {
+                  userId: socket.userId,
+                  isTyping: data.isTyping,
+                },
+                timestamp: new Date().toISOString(),
+              });
+            });
           });
 
           // Handle key exchange
