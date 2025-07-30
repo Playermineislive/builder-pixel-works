@@ -125,6 +125,9 @@ export default function Pairing({ onPaired }: PairingProps) {
     setGenerateError('');
 
     try {
+      // First, clean up any existing connections
+      await disconnectExisting();
+
       const response = await fetch('/api/pairing/generate-code', {
         method: 'POST',
         headers: {
@@ -141,7 +144,8 @@ export default function Pairing({ onPaired }: PairingProps) {
         setGenerateError(data.message || 'Failed to generate code');
       }
     } catch (error) {
-      setGenerateError('Network error occurred');
+      console.error('Generate code error:', error);
+      setGenerateError('Network error occurred. Please try again.');
     } finally {
       setIsGenerating(false);
     }
