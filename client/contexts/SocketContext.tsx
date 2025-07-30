@@ -221,9 +221,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   };
 
   const sendTyping = (isTyping: boolean) => {
-    if (socket && isConnected) {
+    if (socket && socket.connected) {
       socket.emit('typing', { isTyping });
     }
+    // In fallback mode, typing indicators are disabled
   };
 
   const clearMessages = () => {
