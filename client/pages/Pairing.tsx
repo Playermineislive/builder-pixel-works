@@ -159,12 +159,13 @@ export default function Pairing({ onPaired }: PairingProps) {
           email: data.partnerEmail!,
         };
         setPartner(partnerInfo);
+        setConnectSuccess(true);
         clearMessages();
 
         // Add a small delay for smooth transition
         setTimeout(() => {
           onPaired(partnerInfo);
-        }, 500);
+        }, 1500);
       } else {
         setConnectError(data.message || 'Failed to connect');
       }
