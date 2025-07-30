@@ -76,6 +76,19 @@ function expressPlugin(): Plugin {
           socket.on('disconnect', () => {
             console.log('Socket.IO client disconnected:', socket.id);
             if (socket.userId) {
+              // Notify other users about disconnection
+              const otherUsers = Array.from(connectedUsers.entries()).filter(([userId, socketId]) =>
+                userId !== socket.userId
+              );
+
+              otherUsers.forEach(([userId, socketId]) => {
+                io.to(socketId).emit('message', {
+                  type: 'user_disconnected',
+                  data: { userId: socket.userId, email: socket.userEmail },
+                  timestamp: new Date().toISOString(),
+                });
+              });
+
               connectedUsers.delete(socket.userId);
             }
           });
