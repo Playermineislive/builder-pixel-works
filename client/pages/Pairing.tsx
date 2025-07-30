@@ -139,6 +139,7 @@ export default function Pairing({ onPaired }: PairingProps) {
 
     setIsConnecting(true);
     setConnectError('');
+    setConnectSuccess(false);
 
     try {
       const response = await fetch('/api/pairing/connect-code', {
