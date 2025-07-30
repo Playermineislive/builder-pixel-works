@@ -281,9 +281,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
                 {/* Security indicator */}
                 <div className="flex items-center justify-center mt-3 text-xs text-purple-300">
                   <Shield className="w-3 h-3 mr-1" />
-                  {keyExchangeComplete 
-                    ? 'Messages are end-to-end encrypted with AES-256'
-                    : 'Setting up end-to-end encryption...'}
+                  Messages are sent in plain text mode (encryption temporarily disabled)
                 </div>
               </CardContent>
             </Card>
