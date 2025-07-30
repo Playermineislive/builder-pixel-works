@@ -73,6 +73,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setIsConnected(true);
         clearTimeout(connectionTimeout);
 
+        // Send user info to server
+        if (user) {
+          newSocket.emit('user_join', {
+            userId: user.id,
+            userEmail: user.email
+          });
+        }
+
         // Send public key for key exchange
         if (keyPair?.publicKey) {
           console.log('📤 Sending public key for key exchange');
