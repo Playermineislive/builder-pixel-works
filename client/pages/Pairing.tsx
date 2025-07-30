@@ -128,7 +128,7 @@ export default function Pairing({ onPaired }: PairingProps) {
         } catch (error) {
           console.error('Polling error:', error);
         }
-      }, 3000); // Poll every 3 seconds
+      }, 2000); // Poll every 2 seconds for faster response
 
       return () => {
         clearInterval(pollInterval);
