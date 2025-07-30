@@ -230,7 +230,7 @@ export default function Pairing({ onPaired }: PairingProps) {
             </div>
 
             <Button
-              onClick={onPaired}
+              onClick={() => onPaired(partner)}
               className="w-full bg-white text-purple-700 hover:bg-white/90 font-semibold py-6"
             >
               Start Secure Chat
