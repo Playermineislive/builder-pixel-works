@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
+import { useEncryption } from '../contexts/EncryptionContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -13,8 +14,10 @@ import {
   Wifi, 
   WifiOff,
   MessageCircle,
-  MoreVertical,
-  User
+  User,
+  Lock,
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
 import { ChatMessage } from '@shared/api';
 
@@ -24,15 +27,17 @@ interface ChatProps {
 }
 
 export default function Chat({ partner, onDisconnect }: ChatProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { 
     messages, 
     sendMessage, 
     sendTyping, 
     partnerTyping, 
     partnerOnline, 
-    isConnected 
+    isConnected,
+    keyExchangeComplete 
   } = useSocket();
+  const { keyPair, partnerPublicKey } = useEncryption();
   
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -112,6 +117,33 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getEncryptionStatus = () => {
+    if (keyExchangeComplete) {
+      return {
+        icon: ShieldCheck,
+        text: 'End-to-end encrypted',
+        color: 'bg-green-500/20 text-green-300',
+        iconColor: 'text-green-400'
+      };
+    } else if (keyPair && !partnerPublicKey) {
+      return {
+        icon: Lock,
+        text: 'Awaiting partner keys',
+        color: 'bg-yellow-500/20 text-yellow-300',
+        iconColor: 'text-yellow-400'
+      };
+    } else {
+      return {
+        icon: AlertTriangle,
+        text: 'Setting up encryption',
+        color: 'bg-orange-500/20 text-orange-300',
+        iconColor: 'text-orange-400'
+      };
+    }
+  };
+
+  const encryptionStatus = getEncryptionStatus();
+
   const renderMessage = (message: ChatMessage, index: number) => {
     const isOwnMessage = message.senderId === user?.id;
     const isLastMessage = index === messages.length - 1;
@@ -133,9 +165,14 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
             `}
           >
             <p className="text-sm leading-relaxed">{message.content}</p>
-            <p className={`text-xs mt-1 ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-              {formatTime(message.timestamp)}
-            </p>
+            <div className="flex items-center justify-between mt-2">
+              <p className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
+                {formatTime(message.timestamp)}
+              </p>
+              {keyExchangeComplete && (
+                <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -175,6 +212,14 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
 
               <div className="flex items-center space-x-2">
                 <Badge 
+                  variant="secondary" 
+                  className={`${encryptionStatus.color} border-0 text-xs`}
+                >
+                  <encryptionStatus.icon className={`w-3 h-3 mr-1 ${encryptionStatus.iconColor}`} />
+                  {encryptionStatus.text}
+                </Badge>
+
+                <Badge 
                   variant={isConnected ? "default" : "destructive"} 
                   className={`${isConnected ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'} border-0`}
                 >
@@ -210,12 +255,12 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
                     </p>
                     <div className="flex items-center justify-center space-x-4 text-xs text-purple-300">
                       <div className="flex items-center">
-                        <Shield className="w-3 h-3 mr-1" />
-                        E2EE Active
+                        <encryptionStatus.icon className={`w-3 h-3 mr-1 ${encryptionStatus.iconColor}`} />
+                        E2EE
                       </div>
                       <div className="flex items-center">
                         <Users className="w-3 h-3 mr-1" />
-                        Private Chat
+                        Private
                       </div>
                     </div>
                   </div>
@@ -253,7 +298,9 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
                 {/* Security indicator */}
                 <div className="flex items-center justify-center mt-3 text-xs text-purple-300">
                   <Shield className="w-3 h-3 mr-1" />
-                  Messages are end-to-end encrypted and not stored on servers
+                  {keyExchangeComplete 
+                    ? 'Messages are end-to-end encrypted with AES-256'
+                    : 'Setting up end-to-end encryption...'}
                 </div>
               </CardContent>
             </Card>
