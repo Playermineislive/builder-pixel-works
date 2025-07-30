@@ -30,11 +30,44 @@ function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
-    configureServer(server) {
+    configureServer(viteServer) {
       const app = createServer();
 
       // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+      viteServer.middlewares.use(app);
+
+      // Add Socket.IO support
+      const httpServer = viteServer.httpServer;
+      if (httpServer) {
+        const io = new Server(httpServer, {
+          cors: {
+            origin: "*",
+            methods: ["GET", "POST"]
+          }
+        });
+
+        // Simple Socket.IO setup for development
+        io.on('connection', (socket) => {
+          console.log('Socket.IO client connected:', socket.id);
+
+          socket.on('disconnect', () => {
+            console.log('Socket.IO client disconnected:', socket.id);
+          });
+
+          // Echo messages for testing
+          socket.on('send_message', (data) => {
+            socket.emit('message', {
+              type: 'message',
+              data: {
+                senderId: 'demo',
+                content: data.content,
+                timestamp: new Date().toISOString(),
+              },
+              timestamp: new Date().toISOString(),
+            });
+          });
+        });
+      }
     },
   };
 }
