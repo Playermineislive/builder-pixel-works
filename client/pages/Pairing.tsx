@@ -152,12 +152,13 @@ export default function Pairing({ onPaired }: PairingProps) {
       const data: ConnectCodeResponse = await response.json();
 
       if (data.success) {
-        setPartner({
+        const partnerInfo = {
           id: data.partnerId!,
           email: data.partnerEmail!,
-        });
+        };
+        setPartner(partnerInfo);
         clearMessages();
-        onPaired();
+        onPaired(partnerInfo);
       } else {
         setConnectError(data.message || 'Failed to connect');
       }
