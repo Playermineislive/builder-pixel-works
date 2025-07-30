@@ -46,25 +46,54 @@ function expressPlugin(): Plugin {
           }
         });
 
-        // Simple Socket.IO setup for development
+        // Store connected users
+        const connectedUsers = new Map();
+
         io.on('connection', (socket) => {
           console.log('Socket.IO client connected:', socket.id);
 
-          socket.on('disconnect', () => {
-            console.log('Socket.IO client disconnected:', socket.id);
+          // Store user info when they connect
+          socket.on('user_join', (data) => {
+            socket.userId = data.userId;
+            socket.userEmail = data.userEmail;
+            connectedUsers.set(data.userId, socket.id);
+            console.log(`User joined: ${data.userEmail} (${data.userId})`);
           });
 
-          // Echo messages for testing
+          socket.on('disconnect', () => {
+            console.log('Socket.IO client disconnected:', socket.id);
+            if (socket.userId) {
+              connectedUsers.delete(socket.userId);
+            }
+          });
+
+          // Handle messages between partners
           socket.on('send_message', (data) => {
+            console.log('Message received from', socket.userId, ':', data.content);
+
+            // For now, simulate message to partner by echoing back with different sender
             socket.emit('message', {
               type: 'message',
               data: {
-                senderId: 'demo',
+                senderId: socket.userId || 'partner',
                 content: data.content,
                 timestamp: new Date().toISOString(),
+                type: data.type || 'text'
               },
               timestamp: new Date().toISOString(),
             });
+
+            socket.emit('message_sent', { success: true });
+          });
+
+          // Handle typing indicators
+          socket.on('typing', (data) => {
+            console.log('Typing indicator from', socket.userId, ':', data.isTyping);
+          });
+
+          // Handle key exchange
+          socket.on('key_exchange', (data) => {
+            console.log('Key exchange from', socket.userId);
           });
         });
       }
