@@ -387,7 +387,7 @@ export default function Pairing({ onPaired }: PairingProps) {
                             </div>
                           )}
 
-                          {polling && (
+                          {generatedCode && timeLeft > 0 && (
                             <div className="flex items-center justify-center space-x-2 text-blue-300">
                               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                               <span className="text-sm">Waiting for partner to connect...</span>
