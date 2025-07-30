@@ -71,17 +71,28 @@ function expressPlugin(): Plugin {
           socket.on('send_message', (data) => {
             console.log('Message received from', socket.userId, ':', data.content);
 
-            // For now, simulate message to partner by echoing back with different sender
-            socket.emit('message', {
-              type: 'message',
-              data: {
-                senderId: socket.userId || 'partner',
-                content: data.content,
-                timestamp: new Date().toISOString(),
-                type: data.type || 'text'
-              },
-              timestamp: new Date().toISOString(),
-            });
+            // Find all other connected users and send to them
+            // In a real app, this would check the pairing/connection status
+            const otherUsers = Array.from(connectedUsers.entries()).filter(([userId, socketId]) =>
+              userId !== socket.userId
+            );
+
+            if (otherUsers.length > 0) {
+              // Send message to all other connected users (for demo purposes)
+              otherUsers.forEach(([userId, socketId]) => {
+                io.to(socketId).emit('message', {
+                  type: 'message',
+                  data: {
+                    senderId: socket.userId,
+                    content: data.content,
+                    timestamp: new Date().toISOString(),
+                    type: data.type || 'text'
+                  },
+                  timestamp: new Date().toISOString(),
+                });
+                console.log(`Sent message from ${socket.userId} to ${userId}`);
+              });
+            }
 
             socket.emit('message_sent', { success: true });
           });
