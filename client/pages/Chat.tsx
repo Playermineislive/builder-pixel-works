@@ -188,7 +188,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
         <Card className="glass bg-white/10 backdrop-blur-md border-white/20 rounded-none border-0 border-b border-white/20">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-4 px-4 sm:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
