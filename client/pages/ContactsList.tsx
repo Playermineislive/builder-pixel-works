@@ -51,6 +51,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     groups,
     pendingRequests,
     currentInviteCode,
+    userProfile,
     generateNewInviteCode,
     addFriendByCode,
     sendFriendRequest,
@@ -61,6 +62,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     getOnlineContacts,
     getRecentContacts,
     createGroup,
+    renameContact,
     isLoading,
     error
   } = useContacts();
