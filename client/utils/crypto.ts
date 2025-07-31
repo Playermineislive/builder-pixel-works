@@ -94,11 +94,11 @@ export function encryptMessage(
  */
 export function decryptMessage(
   encryptedMessage: EncryptedMessage,
-  privateKey: string
+  sharedKey: string
 ): string {
   try {
     // Validate input
-    if (!encryptedMessage || !privateKey) {
+    if (!encryptedMessage || !sharedKey) {
       throw new Error('Missing encryption parameters');
     }
 
@@ -106,47 +106,18 @@ export function decryptMessage(
       throw new Error('Invalid encrypted message structure');
     }
 
-    console.log('🔓 Starting decryption process...');
-    console.log('🔑 Encrypted key length:', encryptedMessage.encryptedKey.length);
+    console.log('🔓 Starting symmetric decryption process...');
     console.log('📦 Encrypted content length:', encryptedMessage.encryptedContent.length);
     console.log('🔐 IV:', encryptedMessage.iv);
 
-    // Decrypt the AES key
-    const decryptedKeyBytes = CryptoJS.AES.decrypt(
-      encryptedMessage.encryptedKey,
-      privateKey
-    );
-
-    // Check if key decryption was successful
-    if (!decryptedKeyBytes || decryptedKeyBytes.sigBytes <= 0) {
-      throw new Error('Failed to decrypt AES key');
+    // Verify key hash (optional security check)
+    const expectedKeyHash = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Base64);
+    if (encryptedMessage.encryptedKey !== expectedKeyHash) {
+      console.warn('⚠️ Key hash mismatch - possible key incompatibility');
     }
 
-    // Convert to UTF-8 with error handling
-    let aesKeyString: string;
-    try {
-      aesKeyString = decryptedKeyBytes.toString(CryptoJS.enc.Utf8);
-      if (!aesKeyString || aesKeyString.length === 0) {
-        throw new Error('Decrypted key is empty');
-      }
-    } catch (utf8Error) {
-      console.error('UTF-8 conversion failed for AES key:', utf8Error);
-      throw new Error('Invalid key format - UTF-8 conversion failed');
-    }
-
-    console.log('🔑 AES key decrypted successfully, length:', aesKeyString.length);
-
-    // Parse the AES key from Base64
-    let aesKey: CryptoJS.lib.WordArray;
-    try {
-      aesKey = CryptoJS.enc.Base64.parse(aesKeyString);
-      if (!aesKey || aesKey.sigBytes <= 0) {
-        throw new Error('Invalid Base64 key format');
-      }
-    } catch (base64Error) {
-      console.error('Base64 parsing failed for AES key:', base64Error);
-      throw new Error('Invalid AES key Base64 format');
-    }
+    // Create consistent key from shared key
+    const key = CryptoJS.SHA256(sharedKey);
 
     // Parse IV
     let iv: CryptoJS.lib.WordArray;
@@ -165,7 +136,7 @@ export function decryptMessage(
     // Decrypt the message
     const decryptedMessage = CryptoJS.AES.decrypt(
       encryptedMessage.encryptedContent,
-      aesKey,
+      key,
       {
         iv: iv,
         mode: CryptoJS.mode.CBC,
