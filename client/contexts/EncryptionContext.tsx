@@ -22,6 +22,8 @@ interface EncryptionContextType {
   setPartnerPublicKey: (key: string) => void;
   encryptForPartner: (message: string) => EncryptedMessage | null;
   decryptFromPartner: (encryptedMessage: EncryptedMessage) => string | null;
+  encryptFileForPartner: (file: File) => Promise<EncryptedFile | null>;
+  decryptFileFromPartner: (encryptedFile: EncryptedFile) => Promise<string | null>;
   clearKeys: () => void;
 }
 
