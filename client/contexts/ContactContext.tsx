@@ -275,24 +275,53 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   };
 
   const createGroup = (name: string, members: Contact[]): Group => {
+    const currentUserId = user?.id || '';
     const newGroup: Group = {
       id: `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name,
-      description: `Group chat with ${members.length} members`,
+      description: `Group chat with ${members.length + 1} members`,
       isPrivate: false,
       createdAt: new Date().toISOString(),
-      createdBy: user?.id || '',
+      createdBy: currentUserId,
+      admins: [currentUserId],
+      settings: {
+        allowMemberInvites: true,
+        requireAdminApproval: false,
+        allowMemberMessages: true,
+        encryptionLevel: 'enhanced',
+        allowNameChange: false
+      },
       members: [
         // Add current user as admin
         {
-          id: user?.id || '',
+          id: currentUserId,
           email: user?.email || '',
-          username: user?.username || user?.email,
+          username: userProfile?.username || user?.email || '',
+          avatar: userProfile?.avatar,
           isOnline: true,
           status: 'online' as const,
-          connectionDate: new Date().toISOString()
+          connectionDate: new Date().toISOString(),
+          role: 'admin',
+          joinedAt: new Date().toISOString(),
+          permissions: {
+            canInvite: true,
+            canRemoveMembers: true,
+            canEditGroup: true,
+            canDeleteMessages: true
+          }
         },
-        ...members
+        // Add selected members
+        ...members.map(member => ({
+          ...member,
+          role: 'member' as const,
+          joinedAt: new Date().toISOString(),
+          permissions: {
+            canInvite: true,
+            canRemoveMembers: false,
+            canEditGroup: false,
+            canDeleteMessages: false
+          }
+        }))
       ],
       unreadCount: 0
     };
