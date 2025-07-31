@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -26,7 +26,15 @@ import {
   Settings,
   Globe,
   Sparkles,
-  Zap
+  Zap,
+  Phone,
+  Video,
+  MoreVertical,
+  Search,
+  Star,
+  Heart,
+  Coffee,
+  Music
 } from 'lucide-react';
 import { ChatMessage, FileUpload, MediaContent } from '@shared/api';
 import MessageBubble from '../components/MessageBubble';
@@ -48,591 +56,536 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
     partnerTyping, 
     partnerOnline, 
     isConnected,
-    keyExchangeComplete 
+    sendFile 
   } = useSocket();
-  const { keyPair, partnerPublicKey, encryptFileForPartner } = useEncryption();
-  const { settings: translationSettings } = useTranslation();
-  
+  const { encryptMessage } = useEncryption();
+  const { 
+    isTranslationEnabled, 
+    targetLanguage, 
+    translateMessage,
+    supportedLanguages 
+  } = useTranslation();
+
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showTranslationSettings, setShowTranslationSettings] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [messageComposerFocused, setMessageComposerFocused] = useState(false);
-  
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [messageReactions, setMessageReactions] = useState<{[key: string]: string[]}>({});
+  const [chatTheme, setChatTheme] = useState(0);
 
-  // Auto-scroll to bottom when new messages arrive
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Optimized message filtering
+  const filteredMessages = useMemo(() => {
+    if (!searchQuery) return messages;
+    return messages.filter(msg => 
+      msg.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.senderEmail.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [messages, searchQuery]);
+
+  // Chat themes for unique design
+  const chatThemes = [
+    {
+      name: "Ocean Breeze",
+      bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      messageUser: "from-blue-500 to-purple-600",
+      messagePartner: "from-gray-600 to-gray-700"
+    },
+    {
+      name: "Sunset Glow",
+      bg: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      messageUser: "from-pink-500 to-rose-600",
+      messagePartner: "from-gray-600 to-gray-700"
+    },
+    {
+      name: "Forest Night",
+      bg: "linear-gradient(135deg, #134e5e 0%, #71b280 100%)",
+      messageUser: "from-green-500 to-emerald-600",
+      messagePartner: "from-gray-600 to-gray-700"
+    }
+  ];
+
+  const currentTheme = chatThemes[chatTheme];
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle typing indicators
   useEffect(() => {
-    if (isTyping) {
-      sendTyping(true);
-      
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      
-      typingTimeoutRef.current = setTimeout(() => {
-        setIsTyping(false);
-        sendTyping(false);
-      }, 1000);
-    }
+    // Auto-cycle chat themes
+    const themeInterval = setInterval(() => {
+      setChatTheme(prev => (prev + 1) % chatThemes.length);
+    }, 30000);
 
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, [isTyping, sendTyping]);
+    return () => clearInterval(themeInterval);
+  }, [chatThemes.length]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (newMessage.trim() && isConnected) {
-      sendMessage(newMessage.trim(), 'text');
+  const handleSendMessage = useCallback(async () => {
+    if (!newMessage.trim()) return;
+
+    try {
+      const encryptedMessage = await encryptMessage(newMessage);
+      await sendMessage(encryptedMessage);
       setNewMessage('');
       setIsTyping(false);
-      sendTyping(false);
-      inputRef.current?.focus();
+    } catch (error) {
+      console.error('Failed to send message:', error);
     }
-  };
+  }, [newMessage, encryptMessage, sendMessage]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
+  const handleTyping = useCallback((value: string) => {
+    setNewMessage(value);
     
-    if (e.target.value.length > 0 && !isTyping) {
+    if (!isTyping) {
       setIsTyping(true);
-    } else if (e.target.value.length === 0 && isTyping) {
+      sendTyping(true);
+    }
+
+    clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
       sendTyping(false);
-    }
-  };
+    }, 1000);
+  }, [isTyping, sendTyping]);
 
-  const handleEmojiSelect = (emoji: string) => {
-    if (emoji.length === 1) {
-      // Single emoji - send as emoji message
-      sendMessage(emoji, 'emoji');
-    } else {
-      // Multiple emojis or text - add to input
-      setNewMessage(prev => prev + emoji);
-      inputRef.current?.focus();
-    }
-    setShowEmojiPicker(false);
-  };
-
-  const handleFileUpload = async (fileUpload: FileUpload) => {
+  const handleFileUpload = useCallback(async (file: File) => {
     try {
-      console.log('📁 Processing file upload:', fileUpload.file.name);
-      
-      if (keyExchangeComplete) {
-        // Encrypt the file
-        console.log('🔒 Encrypting file...');
-        const encryptedFile = await encryptFileForPartner(fileUpload.file);
-        
-        if (encryptedFile) {
-          const mediaContent: MediaContent = {
-            fileName: encryptedFile.fileName,
-            fileType: encryptedFile.fileType,
-            fileSize: encryptedFile.fileSize,
-            data: JSON.stringify(encryptedFile),
-            thumbnail: fileUpload.thumbnail
-          };
-          
-          sendMessage(JSON.stringify(mediaContent), fileUpload.type);
-          console.log('✅ Encrypted file sent');
-        } else {
-          console.error('❌ Failed to encrypt file');
-          alert('Failed to encrypt file. Please try again.');
-        }
-      } else {
-        // Send file without encryption (fallback)
-        console.log('📝 Sending file without encryption');
-        const reader = new FileReader();
-        reader.onload = () => {
-          const mediaContent: MediaContent = {
-            fileName: fileUpload.file.name,
-            fileType: fileUpload.file.type,
-            fileSize: fileUpload.file.size,
-            data: reader.result as string,
-            thumbnail: fileUpload.thumbnail
-          };
-          
-          sendMessage(JSON.stringify(mediaContent), fileUpload.type);
-        };
-        reader.readAsDataURL(fileUpload.file);
-      }
-    } catch (error) {
-      console.error('File upload error:', error);
-      alert('Failed to send file. Please try again.');
-    } finally {
+      await sendFile(file);
       setShowMediaUpload(false);
-    }
-  };
-
-  const handleDisconnect = async () => {
-    try {
-      const response = await fetch('/api/pairing/disconnect', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-
-      if (response.ok) {
-        onDisconnect();
-      }
     } catch (error) {
-      console.error('Disconnect error:', error);
+      console.error('Failed to send file:', error);
     }
-  };
+  }, [sendFile]);
 
-  const getEncryptionStatus = () => {
-    if (keyExchangeComplete) {
-      return {
-        icon: ShieldCheck,
-        text: 'End-to-end encrypted',
-        color: 'bg-green-500/20 text-green-300',
-        iconColor: 'text-green-400'
-      };
-    } else if (keyPair && !partnerPublicKey) {
-      return {
-        icon: AlertTriangle,
-        text: 'Awaiting partner keys',
-        color: 'bg-yellow-500/20 text-yellow-300',
-        iconColor: 'text-yellow-400'
-      };
-    } else {
-      return {
-        icon: AlertTriangle,
-        text: 'Setting up encryption',
-        color: 'bg-orange-500/20 text-orange-300',
-        iconColor: 'text-orange-400'
-      };
-    }
-  };
+  const addReaction = useCallback((messageId: string, emoji: string) => {
+    setMessageReactions(prev => ({
+      ...prev,
+      [messageId]: [...(prev[messageId] || []), emoji]
+    }));
+  }, []);
 
-  const encryptionStatus = getEncryptionStatus();
+  const quickActions = [
+    { icon: Phone, label: "Voice Call", action: () => console.log('Voice call') },
+    { icon: Video, label: "Video Call", action: () => console.log('Video call') },
+    { icon: Search, label: "Search", action: () => setShowSearch(!showSearch) },
+    { icon: Settings, label: "Settings", action: () => setShowTranslationSettings(true) }
+  ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const headerVariants = {
-    hidden: { y: -50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 30
-      }
-    }
-  };
-
-  const inputVariants = {
-    focused: {
-      scale: 1.02,
-      boxShadow: "0 0 20px rgba(139, 92, 246, 0.3)",
-      transition: { duration: 0.2 }
-    },
-    unfocused: {
-      scale: 1,
-      boxShadow: "0 0 0px rgba(139, 92, 246, 0)",
-      transition: { duration: 0.2 }
-    }
-  };
+  const quickReactions = ['❤️', '😊', '👍', '😂', '😮', '😢'];
 
   return (
-    <motion.div 
-      className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-blue-700 relative overflow-hidden prevent-horizontal-scroll"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Animated background elements */}
+    <div className="h-screen flex flex-col relative overflow-hidden">
+      {/* Animated background */}
       <motion.div 
-        className="absolute top-20 left-20 w-32 h-32 bg-white/5 rounded-full blur-xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
+        className="absolute inset-0"
+        style={{ background: currentTheme.bg }}
+        animate={{ opacity: [0.8, 1, 0.8] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div 
-        className="absolute bottom-32 right-32 w-24 h-24 bg-purple-300/10 rounded-full blur-lg"
-        animate={{
-          y: [-10, 10, -10],
-          x: [-5, 5, -5],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <motion.div variants={headerVariants}>
-          <Card className="glass bg-white/10 backdrop-blur-xl border-white/20 rounded-none border-0 border-b border-white/20 shadow-xl">
-            <CardHeader className="pb-4 px-4 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <motion.div 
-                    className="w-12 h-12 bg-gradient-to-br from-white/20 to-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <User className="w-6 h-6 text-white" />
-                  </motion.div>
-                  <div>
-                    <h2 className="text-white font-bold text-lg">{partner.email}</h2>
-                    <div className="flex items-center space-x-2 text-sm">
-                      <motion.div 
-                        className={`w-2 h-2 rounded-full ${partnerOnline ? 'bg-green-400' : 'bg-gray-400'}`}
-                        animate={{
-                          scale: partnerOnline ? [1, 1.2, 1] : 1,
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: partnerOnline ? Infinity : 0,
-                        }}
-                      />
-                      <span className="text-purple-200 font-medium">
-                        {partnerOnline ? 'Online' : 'Offline'}
-                      </span>
-                      <AnimatePresence>
-                        {partnerTyping && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <Badge variant="secondary" className="bg-white/20 text-purple-200 text-xs animate-pulse">
-                              <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                              >
-                                <Zap className="w-3 h-3 mr-1" />
-                              </motion.div>
-                              Typing...
-                            </Badge>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  {/* Translation status */}
-                  {translationSettings.enabled && (
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/20 text-xs">
-                      <Globe className="w-3 h-3 mr-1" />
-                      Translation ON
-                    </Badge>
-                  )}
-
-                  <Badge 
-                    variant="secondary" 
-                    className={`${encryptionStatus.color} border-0 text-xs transition-all duration-300`}
-                  >
-                    <encryptionStatus.icon className={`w-3 h-3 mr-1 ${encryptionStatus.iconColor}`} />
-                    {encryptionStatus.text}
-                  </Badge>
-
-                  <Badge 
-                    variant={isConnected ? "default" : "destructive"} 
-                    className={`${isConnected ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'} border-0 transition-all duration-300`}
-                  >
-                    {isConnected ? <Wifi className="w-3 h-3 mr-1" /> : <WifiOff className="w-3 h-3 mr-1" />}
-                    {isConnected ? 'Connected' : 'Disconnected'}
-                  </Badge>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowTranslationSettings(true)}
-                    className="text-purple-200 hover:text-white hover:bg-white/10 rounded-xl"
-                  >
-                    <Languages className="w-4 h-4" />
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleDisconnect}
-                    className="text-purple-200 hover:text-white hover:bg-white/10 rounded-xl"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </motion.div>
-
-        {/* Messages area */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full flex flex-col">
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.length === 0 ? (
-                <motion.div 
-                  className="flex flex-col items-center justify-center h-full text-center"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                >
-                  <div className="glass bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 max-w-md shadow-2xl">
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, 10, -10, 0],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ 
-                        duration: 4, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <MessageCircle className="w-16 h-16 text-white/60 mx-auto mb-6" />
-                    </motion.div>
-                    <h3 className="text-white font-bold text-xl mb-3">Secure Chat Active</h3>
-                    <p className="text-purple-200 text-base mb-6 leading-relaxed">
-                      Your connection is protected with end-to-end encryption. 
-                      Start the conversation with {partner.email}!
-                    </p>
-                    <div className="flex items-center justify-center space-x-6 text-sm text-purple-300">
-                      <motion.div 
-                        className="flex items-center"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        <encryptionStatus.icon className={`w-4 h-4 mr-2 ${encryptionStatus.iconColor}`} />
-                        E2EE
-                      </motion.div>
-                      <motion.div 
-                        className="flex items-center"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        <Users className="w-4 h-4 mr-2" />
-                        Private
-                      </motion.div>
-                      {translationSettings.enabled && (
-                        <motion.div 
-                          className="flex items-center"
-                          whileHover={{ scale: 1.1 }}
-                        >
-                          <Globe className="w-4 h-4 mr-2" />
-                          Translate
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  className="space-y-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <AnimatePresence>
-                    {messages.map((message, index) => (
-                      <motion.div
-                        key={message.id}
-                        className={`flex ${message.senderId === user?.id ? 'justify-end' : 'justify-start'} mb-4`}
-                        layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                      >
-                        <div className={`message-bubble ${message.senderId === user?.id ? 'order-2' : 'order-1'}`}>
-                          <MessageBubble
-                            message={message}
-                            isOwnMessage={message.senderId === user?.id}
-                            isEncrypted={keyExchangeComplete}
-                            onImageClick={setSelectedImage}
-                          />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                  <div ref={messagesEndRef} />
-                </motion.div>
-              )}
-            </div>
-
-            {/* Message input */}
-            <Card className="glass bg-white/10 backdrop-blur-xl border-white/20 rounded-none border-0 border-t border-white/20 shadow-xl">
-              <CardContent className="p-4">
-                <form onSubmit={handleSendMessage} className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex space-x-2">
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowMediaUpload(true)}
-                          className="text-purple-200 hover:text-white hover:bg-white/10 rounded-xl h-10 w-10"
-                        >
-                          <Paperclip className="w-5 h-5" />
-                        </Button>
-                      </motion.div>
-                      
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowEmojiPicker(true)}
-                          className="text-purple-200 hover:text-white hover:bg-white/10 rounded-xl h-10 w-10"
-                        >
-                          <Smile className="w-5 h-5" />
-                        </Button>
-                      </motion.div>
-                    </div>
-                    
-                    <motion.div 
-                      className="flex-1"
-                      variants={inputVariants}
-                      animate={messageComposerFocused ? "focused" : "unfocused"}
-                    >
-                      <Input
-                        ref={inputRef}
-                        value={newMessage}
-                        onChange={handleInputChange}
-                        onFocus={() => setMessageComposerFocused(true)}
-                        onBlur={() => setMessageComposerFocused(false)}
-                        placeholder="Type your message..."
-                        className="bg-white/10 border-white/20 text-white placeholder:text-purple-200 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm py-6 rounded-xl transition-all duration-300"
-                        disabled={!isConnected}
-                      />
-                    </motion.div>
-                    
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        type="submit"
-                        disabled={!newMessage.trim() || !isConnected}
-                        className="bg-gradient-to-r from-white to-white/90 text-purple-700 hover:from-white/90 hover:to-white/80 font-bold px-6 py-6 rounded-xl shadow-lg transition-all duration-300"
-                      >
-                        <Send className="w-5 h-5" />
-                      </Button>
-                    </motion.div>
-                  </div>
-
-                  {/* Security indicator */}
-                  <motion.div 
-                    className="flex items-center justify-center text-xs text-purple-300"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <Shield className="w-3 h-3 mr-1" />
-                    {keyExchangeComplete 
-                      ? 'Messages are end-to-end encrypted with AES-256'
-                      : 'Setting up end-to-end encryption...'}
-                    {translationSettings.enabled && (
-                      <>
-                        <span className="mx-2">•</span>
-                        <Globe className="w-3 h-3 mr-1" />
-                        Real-time translation enabled
-                      </>
-                    )}
-                  </motion.div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+      
+      {/* Floating elements for ambiance */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(4)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute w-4 h-4 rounded-full bg-white/10 backdrop-blur-sm`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 0.8, 0.3],
+              scale: [0.8, 1.2, 0.8]
+            }}
+            transition={{
+              duration: 6 + i * 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
       </div>
 
-      {/* Modals */}
-      <AnimatePresence>
-        {showMediaUpload && (
-          <motion.div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <MediaUpload
-              onFileSelect={handleFileUpload}
-              onClose={() => setShowMediaUpload(false)}
-            />
-          </motion.div>
-        )}
+      {/* Header */}
+      <motion.header 
+        className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-4">
+            <motion.div 
+              className="relative"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-white/20 to-white/10 rounded-[1.5rem] flex items-center justify-center border border-white/20">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              {partnerOnline && (
+                <motion.div 
+                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              )}
+            </motion.div>
+            
+            <div>
+              <h2 className="text-white font-semibold text-lg">{partner.email}</h2>
+              <div className="flex items-center space-x-2">
+                <motion.div 
+                  className={`w-2 h-2 rounded-full ${partnerOnline ? 'bg-green-400' : 'bg-gray-400'}`}
+                  animate={partnerOnline ? { opacity: [0.5, 1, 0.5] } : {}}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span className="text-white/70 text-sm">
+                  {partnerOnline ? 'Online' : 'Offline'}
+                  {partnerTyping && ' • typing...'}
+                </span>
+              </div>
+            </div>
+          </div>
 
+          <div className="flex items-center space-x-2">
+            {quickActions.map((action, index) => (
+              <motion.button
+                key={index}
+                onClick={action.action}
+                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-[1rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.9 }}
+                title={action.label}
+              >
+                <action.icon className="w-5 h-5" />
+              </motion.button>
+            ))}
+            
+            <motion.button
+              onClick={onDisconnect}
+              className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 rounded-[1rem] flex items-center justify-center text-red-300 hover:text-red-200 transition-all duration-200 backdrop-blur-sm"
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <LogOut className="w-5 h-5" />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Search bar */}
+        <AnimatePresence>
+          {showSearch && (
+            <motion.div
+              className="px-4 pb-4"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Input
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[1.5rem] backdrop-blur-sm"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Theme indicator */}
+        <motion.div 
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-white/10 rounded-[1rem] backdrop-blur-sm"
+          animate={{ y: [0, -2, 0] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <span className="text-white/80 text-xs font-medium">{currentTheme.name}</span>
+        </motion.div>
+      </motion.header>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10 scrollbar-hide">
+        <AnimatePresence mode="popLayout">
+          {filteredMessages.map((message, index) => (
+            <motion.div
+              key={`${message.id}-${index}`}
+              className={`flex ${message.senderEmail === user?.email ? 'justify-end' : 'justify-start'}`}
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.8 }}
+              transition={{ 
+                duration: 0.3, 
+                delay: index * 0.05,
+                type: "spring",
+                bounce: 0.3
+              }}
+              layout
+            >
+              <div className="max-w-xs lg:max-w-md relative group">
+                <motion.div
+                  className={`p-4 rounded-[2rem] backdrop-blur-sm border border-white/20 relative overflow-hidden ${
+                    message.senderEmail === user?.email
+                      ? `bg-gradient-to-br ${currentTheme.messageUser} text-white`
+                      : `bg-gradient-to-br ${currentTheme.messagePartner} text-white`
+                  }`}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {/* Message shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    animate={{
+                      x: [-100, 100],
+                      opacity: [0, 1, 0]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                  
+                  <MessageBubble 
+                    message={message} 
+                    isOwn={message.senderEmail === user?.email}
+                    onReact={(emoji) => addReaction(message.id, emoji)}
+                  />
+                  
+                  {/* Message reactions */}
+                  {messageReactions[message.id] && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {messageReactions[message.id].map((reaction, i) => (
+                        <motion.span
+                          key={i}
+                          className="text-sm bg-white/20 rounded-full px-2 py-1"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: i * 0.1 }}
+                        >
+                          {reaction}
+                        </motion.span>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Quick reactions on hover */}
+                <motion.div
+                  className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  initial={{ y: 10 }}
+                  whileHover={{ y: 0 }}
+                >
+                  {quickReactions.map((emoji, i) => (
+                    <motion.button
+                      key={i}
+                      onClick={() => addReaction(message.id, emoji)}
+                      className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <span className="text-sm">{emoji}</span>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        
+        {/* Typing indicator */}
+        <AnimatePresence>
+          {partnerTyping && (
+            <motion.div
+              className="flex justify-start"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <div className="bg-white/10 backdrop-blur-sm rounded-[2rem] px-4 py-3 border border-white/20">
+                <div className="flex space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-2 h-2 bg-white/60 rounded-full"
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        delay: i * 0.2
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input section */}
+      <motion.div 
+        className="relative z-10 p-4 bg-white/5 backdrop-blur-xl border-t border-white/20"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="flex items-end space-x-3">
+          <div className="flex space-x-2">
+            <motion.button
+              onClick={() => setShowMediaUpload(true)}
+              className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-[1.5rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Paperclip className="w-5 h-5" />
+            </motion.button>
+            
+            <motion.button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-[1.5rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Smile className="w-5 h-5" />
+            </motion.button>
+          </div>
+          
+          <div className="flex-1 relative">
+            <Input
+              ref={inputRef}
+              value={newMessage}
+              onChange={(e) => handleTyping(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Type a message..."
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[2rem] pr-12 h-12 backdrop-blur-sm focus:ring-2 focus:ring-white/30 transition-all duration-200"
+              disabled={!isConnected}
+              style={{ fontSize: '16px' }}
+            />
+            
+            {isTranslationEnabled && (
+              <motion.div 
+                className="absolute right-12 top-1/2 transform -translate-y-1/2"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <Languages className="w-4 h-4 text-white/60" />
+              </motion.div>
+            )}
+          </div>
+          
+          <motion.button
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim() || !isConnected}
+            className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 rounded-[1.5rem] flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Send className="w-5 h-5" />
+          </motion.button>
+        </div>
+
+        {/* Connection status */}
+        <AnimatePresence>
+          {!isConnected && (
+            <motion.div
+              className="mt-3 flex items-center justify-center space-x-2 text-red-300 text-sm"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <WifiOff className="w-4 h-4" />
+              <span>Connection lost. Reconnecting...</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Emoji Picker */}
+      <AnimatePresence>
         {showEmojiPicker && (
-          <motion.div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div
+            className="absolute bottom-20 left-4 z-50"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ duration: 0.3, type: "spring" }}
           >
             <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
+              onEmojiSelect={(emoji) => {
+                setNewMessage(prev => prev + emoji);
+                setShowEmojiPicker(false);
+              }}
               onClose={() => setShowEmojiPicker(false)}
             />
           </motion.div>
         )}
+      </AnimatePresence>
 
-        {showTranslationSettings && (
-          <TranslationSettings
-            onClose={() => setShowTranslationSettings(false)}
-          />
-        )}
-
-        {selectedImage && (
-          <motion.div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      {/* Media Upload */}
+      <AnimatePresence>
+        {showMediaUpload && (
+          <motion.div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
           >
-            <div className="relative max-w-4xl max-h-full">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 bg-black/50 text-white hover:bg-black/70 z-10 rounded-xl"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-              <motion.img
-                src={selectedImage}
-                alt="Full size"
-                className="max-w-full max-h-full rounded-xl shadow-2xl"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3, type: "spring" }}
+            >
+              <MediaUpload
+                onFileSelect={handleFileUpload}
+                onClose={() => setShowMediaUpload(false)}
               />
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+
+      {/* Translation Settings */}
+      <AnimatePresence>
+        {showTranslationSettings && (
+          <motion.div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3, type: "spring" }}
+            >
+              <TranslationSettings
+                onClose={() => setShowTranslationSettings(false)}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Security indicator */}
+      <motion.div 
+        className="fixed bottom-4 right-4 bg-green-500/20 backdrop-blur-md border border-green-400/50 text-green-300 px-3 py-2 rounded-[1.5rem] flex items-center space-x-2 z-40"
+        animate={{ y: [0, -2, 0] }}
+        transition={{ duration: 3, repeat: Infinity }}
+      >
+        <ShieldCheck className="w-4 h-4" />
+        <span className="text-xs font-medium">End-to-End Encrypted</span>
+      </motion.div>
+    </div>
   );
 }
