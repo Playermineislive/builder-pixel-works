@@ -224,6 +224,17 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
       >
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-4">
+            {onBack && (
+              <motion.button
+                onClick={onBack}
+                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-[1rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+                whileHover={{ scale: 1.1, x: -2 }}
+                whileTap={{ scale: 0.9 }}
+                title="Back to Contacts"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </motion.button>
+            )}
             <motion.div 
               className="relative"
               whileHover={{ scale: 1.1 }}
