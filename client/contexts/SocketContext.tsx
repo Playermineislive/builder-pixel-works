@@ -112,7 +112,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setPartnerPublicKey(data.publicKey);
       });
 
-      newSocket.on('message', (wsMessage: WebSocketMessage) => {
+      newSocket.on('message', async (wsMessage: WebSocketMessage) => {
         console.log('Received message:', wsMessage);
         
         switch (wsMessage.type) {
@@ -305,7 +305,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         console.log('📤 Sending message via socket:', content);
         socket.emit('send_message', { content: messageContent, type });
       } else {
-        console.log('📤 Sending message in fallback mode:', content);
+        console.log('�� Sending message in fallback mode:', content);
         // In fallback mode, messages are only stored locally
       }
     }
