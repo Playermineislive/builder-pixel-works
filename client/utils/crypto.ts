@@ -186,32 +186,31 @@ export function encryptFile(
   fileData: ArrayBuffer,
   fileName: string,
   fileType: string,
-  recipientPublicKey: string
+  sharedKey: string
 ): EncryptedFile {
   try {
     // Convert ArrayBuffer to Base64
     const base64Data = btoa(String.fromCharCode(...new Uint8Array(fileData)));
-    
-    // Generate random AES key and IV
-    const aesKey = CryptoJS.lib.WordArray.random(32);
+
+    // Generate random IV
     const iv = CryptoJS.lib.WordArray.random(16);
-    
+
+    // Create consistent key from shared key
+    const key = CryptoJS.SHA256(sharedKey);
+
     // Encrypt file data with AES-256
-    const encryptedData = CryptoJS.AES.encrypt(base64Data, aesKey, {
+    const encryptedData = CryptoJS.AES.encrypt(base64Data, key, {
       iv: iv,
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7
     }).toString();
-    
-    // Encrypt AES key with recipient's public key
-    const encryptedKey = CryptoJS.AES.encrypt(
-      aesKey.toString(CryptoJS.enc.Base64),
-      recipientPublicKey
-    ).toString();
-    
+
+    // Store key hash for verification
+    const keyHash = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Base64);
+
     return {
       encryptedData,
-      encryptedKey,
+      encryptedKey: keyHash,
       iv: iv.toString(CryptoJS.enc.Base64),
       fileName,
       fileType,
