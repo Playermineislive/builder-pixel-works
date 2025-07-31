@@ -10,6 +10,7 @@ import {
   EncryptedFile,
   isValidEncryptedMessage,
   isValidEncryptedFile,
+  cleanEncryptedMessage,
   fileToArrayBuffer,
   createBlobUrl
 } from '../utils/crypto';
