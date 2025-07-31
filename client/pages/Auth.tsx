@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -6,19 +6,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Loader2, 
-  Shield, 
-  MessageCircle, 
-  Lock, 
-  Eye, 
+import {
+  Loader2,
+  Shield,
+  MessageCircle,
+  Lock,
+  Eye,
   EyeOff,
   Sparkles,
   Zap,
   Globe,
   Users,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Mail,
+  KeyRound,
+  Fingerprint,
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Heart,
+  Star
 } from 'lucide-react';
 
 export default function Auth() {
@@ -31,6 +39,12 @@ export default function Auth() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   // Floating particles animation
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
@@ -44,7 +58,33 @@ export default function Auth() {
       delay: Math.random() * 2
     }));
     setParticles(newParticles);
+
+    // Listen for online/offline status
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
+
+  // Password strength calculation
+  useEffect(() => {
+    const calculateStrength = (pwd: string) => {
+      let strength = 0;
+      if (pwd.length >= 8) strength += 25;
+      if (/[a-z]/.test(pwd)) strength += 25;
+      if (/[A-Z]/.test(pwd)) strength += 25;
+      if (/[0-9]/.test(pwd)) strength += 15;
+      if (/[^a-zA-Z0-9]/.test(pwd)) strength += 10;
+      return Math.min(strength, 100);
+    };
+    setPasswordStrength(calculateStrength(password));
+  }, [password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,12 +103,27 @@ export default function Auth() {
       return;
     }
 
+    if (!isLogin && passwordStrength < 60) {
+      setError('Password is too weak. Please use a stronger password.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isOnline) {
+      setError('No internet connection. Please check your network.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const result = isLogin 
+      const result = isLogin
         ? await login(email, password)
         : await signup(email, password);
 
-      if (!result.success) {
+      if (result.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
         setError(result.message || 'An error occurred');
       }
     } catch (error) {
@@ -76,6 +131,30 @@ export default function Auth() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const focusInput = (field: 'email' | 'password' | 'confirmPassword') => {
+    const refs = {
+      email: emailRef,
+      password: passwordRef,
+      confirmPassword: confirmPasswordRef
+    };
+    refs[field]?.current?.focus();
+  };
+
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength >= 80) return 'bg-green-500';
+    if (passwordStrength >= 60) return 'bg-yellow-500';
+    if (passwordStrength >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength >= 80) return 'Very Strong';
+    if (passwordStrength >= 60) return 'Strong';
+    if (passwordStrength >= 40) return 'Medium';
+    if (passwordStrength >= 20) return 'Weak';
+    return 'Very Weak';
   };
 
   const toggleMode = () => {
@@ -183,9 +262,40 @@ export default function Auth() {
         style={{ animationDelay: '4s' }}
       />
 
+      {/* Network status indicator */}
+      <motion.div
+        className={`fixed top-4 right-4 z-50 flex items-center space-x-2 px-4 py-2 rounded-full backdrop-blur-md ${
+          isOnline ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
+        } border border-white/20`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+      >
+        {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+        <span className="text-sm font-medium">
+          {isOnline ? 'Online' : 'Offline'}
+        </span>
+      </motion.div>
+
+      {/* Success notification */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500/20 backdrop-blur-md border border-green-400/50 text-green-300 px-6 py-3 rounded-full flex items-center space-x-2"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.3 }}
+          >
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-medium">Success! Welcome to SecureChat</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
-        <motion.div 
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 touch-manipulation">
+        <motion.div
           className="w-full max-w-md space-y-8"
           variants={containerVariants}
           initial="hidden"
@@ -266,79 +376,121 @@ export default function Auth() {
                     )}
                   </AnimatePresence>
 
-                  <motion.div 
+                  <motion.div
                     className="space-y-2"
                     variants={itemVariants}
                   >
-                    <Label htmlFor="email" className="text-white font-semibold text-sm">
-                      Email address
+                    <Label htmlFor="email" className="text-white font-semibold text-sm flex items-center space-x-2">
+                      <Mail className="w-4 h-4" />
+                      <span>Email address</span>
                     </Label>
                     <motion.div
-                      className={`relative transition-all duration-300 ${
+                      className={`relative transition-all duration-300 cursor-pointer ${
                         focusedField === 'email' ? 'scale-105' : ''
                       }`}
+                      onClick={() => focusInput('email')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <Input
+                        ref={emailRef}
                         id="email"
                         type="email"
+                        autoComplete="email"
+                        inputMode="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setFocusedField('email')}
                         onBlur={() => setFocusedField(null)}
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-12 rounded-xl transition-all duration-300"
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-14 rounded-xl transition-all duration-300 text-lg pl-4 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent"
                         placeholder="Enter your email"
                         disabled={isLoading}
+                        style={{ fontSize: '16px' }} // Prevents zoom on iOS
                       />
                       <motion.div
-                        className="absolute inset-0 rounded-xl border-2 border-transparent"
+                        className="absolute inset-0 rounded-xl border-2 pointer-events-none"
                         animate={{
-                          borderColor: focusedField === 'email' ? 'rgba(255,255,255,0.4)' : 'transparent'
+                          borderColor: focusedField === 'email' ? 'rgba(255,255,255,0.4)' : 'transparent',
+                          boxShadow: focusedField === 'email' ? '0 0 20px rgba(255,255,255,0.2)' : 'none'
                         }}
                         transition={{ duration: 0.2 }}
                       />
                     </motion.div>
                   </motion.div>
 
-                  <motion.div 
-                    className="space-y-2"
+                  <motion.div
+                    className="space-y-3"
                     variants={itemVariants}
                   >
-                    <Label htmlFor="password" className="text-white font-semibold text-sm">
-                      Password
+                    <Label htmlFor="password" className="text-white font-semibold text-sm flex items-center space-x-2">
+                      <KeyRound className="w-4 h-4" />
+                      <span>Password</span>
                     </Label>
                     <motion.div
-                      className={`relative transition-all duration-300 ${
+                      className={`relative transition-all duration-300 cursor-pointer ${
                         focusedField === 'password' ? 'scale-105' : ''
                       }`}
+                      onClick={() => focusInput('password')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <Input
+                        ref={passwordRef}
                         id="password"
                         type={showPassword ? 'text' : 'password'}
+                        autoComplete={isLogin ? 'current-password' : 'new-password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setFocusedField('password')}
                         onBlur={() => setFocusedField(null)}
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-12 rounded-xl pr-12 transition-all duration-300"
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-14 rounded-xl pr-12 transition-all duration-300 text-lg pl-4 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent"
                         placeholder="Enter your password"
                         disabled={isLoading}
+                        style={{ fontSize: '16px' }} // Prevents zoom on iOS
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white hover:bg-white/10 h-8 w-8"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white hover:bg-white/10 h-10 w-10 rounded-lg"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </Button>
                       <motion.div
-                        className="absolute inset-0 rounded-xl border-2 border-transparent"
+                        className="absolute inset-0 rounded-xl border-2 pointer-events-none"
                         animate={{
-                          borderColor: focusedField === 'password' ? 'rgba(255,255,255,0.4)' : 'transparent'
+                          borderColor: focusedField === 'password' ? 'rgba(255,255,255,0.4)' : 'transparent',
+                          boxShadow: focusedField === 'password' ? '0 0 20px rgba(255,255,255,0.2)' : 'none'
                         }}
                         transition={{ duration: 0.2 }}
                       />
                     </motion.div>
+
+                    {/* Password strength indicator */}
+                    {!isLogin && password && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2"
+                      >
+                        <div className="flex justify-between text-xs text-white/70">
+                          <span>Password strength</span>
+                          <span className={passwordStrength >= 60 ? 'text-green-400' : 'text-yellow-400'}>
+                            {getPasswordStrengthText()}
+                          </span>
+                        </div>
+                        <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                          <motion.div
+                            className={`h-full rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${passwordStrength}%` }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
                   </motion.div>
 
                   <AnimatePresence>
@@ -354,28 +506,52 @@ export default function Auth() {
                           Confirm Password
                         </Label>
                         <motion.div
-                          className={`relative transition-all duration-300 ${
+                          className={`relative transition-all duration-300 cursor-pointer ${
                             focusedField === 'confirmPassword' ? 'scale-105' : ''
                           }`}
+                          onClick={() => focusInput('confirmPassword')}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                         >
                           <Input
+                            ref={confirmPasswordRef}
                             id="confirmPassword"
                             type={showPassword ? 'text' : 'password'}
+                            autoComplete="new-password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             onFocus={() => setFocusedField('confirmPassword')}
                             onBlur={() => setFocusedField(null)}
-                            className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-12 rounded-xl transition-all duration-300"
+                            className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/60 focus:bg-white/20 backdrop-blur-sm h-14 rounded-xl transition-all duration-300 text-lg pl-4 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent"
                             placeholder="Confirm your password"
                             disabled={isLoading}
+                            style={{ fontSize: '16px' }} // Prevents zoom on iOS
                           />
                           <motion.div
-                            className="absolute inset-0 rounded-xl border-2 border-transparent"
+                            className="absolute inset-0 rounded-xl border-2 pointer-events-none"
                             animate={{
-                              borderColor: focusedField === 'confirmPassword' ? 'rgba(255,255,255,0.4)' : 'transparent'
+                              borderColor: focusedField === 'confirmPassword' ? 'rgba(255,255,255,0.4)' : 'transparent',
+                              boxShadow: focusedField === 'confirmPassword' ? '0 0 20px rgba(255,255,255,0.2)' : 'none'
                             }}
                             transition={{ duration: 0.2 }}
                           />
+                          {/* Password match indicator */}
+                          {confirmPassword && (
+                            <motion.div
+                              className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${
+                                confirmPassword === password ? 'text-green-400' : 'text-red-400'
+                              }`}
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              {confirmPassword === password ? (
+                                <CheckCircle className="w-5 h-5" />
+                              ) : (
+                                <span className="text-xs font-bold">✕</span>
+                              )}
+                            </motion.div>
+                          )}
                         </motion.div>
                       </motion.div>
                     )}
