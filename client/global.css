@@ -2,6 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile input focus improvements */
+@layer base {
+  /* Prevent iOS zoom on input focus */
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    font-size: 16px;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+  }
+
+  /* Improve touch target sizes for mobile */
+  @media (max-width: 768px) {
+    input, button, textarea, select {
+      min-height: 48px;
+    }
+  }
+
+  /* Better focus handling on mobile */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth keyboard transitions */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Prevent viewport jumping on mobile keyboard */
+  @media screen and (max-width: 767px) {
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .viewport-fixed {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+}
+
 @layer base {
   /**
    * Tailwind CSS theme for secure chat application
