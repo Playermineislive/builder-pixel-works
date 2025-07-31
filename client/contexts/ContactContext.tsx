@@ -141,6 +141,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       const savedContacts = localStorage.getItem('secureChat_contacts');
       const savedGroups = localStorage.getItem('secureChat_groups');
       const savedRequests = localStorage.getItem('secureChat_pendingRequests');
+      const savedProfile = localStorage.getItem('secureChat_userProfile');
 
       if (savedContacts) {
         setContacts(JSON.parse(savedContacts));
@@ -150,6 +151,14 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       }
       if (savedRequests) {
         setPendingRequests(JSON.parse(savedRequests));
+      }
+      if (savedProfile && user) {
+        const profile = JSON.parse(savedProfile);
+        setUserProfile({
+          ...profile,
+          id: user.id,
+          email: user.email
+        });
       }
     } catch (error) {
       console.error('Failed to load saved data:', error);
