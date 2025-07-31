@@ -543,15 +543,53 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   const getRecentContacts = (): Contact[] => {
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-    
-    return contacts.filter(contact => 
-      contact.lastMessage && 
+
+    return contacts.filter(contact =>
+      contact.lastMessage &&
       new Date(contact.lastMessage.timestamp) > oneDayAgo
     ).sort((a, b) => {
       const aTime = a.lastMessage ? new Date(a.lastMessage.timestamp).getTime() : 0;
       const bTime = b.lastMessage ? new Date(b.lastMessage.timestamp).getTime() : 0;
       return bTime - aTime;
     });
+  };
+
+  const uploadProfilePicture = async (file: File): Promise<string | null> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file');
+        return null;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return null;
+      }
+
+      // Convert to base64 for storage
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Update user profile with new avatar
+      updateUserProfile({ avatar: base64 });
+
+      return base64;
+    } catch (error) {
+      console.error('Failed to upload profile picture:', error);
+      setError('Failed to upload profile picture');
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const value: ContactContextType = {
