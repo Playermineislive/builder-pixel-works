@@ -68,6 +68,22 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
     }
   }, []);
 
+  // Generate shared key whenever both public keys are available
+  useEffect(() => {
+    if (keyPair?.publicKey && partnerPublicKey && !sharedKey) {
+      console.log('🔑 Both public keys available, generating shared key...');
+      console.log('🔑 My public key length:', keyPair.publicKey.length);
+      console.log('🔑 Partner public key length:', partnerPublicKey.length);
+
+      // Create a consistent shared key by combining and hashing both public keys
+      const combinedKeys = [keyPair.publicKey, partnerPublicKey].sort().join('');
+      const generatedSharedKey = CryptoJS.SHA256(combinedKeys).toString();
+      setSharedKey(generatedSharedKey);
+      localStorage.setItem('sharedEncryptionKey', generatedSharedKey);
+      console.log('✅ Generated shared encryption key from public keys');
+    }
+  }, [keyPair?.publicKey, partnerPublicKey, sharedKey]);
+
   const generateKeys = async () => {
     try {
       console.log('Generating encryption keys...');
