@@ -38,6 +38,7 @@ interface EncryptionProviderProps {
 export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children }) => {
   const [keyPair, setKeyPair] = useState<KeyPair | null>(null);
   const [partnerPublicKey, setPartnerPublicKeyState] = useState<string | null>(null);
+  const [sharedKey, setSharedKey] = useState<string | null>(null);
   const [isKeysGenerated, setIsKeysGenerated] = useState(false);
 
   // Load keys from localStorage on mount
@@ -110,7 +111,7 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
       return null;
     }
 
-    console.log('🔓 Attempting to decrypt message with private key...');
+    console.log('�� Attempting to decrypt message with private key...');
     console.log('🔑 Private key length:', keyPair.privateKey.length);
     console.log('📦 Cleaned encrypted message structure:', {
       contentLength: cleanedMessage.encryptedContent.length,
