@@ -130,14 +130,15 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
     if (!newMessage.trim()) return;
 
     try {
-      const encryptedMessage = await encryptMessage(newMessage);
-      await sendMessage(encryptedMessage);
+      // For now, send messages as plain text since encryption is handled in SocketContext
+      // The SocketContext will handle encryption with available keys
+      sendMessage(newMessage, 'text');
       setNewMessage('');
       setIsTyping(false);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
-  }, [newMessage, encryptMessage, sendMessage]);
+  }, [newMessage, sendMessage]);
 
   const handleTyping = useCallback((value: string) => {
     setNewMessage(value);
