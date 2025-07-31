@@ -2,8 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile input focus improvements */
+/* Performance optimizations and smooth animations */
 @layer base {
+  /* Enable hardware acceleration for better performance */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Optimize animations with GPU acceleration */
+  .will-change-transform {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
   /* Prevent iOS zoom on input focus */
   input[type="email"],
   input[type="password"],
@@ -11,6 +25,7 @@
     font-size: 16px;
     -webkit-appearance: none;
     -webkit-border-radius: 0;
+    transform: translateZ(0); /* Force GPU acceleration */
   }
 
   /* Improve touch target sizes for mobile */
@@ -37,6 +52,7 @@
   @media screen and (max-width: 767px) {
     body {
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
 
     .viewport-fixed {
@@ -44,6 +60,59 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+    }
+  }
+
+  /* Smooth scrolling for better UX */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom rounded corners for unique design */
+  .rounded-unique {
+    border-radius: 2rem 0.5rem 2rem 0.5rem;
+  }
+
+  .rounded-organic {
+    border-radius: 3rem 1rem 2rem 1.5rem;
+  }
+
+  /* High performance blur backdrop */
+  .backdrop-blur-optimized {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transform: translateZ(0);
+  }
+
+  /* Smooth transitions for all interactive elements */
+  button, input, [role="button"] {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Optimized glow effects */
+  .glow-sm {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-md {
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-lg {
+    box-shadow: 0 0 60px rgba(255, 255, 255, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
     }
   }
 }
