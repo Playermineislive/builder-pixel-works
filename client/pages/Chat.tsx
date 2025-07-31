@@ -58,7 +58,7 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
     isConnected,
     sendFile 
   } = useSocket();
-  const { encryptMessage } = useEncryption();
+  // Encryption is handled in SocketContext
   const { 
     isTranslationEnabled, 
     targetLanguage, 
