@@ -101,17 +101,30 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const setPartnerPublicKey = (key: string) => {
+    console.log('🔑 setPartnerPublicKey called with key length:', key?.length);
+    console.log('🔑 Current keyPair status:', {
+      hasKeyPair: !!keyPair,
+      hasMyPublicKey: !!keyPair?.publicKey,
+      myKeyLength: keyPair?.publicKey?.length
+    });
+
     setPartnerPublicKeyState(key);
     localStorage.setItem('partnerPublicKey', key);
 
     // Generate shared key from both public keys
     if (keyPair?.publicKey && key) {
+      console.log('🔑 Generating shared key from both public keys...');
       // Create a consistent shared key by combining and hashing both public keys
       const combinedKeys = [keyPair.publicKey, key].sort().join('');
       const generatedSharedKey = CryptoJS.SHA256(combinedKeys).toString();
       setSharedKey(generatedSharedKey);
       localStorage.setItem('sharedEncryptionKey', generatedSharedKey);
-      console.log('🔑 Generated shared encryption key from public keys');
+      console.log('✅ Generated shared encryption key from public keys');
+    } else {
+      console.log('❌ Cannot generate shared key - missing keys:', {
+        hasMyKey: !!keyPair?.publicKey,
+        hasPartnerKey: !!key
+      });
     }
   };
 
