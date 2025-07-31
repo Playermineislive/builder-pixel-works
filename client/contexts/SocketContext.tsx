@@ -10,6 +10,7 @@ interface SocketContextType {
   isConnected: boolean;
   messages: ChatMessage[];
   sendMessage: (content: string, type?: string) => void;
+  sendFile: (file: File) => Promise<void>;
   sendTyping: (isTyping: boolean) => void;
   partnerTyping: boolean;
   partnerOnline: boolean;
