@@ -148,34 +148,31 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
             // Check if this is a text/emoji message and handle encryption/plain text
             if (wsMessage.data.type === 'text' || wsMessage.data.type === 'emoji') {
-              if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
-                console.log('🔓 Attempting to decrypt text message...');
-                console.log('🔐 Encrypted message details:', {
-                  hasContent: !!content.encryptedContent,
-                  hasKey: !!content.encryptedKey,
-                  hasIv: !!content.iv,
-                  contentLength: content.encryptedContent?.length,
-                  keyLength: content.encryptedKey?.length
-                });
+              if (typeof content === 'object' && content !== null) {
+                console.log('🔐 Received object content, checking if encrypted...');
 
-                try {
-                  const decryptedContent = decryptFromPartner(content as EncryptedMessage);
+                // Try to clean and validate the encrypted message
+                const cleanedEncrypted = cleanEncryptedMessage(content);
+                if (cleanedEncrypted) {
+                  console.log('🔓 Valid encrypted message detected, attempting decryption...');
+
+                  const decryptedContent = decryptFromPartner(cleanedEncrypted);
                   if (decryptedContent && decryptedContent.length > 0) {
                     console.log('✅ Successfully decrypted text message, length:', decryptedContent.length);
                     content = decryptedContent;
                   } else {
                     console.warn('⚠️ Decryption returned empty/null content');
-                    content = '🔒 [Encrypted message - decryption returned empty]';
+                    content = '🔒 [Encrypted message - unable to decrypt]';
                   }
-                } catch (error) {
-                  console.error('❌ Text decryption error:', error);
-                  // Provide more specific error messages based on the error type
-                  if (error.message.includes('UTF-8') || error.message.includes('malformed')) {
-                    content = '🔒 [Encrypted message - data corrupted or key mismatch]';
-                  } else if (error.message.includes('key')) {
-                    content = '🔒 [Encrypted message - invalid encryption key]';
-                  } else {
-                    content = `🔒 [Encrypted message - ${error.message}]`;
+                } else {
+                  // Not a valid encrypted message, try to handle as plain object
+                  console.log('📝 Object is not encrypted, converting to string...');
+                  try {
+                    content = JSON.stringify(content);
+                    console.log('📝 Converted object to JSON string');
+                  } catch {
+                    content = String(content);
+                    console.log('📝 Converted object to string');
                   }
                 }
               } else if (typeof content === 'string') {
@@ -183,13 +180,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 // Content is already plain text, no decryption needed
               } else {
                 console.warn('⚠️ Unexpected content format for text message:', typeof content, content);
-                try {
-                  content = JSON.stringify(content);
-                  console.log('📝 Converted to JSON string');
-                } catch {
-                  content = String(content);
-                  console.log('📝 Converted to string');
-                }
+                content = String(content);
+                console.log('📝 Converted to string as fallback');
               }
             } else if (wsMessage.data.type && ['image', 'video', 'file'].includes(wsMessage.data.type)) {
               console.log('📁 Processing media message...');
