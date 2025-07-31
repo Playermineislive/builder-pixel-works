@@ -158,14 +158,14 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const encryptFileForPartner = async (file: File): Promise<EncryptedFile | null> => {
-    if (!partnerPublicKey) {
-      console.error('No partner public key available for file encryption');
+    if (!sharedKey) {
+      console.error('No shared key available for file encryption');
       return null;
     }
 
     try {
       const arrayBuffer = await fileToArrayBuffer(file);
-      return encryptFile(arrayBuffer, file.name, file.type, partnerPublicKey);
+      return encryptFile(arrayBuffer, file.name, file.type, sharedKey);
     } catch (error) {
       console.error('Failed to encrypt file:', error);
       return null;
@@ -173,8 +173,8 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const decryptFileFromPartner = async (encryptedFile: EncryptedFile): Promise<string | null> => {
-    if (!keyPair?.privateKey) {
-      console.error('No private key available for file decryption');
+    if (!sharedKey) {
+      console.error('No shared key available for file decryption');
       return null;
     }
 
@@ -184,7 +184,7 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
     }
 
     try {
-      const decryptedData = decryptFile(encryptedFile, keyPair.privateKey);
+      const decryptedData = decryptFile(encryptedFile, sharedKey);
       return createBlobUrl(decryptedData, encryptedFile.fileType);
     } catch (error) {
       console.error('Failed to decrypt file:', error);
