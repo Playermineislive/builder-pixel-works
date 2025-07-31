@@ -526,6 +526,21 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                   </span>
                                 </motion.div>
                               )}
+
+                              {!isSelectionMode && (
+                                <motion.button
+                                  className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setRenamingContact(contact);
+                                  }}
+                                  title="Rename Contact"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </motion.button>
+                              )}
                             </div>
                           </div>
                         </CardContent>
