@@ -95,11 +95,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       // Set up connection timeout fallback
       const connectionTimeout = setTimeout(() => {
         if (!newSocket.connected) {
-          console.log('⚠️ Socket connection timeout, using fallback mode');
+          console.log('⚠️ Socket connection timeout, enabling fallback mode');
           setIsConnected(true); // Allow chat to work without real-time features
           setPartnerOnline(true); // Assume partner is online for better UX
+          console.log('📝 Fallback mode: Messages will be stored locally only');
         }
-      }, 3000);
+      }, 5000); // Increased timeout to 5 seconds
 
       newSocket.on('disconnect', () => {
         console.log('Disconnected from chat server');
