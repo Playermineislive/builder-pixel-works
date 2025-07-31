@@ -1,11 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { 
-  generateKeyPair, 
-  encryptMessage, 
-  decryptMessage, 
-  KeyPair, 
+import {
+  generateKeyPair,
+  encryptMessage,
+  decryptMessage,
+  encryptFile,
+  decryptFile,
+  KeyPair,
   EncryptedMessage,
-  isValidEncryptedMessage 
+  EncryptedFile,
+  isValidEncryptedMessage,
+  isValidEncryptedFile,
+  fileToArrayBuffer,
+  createBlobUrl
 } from '../utils/crypto';
 
 interface EncryptionContextType {
