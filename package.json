@@ -18,7 +18,8 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@google-cloud/translate": "^9.2.0",
@@ -91,7 +92,9 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "framer-motion": "^12.23.12",
+    "gh-pages": "^6.3.0",
     "globals": "^15.9.0",
+    "html-webpack-plugin": "^5.6.3",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
@@ -114,6 +117,9 @@
     "typescript": "^5.5.3",
     "vaul": "^0.9.3",
     "vite": "^6.2.2",
-    "vitest": "^3.1.4"
+    "vitest": "^3.1.4",
+    "webpack-cli": "^6.0.1",
+    "predeploy": "npm run build:client",
+    "deploy": "gh-pages -d dist/spa"
   }
 }
