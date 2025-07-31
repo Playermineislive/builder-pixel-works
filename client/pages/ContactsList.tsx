@@ -498,13 +498,16 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-2">
                                   <h3 className="text-white font-medium truncate">
-                                    {contact.username || contact.email}
+                                    {contact.displayName || contact.username || contact.email}
                                   </h3>
                                   {contact.isFavorite && (
                                     <Heart className="w-4 h-4 text-red-400 fill-current" />
                                   )}
+                                  {contact.displayName && (
+                                    <Edit2 className="w-3 h-3 text-white/50" />
+                                  )}
                                 </div>
-                                
+
                                 <p className="text-white/60 text-sm truncate">
                                   {contact.lastMessage?.content || contact.email}
                                 </p>
