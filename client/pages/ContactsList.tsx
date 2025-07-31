@@ -7,14 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Users, 
-  Search, 
-  Plus, 
-  MessageCircle, 
-  UserPlus, 
-  Copy, 
-  Check, 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import ProfileSettings from '../components/ProfileSettings';
+import ContactRename from '../components/ContactRename';
+import {
+  Users,
+  Search,
+  Plus,
+  MessageCircle,
+  UserPlus,
+  Copy,
+  Check,
   QrCode,
   Shield,
   Star,
@@ -30,7 +33,9 @@ import {
   Sparkles,
   Send,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Edit2,
+  User
 } from 'lucide-react';
 
 interface ContactsListProps {
