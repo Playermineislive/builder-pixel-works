@@ -25,14 +25,15 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const { token, isAuthenticated, user } = useAuth();
-  const { 
-    keyPair, 
-    partnerPublicKey, 
-    encryptForPartner, 
-    decryptFromPartner, 
+  const {
+    keyPair,
+    partnerPublicKey,
+    encryptForPartner,
+    decryptFromPartner,
+    decryptFileFromPartner,
     setPartnerPublicKey,
     generateKeys,
-    isKeysGenerated 
+    isKeysGenerated
   } = useEncryption();
   
   const [socket, setSocket] = useState<Socket | null>(null);
