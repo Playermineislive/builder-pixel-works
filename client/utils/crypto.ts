@@ -54,33 +54,33 @@ export async function generateKeyPair(): Promise<KeyPair> {
 }
 
 /**
- * Encrypt a text message using AES-256
+ * Encrypt a text message using AES-256 with shared key
  */
 export function encryptMessage(
   message: string,
-  recipientPublicKey: string
+  sharedKey: string
 ): EncryptedMessage {
   try {
-    // Generate random AES key and IV
-    const aesKey = CryptoJS.lib.WordArray.random(32); // 256 bits
+    // Generate random IV
     const iv = CryptoJS.lib.WordArray.random(16); // 128 bits
-    
+
+    // Create a consistent key from the shared key
+    const key = CryptoJS.SHA256(sharedKey);
+
     // Encrypt message with AES-256
-    const encryptedContent = CryptoJS.AES.encrypt(message, aesKey, {
+    const encryptedContent = CryptoJS.AES.encrypt(message, key, {
       iv: iv,
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7
     }).toString();
-    
-    // Encrypt AES key with recipient's public key (simplified)
-    const encryptedKey = CryptoJS.AES.encrypt(
-      aesKey.toString(CryptoJS.enc.Base64),
-      recipientPublicKey
-    ).toString();
-    
+
+    // For symmetric encryption, we don't need to encrypt the key separately
+    // Just use a hash of the shared key as verification
+    const keyHash = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Base64);
+
     return {
       encryptedContent,
-      encryptedKey,
+      encryptedKey: keyHash, // Store key hash for verification
       iv: iv.toString(CryptoJS.enc.Base64)
     };
   } catch (error) {
