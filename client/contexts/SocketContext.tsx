@@ -29,6 +29,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const {
     keyPair,
     partnerPublicKey,
+    sharedKey,
     encryptForPartner,
     decryptFromPartner,
     decryptFileFromPartner,
