@@ -137,21 +137,31 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
             // Handle encrypted/plain text messages and media
             console.log('📦 Processing received message...', { type: wsMessage.data.type });
+            console.log('📦 Content type:', typeof content, 'Content:', content);
 
-            if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
-              console.log('🔓 Attempting to decrypt text message...');
-              try {
-                const decryptedContent = decryptFromPartner(content as EncryptedMessage);
-                if (decryptedContent) {
-                  console.log('✅ Successfully decrypted text message');
-                  content = decryptedContent;
-                } else {
-                  console.error('❌ Failed to decrypt text message');
-                  content = '[Message could not be decrypted]';
+            // Check if this is a text/emoji message and if it's encrypted
+            if (wsMessage.data.type === 'text' || wsMessage.data.type === 'emoji') {
+              if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
+                console.log('🔓 Attempting to decrypt text message...');
+                try {
+                  const decryptedContent = decryptFromPartner(content as EncryptedMessage);
+                  if (decryptedContent) {
+                    console.log('✅ Successfully decrypted text message');
+                    content = decryptedContent;
+                  } else {
+                    console.error('❌ Failed to decrypt text message - no result from decryption');
+                    content = '[Message could not be decrypted]';
+                  }
+                } catch (error) {
+                  console.error('❌ Text decryption error:', error);
+                  content = '[Decryption failed]';
                 }
-              } catch (error) {
-                console.error('❌ Text decryption error:', error);
-                content = '[Decryption failed]';
+              } else if (typeof content === 'string') {
+                console.log('📝 Received plain text message');
+                // Content is already plain text, no decryption needed
+              } else {
+                console.warn('⚠️ Unexpected content format for text message:', content);
+                content = String(content);
               }
             } else if (wsMessage.data.type && ['image', 'video', 'file'].includes(wsMessage.data.type)) {
               console.log('📁 Processing media message...');
