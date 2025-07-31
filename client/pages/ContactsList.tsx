@@ -274,10 +274,11 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             </motion.button>
 
             <motion.button
+              onClick={() => setShowProfileSettings(true)}
               className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-[1rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              title="Settings"
+              title="Profile Settings"
             >
               <Settings className="w-5 h-5" />
             </motion.button>
