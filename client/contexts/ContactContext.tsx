@@ -170,6 +170,9 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       localStorage.setItem('secureChat_contacts', JSON.stringify(contacts));
       localStorage.setItem('secureChat_groups', JSON.stringify(groups));
       localStorage.setItem('secureChat_pendingRequests', JSON.stringify(pendingRequests));
+      if (userProfile) {
+        localStorage.setItem('secureChat_userProfile', JSON.stringify(userProfile));
+      }
     } catch (error) {
       console.error('Failed to save data:', error);
     }
