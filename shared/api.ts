@@ -59,9 +59,23 @@ export interface Connection {
 export interface ChatMessage {
   id: string;
   senderId: string;
-  content: string; // This will be encrypted on the client side
+  content: string | MediaContent; // Can be text or media
   timestamp: string;
-  type: 'text' | 'typing' | 'status';
+  type: 'text' | 'image' | 'video' | 'file' | 'emoji' | 'typing' | 'status';
+}
+
+export interface MediaContent {
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  data: string; // Base64 or encrypted data
+  thumbnail?: string; // For videos/images
+}
+
+export interface FileUpload {
+  file: File;
+  type: 'image' | 'video' | 'file';
+  thumbnail?: string;
 }
 
 // Real-time WebSocket message types
