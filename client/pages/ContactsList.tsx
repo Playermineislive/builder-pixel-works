@@ -636,6 +636,24 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Profile Settings Modal */}
+      <AnimatePresence>
+        {showProfileSettings && (
+          <ProfileSettings onClose={() => setShowProfileSettings(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Contact Rename Modal */}
+      <AnimatePresence>
+        {renamingContact && (
+          <ContactRename
+            contact={renamingContact}
+            onRename={renameContact}
+            onClose={() => setRenamingContact(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
