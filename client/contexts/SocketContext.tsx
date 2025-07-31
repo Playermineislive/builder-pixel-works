@@ -314,9 +314,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
       // Encrypt message if keys are available and it's a text/emoji message
       console.log('🔐 Key exchange complete:', keyExchangeComplete);
-      console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
+      console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey, hasSharedKey: !!sharedKey });
 
-      if (keyExchangeComplete && (type === 'text' || type === 'emoji')) {
+      if (keyExchangeComplete && sharedKey && (type === 'text' || type === 'emoji')) {
         console.log('🔒 Encryption available - encrypting text/emoji message...');
         try {
           const encrypted = encryptForPartner(content);
