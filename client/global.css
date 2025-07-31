@@ -99,13 +99,20 @@
 }
 
 @layer components {
-  /* Glassmorphism effects */
+  /* Enhanced glassmorphism effects */
   .glass {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    transition: all 0.3s ease;
+  }
+
+  .glass:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+    transform: translateY(-2px);
   }
 
   .glass-dark {
@@ -116,22 +123,67 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
-  /* Chat message animations */
+  /* Enhanced chat message animations */
   .message-appear {
-    animation: messageAppear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: messageAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .message-bubble {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .message-bubble:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
   .typing-indicator {
     animation: pulse 1.5s infinite;
   }
 
-  /* Gradient backgrounds */
+  /* Enhanced gradient backgrounds */
   .gradient-primary {
     background: linear-gradient(135deg, hsl(var(--chat-primary)) 0%, hsl(var(--chat-secondary)) 100%);
   }
 
   .gradient-card {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  }
+
+  /* Floating animation for elements */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  /* Shimmer effect for loading states */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  /* Glow effect */
+  .glow {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+
+  .glow-strong {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+  }
+
+  /* Smooth focus ring */
+  .focus-ring {
+    transition: box-shadow 0.2s ease;
+  }
+
+  .focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
   }
 }
 
