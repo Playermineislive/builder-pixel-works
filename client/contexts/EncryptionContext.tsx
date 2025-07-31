@@ -131,8 +131,22 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const decryptFromPartner = (encryptedMessage: EncryptedMessage): string | null => {
+    console.log('🔓 Decryption attempt - Key status:', {
+      hasKeyPair: !!keyPair,
+      hasMyPublicKey: !!keyPair?.publicKey,
+      hasPartnerPublicKey: !!partnerPublicKey,
+      hasSharedKey: !!sharedKey,
+      myKeyLength: keyPair?.publicKey?.length,
+      partnerKeyLength: partnerPublicKey?.length
+    });
+
     if (!sharedKey) {
-      console.error('No shared key available for decryption');
+      console.error('❌ No shared key available for decryption');
+      console.error('🔍 Debug info:', {
+        keyPair: !!keyPair,
+        partnerPublicKey: !!partnerPublicKey,
+        sharedKey: !!sharedKey
+      });
       return null;
     }
 
