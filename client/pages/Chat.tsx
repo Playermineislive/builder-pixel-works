@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Send, 
-  Shield, 
-  Users, 
-  LogOut, 
-  Wifi, 
+import {
+  Send,
+  Shield,
+  Users,
+  LogOut,
+  Wifi,
   WifiOff,
   MessageCircle,
   User,
@@ -34,13 +34,15 @@ import {
   Star,
   Heart,
   Coffee,
-  Music
+  Music,
+  ArrowLeft
 } from 'lucide-react';
 import { ChatMessage, FileUpload, MediaContent } from '@shared/api';
 import MessageBubble from '../components/MessageBubble';
 import MediaUpload from '../components/MediaUpload';
 import EmojiPicker from '../components/EmojiPicker';
 import TranslationSettings from '../components/TranslationSettings';
+import DebugPanel from '../components/DebugPanel';
 
 interface ChatProps {
   partner: { id: string; email: string };
