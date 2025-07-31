@@ -97,17 +97,71 @@ export function decryptMessage(
   privateKey: string
 ): string {
   try {
+    // Validate input
+    if (!encryptedMessage || !privateKey) {
+      throw new Error('Missing encryption parameters');
+    }
+
+    if (!encryptedMessage.encryptedContent || !encryptedMessage.encryptedKey || !encryptedMessage.iv) {
+      throw new Error('Invalid encrypted message structure');
+    }
+
+    console.log('🔓 Starting decryption process...');
+    console.log('🔑 Encrypted key length:', encryptedMessage.encryptedKey.length);
+    console.log('�� Encrypted content length:', encryptedMessage.encryptedContent.length);
+    console.log('🔐 IV:', encryptedMessage.iv);
+
     // Decrypt the AES key
     const decryptedKeyBytes = CryptoJS.AES.decrypt(
       encryptedMessage.encryptedKey,
       privateKey
     );
-    const aesKeyString = decryptedKeyBytes.toString(CryptoJS.enc.Utf8);
-    const aesKey = CryptoJS.enc.Base64.parse(aesKeyString);
-    
+
+    // Check if key decryption was successful
+    if (!decryptedKeyBytes || decryptedKeyBytes.sigBytes <= 0) {
+      throw new Error('Failed to decrypt AES key');
+    }
+
+    // Convert to UTF-8 with error handling
+    let aesKeyString: string;
+    try {
+      aesKeyString = decryptedKeyBytes.toString(CryptoJS.enc.Utf8);
+      if (!aesKeyString || aesKeyString.length === 0) {
+        throw new Error('Decrypted key is empty');
+      }
+    } catch (utf8Error) {
+      console.error('UTF-8 conversion failed for AES key:', utf8Error);
+      throw new Error('Invalid key format - UTF-8 conversion failed');
+    }
+
+    console.log('🔑 AES key decrypted successfully, length:', aesKeyString.length);
+
+    // Parse the AES key from Base64
+    let aesKey: CryptoJS.lib.WordArray;
+    try {
+      aesKey = CryptoJS.enc.Base64.parse(aesKeyString);
+      if (!aesKey || aesKey.sigBytes <= 0) {
+        throw new Error('Invalid Base64 key format');
+      }
+    } catch (base64Error) {
+      console.error('Base64 parsing failed for AES key:', base64Error);
+      throw new Error('Invalid AES key Base64 format');
+    }
+
     // Parse IV
-    const iv = CryptoJS.enc.Base64.parse(encryptedMessage.iv);
-    
+    let iv: CryptoJS.lib.WordArray;
+    try {
+      iv = CryptoJS.enc.Base64.parse(encryptedMessage.iv);
+      if (!iv || iv.sigBytes <= 0) {
+        throw new Error('Invalid IV format');
+      }
+    } catch (ivError) {
+      console.error('IV parsing failed:', ivError);
+      throw new Error('Invalid IV Base64 format');
+    }
+
+    console.log('🔐 IV parsed successfully');
+
     // Decrypt the message
     const decryptedMessage = CryptoJS.AES.decrypt(
       encryptedMessage.encryptedContent,
@@ -118,11 +172,39 @@ export function decryptMessage(
         padding: CryptoJS.pad.Pkcs7
       }
     );
-    
-    return decryptedMessage.toString(CryptoJS.enc.Utf8);
+
+    // Check if decryption was successful
+    if (!decryptedMessage || decryptedMessage.sigBytes <= 0) {
+      throw new Error('Message decryption failed - no data');
+    }
+
+    // Convert to UTF-8 with error handling
+    let plaintext: string;
+    try {
+      plaintext = decryptedMessage.toString(CryptoJS.enc.Utf8);
+      if (!plaintext || plaintext.length === 0) {
+        throw new Error('Decrypted message is empty');
+      }
+    } catch (utf8Error) {
+      console.error('UTF-8 conversion failed for message:', utf8Error);
+      // Try Latin1 as fallback
+      try {
+        plaintext = decryptedMessage.toString(CryptoJS.enc.Latin1);
+        console.warn('⚠️ Used Latin1 fallback for message decoding');
+        if (!plaintext || plaintext.length === 0) {
+          throw new Error('Fallback decoding also failed');
+        }
+      } catch (fallbackError) {
+        console.error('Fallback decoding failed:', fallbackError);
+        throw new Error('Message contains malformed data - unable to decode');
+      }
+    }
+
+    console.log('✅ Message decrypted successfully, length:', plaintext.length);
+    return plaintext;
   } catch (error) {
     console.error('Decryption failed:', error);
-    throw new Error('Failed to decrypt message');
+    throw new Error(`Failed to decrypt message: ${error.message}`);
   }
 }
 
