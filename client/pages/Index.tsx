@@ -314,7 +314,8 @@ export default function Index() {
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <ContactProvider>
+      <AnimatePresence mode="wait">
       {appState === 'contacts' && (
         <motion.div
           key="contacts"
@@ -384,6 +385,7 @@ export default function Index() {
           </SocketProvider>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ContactProvider>
   );
 }
