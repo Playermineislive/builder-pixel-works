@@ -101,33 +101,37 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
       return null;
     }
 
-    if (!isValidEncryptedMessage(encryptedMessage)) {
-      console.error('Invalid encrypted message format:', encryptedMessage);
+    // Clean and validate the encrypted message
+    const cleanedMessage = cleanEncryptedMessage(encryptedMessage);
+    if (!cleanedMessage) {
+      console.error('❌ Invalid or corrupted encrypted message format');
+      console.error('📦 Original message:', encryptedMessage);
       return null;
     }
 
     console.log('🔓 Attempting to decrypt message with private key...');
     console.log('🔑 Private key length:', keyPair.privateKey.length);
-    console.log('📦 Encrypted message structure:', {
-      hasContent: !!encryptedMessage.encryptedContent,
-      hasKey: !!encryptedMessage.encryptedKey,
-      hasIv: !!encryptedMessage.iv,
-      contentLength: encryptedMessage.encryptedContent?.length,
-      keyLength: encryptedMessage.encryptedKey?.length,
-      ivLength: encryptedMessage.iv?.length
+    console.log('📦 Cleaned encrypted message structure:', {
+      contentLength: cleanedMessage.encryptedContent.length,
+      keyLength: cleanedMessage.encryptedKey.length,
+      ivLength: cleanedMessage.iv.length
     });
 
     try {
-      const result = decryptMessage(encryptedMessage, keyPair.privateKey);
-      console.log('✅ Decryption successful in EncryptionContext');
+      const result = decryptMessage(cleanedMessage, keyPair.privateKey);
+      console.log('✅ Decryption successful in EncryptionContext, result length:', result.length);
       return result;
     } catch (error) {
       console.error('❌ Failed to decrypt message in EncryptionContext:', error);
 
-      // Check if this might be a key mismatch
+      // Check if this might be a key mismatch or data corruption
       if (error.message.includes('UTF-8') || error.message.includes('malformed')) {
-        console.error('🔑 Possible key mismatch or corrupted data');
-        console.error('🔑 This might happen if messages were encrypted with different keys');
+        console.error('🔑 Data corruption detected - UTF-8 conversion failed');
+        console.error('🔑 This usually means wrong decryption key or corrupted data');
+      } else if (error.message.includes('key')) {
+        console.error('🔑 Key-related error - possible key mismatch');
+      } else if (error.message.includes('Base64')) {
+        console.error('📦 Base64 encoding issue - data may be corrupted');
       }
 
       return null;
