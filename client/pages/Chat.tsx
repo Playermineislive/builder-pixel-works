@@ -45,6 +45,7 @@ import TranslationSettings from '../components/TranslationSettings';
 interface ChatProps {
   partner: { id: string; email: string };
   onDisconnect: () => void;
+  onBack?: () => void;
 }
 
 export default function Chat({ partner, onDisconnect }: ChatProps) {
