@@ -22,7 +22,8 @@ const App = () => (
     <AuthProvider>
       <EncryptionProvider>
         <TranslationProvider>
-          <TooltipProvider>
+          <ContactProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -34,7 +35,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </TooltipProvider>
+            </TooltipProvider>
+          </ContactProvider>
         </TranslationProvider>
       </EncryptionProvider>
     </AuthProvider>
