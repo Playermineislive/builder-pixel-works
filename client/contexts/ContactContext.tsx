@@ -256,9 +256,22 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   };
 
   const updateContact = (contactId: string, updates: Partial<Contact>) => {
-    setContacts(prev => prev.map(contact => 
+    setContacts(prev => prev.map(contact =>
       contact.id === contactId ? { ...contact, ...updates } : contact
     ));
+  };
+
+  const renameContact = (contactId: string, newName: string) => {
+    setContacts(prev => prev.map(contact =>
+      contact.id === contactId ? { ...contact, displayName: newName.trim() } : contact
+    ));
+  };
+
+  const updateUserProfile = (updates: { username?: string; avatar?: string }) => {
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, ...updates };
+      setUserProfile(updatedProfile);
+    }
   };
 
   const createGroup = (name: string, members: Contact[]): Group => {
