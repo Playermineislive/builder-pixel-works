@@ -240,11 +240,27 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
             
-            <div>
-              <h1 className="text-2xl font-bold text-white">SecureChat</h1>
-              <p className="text-white/70 text-sm">
-                {isOnline ? `${getOnlineContacts().length} online` : 'Offline'}
-              </p>
+            <div className="flex items-center space-x-3">
+              <motion.div
+                onClick={() => setShowProfileSettings(true)}
+                className="cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Avatar className="w-12 h-12 border-2 border-white/20">
+                  <AvatarImage src={userProfile?.avatar} />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-400 to-blue-500 text-white font-bold">
+                    {userProfile?.username?.charAt(0) || userProfile?.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.div>
+
+              <div>
+                <h1 className="text-2xl font-bold text-white">SecureChat</h1>
+                <p className="text-white/70 text-sm">
+                  {isOnline ? `${getOnlineContacts().length} online` : 'Offline'}
+                </p>
+              </div>
             </div>
           </div>
 
