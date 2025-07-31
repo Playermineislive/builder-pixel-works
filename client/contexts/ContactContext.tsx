@@ -67,12 +67,26 @@ interface ContactContextType {
   groups: Group[];
   pendingRequests: Contact[];
   currentInviteCode: InviteCode | null;
+  userProfile: {
+    id: string;
+    email: string;
+    username?: string;
+    avatar?: string;
+  } | null;
   addContact: (contact: Contact) => void;
   removeContact: (contactId: string) => void;
   updateContact: (contactId: string, updates: Partial<Contact>) => void;
+  renameContact: (contactId: string, newName: string) => void;
+  updateUserProfile: (updates: { username?: string; avatar?: string }) => void;
   createGroup: (name: string, members: Contact[]) => Group;
   updateGroup: (groupId: string, updates: Partial<Group>) => void;
+  renameGroup: (groupId: string, newName: string) => void;
+  addGroupAdmin: (groupId: string, userId: string) => void;
+  removeGroupAdmin: (groupId: string, userId: string) => void;
+  removeGroupMember: (groupId: string, userId: string) => void;
+  updateGroupSettings: (groupId: string, settings: Partial<Group['settings']>) => void;
   generateNewInviteCode: () => void;
+  forceRefreshInviteCode: () => void; // Instant refresh button
   addFriendByCode: (code: string, userInfo: { email: string; username?: string }) => Promise<boolean>;
   searchContacts: (query: string) => Contact[];
   getFavoriteContacts: () => Contact[];
@@ -81,6 +95,7 @@ interface ContactContextType {
   sendFriendRequest: (email: string) => Promise<boolean>;
   acceptFriendRequest: (contactId: string) => void;
   rejectFriendRequest: (contactId: string) => void;
+  uploadProfilePicture: (file: File) => Promise<string | null>;
   isLoading: boolean;
   error: string | null;
 }
