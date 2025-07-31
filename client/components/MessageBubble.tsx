@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage, MediaContent } from '@shared/api';
 import { useTranslation } from '../contexts/TranslationContext';
@@ -17,444 +17,371 @@ import {
   Volume2,
   Copy,
   MoreHorizontal,
-  Globe
+  Globe,
+  Heart,
+  Star,
+  Sparkles,
+  Clock,
+  Check,
+  CheckCheck,
+  Edit,
+  Reply,
+  Forward
 } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: ChatMessage;
-  isOwnMessage: boolean;
-  isEncrypted: boolean;
+  isOwn: boolean;
+  onReact?: (emoji: string) => void;
   onImageClick?: (imageUrl: string) => void;
 }
 
-export default function MessageBubble({ 
+// Memoized component for better performance
+const MessageBubble = memo(({ 
   message, 
-  isOwnMessage, 
-  isEncrypted,
+  isOwn, 
+  onReact,
   onImageClick 
-}: MessageBubbleProps) {
+}: MessageBubbleProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [textCopied, setTextCopied] = useState(false);
 
   const { 
-    settings, 
+    isTranslationEnabled,
+    targetLanguage,
     translateMessage, 
-    getLanguageByCode,
-    isTranslating: globalTranslating 
+    getLanguageByCode
   } = useTranslation();
 
   // Auto-translate incoming messages if enabled
   useEffect(() => {
-    if (
-      !isOwnMessage && 
-      settings.enabled && 
-      settings.translateIncoming && 
-      message.type === 'text' &&
-      typeof message.content === 'string'
-    ) {
+    if (isTranslationEnabled && !isOwn && message.content && !translatedText) {
       handleTranslate();
     }
-  }, [message, settings, isOwnMessage]);
+  }, [isTranslationEnabled, isOwn, message.content, translatedText]);
 
-  const handleTranslate = async () => {
-    if (typeof message.content !== 'string' || isTranslating) return;
+  const handleTranslate = useCallback(async () => {
+    if (!message.content || isTranslating) return;
 
     setIsTranslating(true);
     try {
-      const result = await translateMessage(message.content);
-      if (result && result.translatedText !== message.content) {
-        setTranslatedText(result.translatedText);
-        setShowTranslation(true);
-      }
+      const translated = await translateMessage(message.content, targetLanguage);
+      setTranslatedText(translated);
+      setShowTranslation(true);
     } catch (error) {
       console.error('Translation failed:', error);
     } finally {
       setIsTranslating(false);
     }
-  };
+  }, [message.content, isTranslating, translateMessage, targetLanguage]);
 
-  const handleCopy = () => {
-    const textToCopy = showTranslation && translatedText ? translatedText : message.content;
-    navigator.clipboard.writeText(textToCopy as string);
-  };
-
-  const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
-
-  const bubbleVariants = {
-    hidden: { 
-      opacity: 0, 
-      scale: 0.8, 
-      x: isOwnMessage ? 50 : -50 
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 30,
-        duration: 0.3
-      }
+  const handleCopyText = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setTextCopied(true);
+      setTimeout(() => setTextCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy text:', error);
     }
+  }, [message.content]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
+
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  const renderTextMessage = () => (
-    <motion.div
-      className="space-y-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      {/* Original text */}
-      <p className="text-sm leading-relaxed">
-        {message.content as string}
-      </p>
-
-      {/* Translation */}
-      <AnimatePresence>
-        {showTranslation && translatedText && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`
-              p-3 rounded-xl border-l-4 
-              ${isOwnMessage 
-                ? 'bg-white/10 border-purple-200' 
-                : 'bg-white/20 border-blue-300'
-              }
-            `}
-          >
-            <div className="flex items-center space-x-2 mb-1">
-              <Globe className="w-3 h-3 text-blue-300" />
-              <span className="text-xs text-blue-300 font-medium">
-                Translated to {getLanguageByCode(settings.targetLanguage)?.name}
-              </span>
-            </div>
-            <p className="text-sm leading-relaxed text-blue-100">
-              {translatedText}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Timestamp and actions */}
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center space-x-2">
-          <span className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-            {formatTime(message.timestamp)}
-          </span>
-          
-          {/* Translation controls */}
-          {settings.enabled && message.type === 'text' && (
-            <div className="flex items-center space-x-1">
-              {!isOwnMessage && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleTranslate}
-                  disabled={isTranslating}
-                  className={`
-                    h-6 w-6 p-0 rounded-md
-                    ${isOwnMessage 
-                      ? 'hover:bg-purple-200/20 text-purple-200' 
-                      : 'hover:bg-white/20 text-purple-300'
-                    }
-                  `}
-                >
-                  <Languages className="w-3 h-3" />
-                </Button>
-              )}
-              
-              {translatedText && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowTranslation(!showTranslation)}
-                  className={`
-                    h-6 w-6 p-0 rounded-md
-                    ${showTranslation ? 'bg-blue-500/20' : ''}
-                    ${isOwnMessage 
-                      ? 'hover:bg-purple-200/20 text-purple-200' 
-                      : 'hover:bg-white/20 text-purple-300'
-                    }
-                  `}
-                >
-                  <Globe className="w-3 h-3" />
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            className={`
-              h-6 w-6 p-0 rounded-md
-              ${isOwnMessage 
-                ? 'hover:bg-purple-200/20 text-purple-200' 
-                : 'hover:bg-white/20 text-purple-300'
-              }
-            `}
-          >
-            <Copy className="w-3 h-3" />
-          </Button>
-          
-          {isEncrypted && (
-            <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const renderEmojiMessage = () => (
-    <motion.div 
-      className="text-center space-y-2"
-      whileHover={{ scale: 1.1 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-    >
-      <motion.span 
-        className="text-4xl block"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 500, damping: 20 }}
-      >
-        {message.content as string}
-      </motion.span>
-      <div className="flex items-center justify-between">
-        <span className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-          {formatTime(message.timestamp)}
-        </span>
-        {isEncrypted && (
-          <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-        )}
-      </div>
-    </motion.div>
-  );
-
-  const renderImageMessage = () => {
-    const media = message.content as MediaContent;
-    
-    return (
-      <motion.div 
-        className="space-y-2"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="relative group">
-          {imageError ? (
-            <div className="w-48 h-32 bg-gray-200/20 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-8 h-8 text-gray-400" />
-            </div>
-          ) : (
-            <motion.img
-              src={media.thumbnail || media.data}
-              alt={media.fileName}
-              className={`
-                max-w-48 max-h-64 rounded-lg cursor-pointer transition-opacity
-                ${imageLoaded ? 'opacity-100' : 'opacity-0'}
-              `}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-              onClick={() => onImageClick?.(media.data)}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            />
-          )}
-          
-          {!imageLoaded && !imageError && (
-            <div className="absolute inset-0 bg-gray-200/20 rounded-lg animate-pulse" />
-          )}
-          
-          <motion.div
-            className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-lg transition-colors duration-200 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-black/50 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => onImageClick?.(media.data)}
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
-          </motion.div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-300 truncate max-w-32">{media.fileName}</p>
-            <p className="text-xs text-gray-400">{formatFileSize(media.fileSize)}</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-              {formatTime(message.timestamp)}
-            </span>
-            {isEncrypted && (
-              <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  const renderVideoMessage = () => {
-    const media = message.content as MediaContent;
-    
-    return (
-      <motion.div 
-        className="space-y-2"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="relative group">
-          <video
-            className="max-w-48 max-h-64 rounded-lg"
-            controls
-            poster={media.thumbnail}
-          >
-            <source src={media.data} type={media.fileType} />
-            Your browser does not support the video tag.
-          </video>
-          
-          <Badge className="absolute top-2 left-2 bg-black/70 text-white border-0">
-            <Play className="w-3 h-3 mr-1" />
-            Video
-          </Badge>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-300 truncate max-w-32">{media.fileName}</p>
-            <p className="text-xs text-gray-400">{formatFileSize(media.fileSize)}</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-              {formatTime(message.timestamp)}
-            </span>
-            {isEncrypted && (
-              <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  const renderFileMessage = () => {
-    const media = message.content as MediaContent;
-    
-    return (
-      <motion.div 
-        className="space-y-2"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.div 
-          className="flex items-center space-x-3 p-3 bg-white/10 rounded-lg"
-          whileHover={{ scale: 1.02 }}
-          transition={{ duration: 0.2 }}
-        >
-          <FileText className="w-8 h-8 text-gray-300" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{media.fileName}</p>
-            <p className="text-xs text-gray-400">{formatFileSize(media.fileSize)}</p>
-          </div>
-          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
-            <Download className="w-4 h-4" />
-          </Button>
-        </motion.div>
-        
-        <div className="flex items-center justify-between">
-          <span className={`text-xs ${isOwnMessage ? 'text-purple-100' : 'text-purple-200'}`}>
-            {formatTime(message.timestamp)}
-          </span>
-          {isEncrypted && (
-            <ShieldCheck className={`w-3 h-3 ${isOwnMessage ? 'text-purple-200' : 'text-purple-300'}`} />
-          )}
-        </div>
-      </motion.div>
-    );
-  };
-
-  const renderMessageContent = () => {
-    switch (message.type) {
-      case 'text':
-        return renderTextMessage();
-      case 'emoji':
-        return renderEmojiMessage();
-      case 'image':
-        return renderImageMessage();
-      case 'video':
-        return renderVideoMessage();
-      case 'file':
-        return renderFileMessage();
-      default:
-        return renderTextMessage();
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+      return ImageIcon;
     }
+    return FileText;
   };
+
+  const messageActions = [
+    { icon: Reply, label: 'Reply', action: () => console.log('Reply') },
+    { icon: Forward, label: 'Forward', action: () => console.log('Forward') },
+    { icon: Copy, label: 'Copy', action: handleCopyText },
+    { icon: Languages, label: 'Translate', action: handleTranslate },
+    { icon: Star, label: 'Star', action: () => console.log('Star') }
+  ];
 
   return (
     <motion.div
-      variants={bubbleVariants}
-      initial="hidden"
-      animate="visible"
-      className={`
-        px-4 py-3 rounded-2xl backdrop-blur-sm relative group
-        ${isOwnMessage 
-          ? 'bg-gradient-to-br from-purple-500/80 to-violet-600/80 text-white ml-auto' 
-          : 'bg-white/20 text-white border border-white/30'
-        }
-        ${message.type === 'emoji' ? 'bg-transparent border-0' : ''}
-        max-w-xs lg:max-w-md
-      `}
-      whileHover={{ 
-        scale: 1.02,
-        transition: { duration: 0.2 }
-      }}
+      className="relative group"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      layout
     >
-      {/* Translation indicator */}
-      {isTranslating && (
+      {/* Message container */}
+      <motion.div
+        className={`relative p-4 backdrop-blur-sm border border-white/20 overflow-hidden ${
+          isOwn 
+            ? 'rounded-[2rem_0.5rem_2rem_2rem] ml-auto' 
+            : 'rounded-[0.5rem_2rem_2rem_2rem] mr-auto'
+        }`}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ 
+          duration: 0.3, 
+          type: "spring", 
+          bounce: 0.3 
+        }}
+        whileHover={{ 
+          scale: 1.02,
+          y: -2,
+          transition: { duration: 0.2 }
+        }}
+      >
+        {/* Animated shimmer effect */}
         <motion.div
-          className="absolute -top-2 -right-2"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0 }}
-        >
-          <Badge className="bg-blue-500 text-white text-xs animate-pulse">
-            <Languages className="w-3 h-3 mr-1" />
-            Translating...
-          </Badge>
-        </motion.div>
-      )}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+          animate={{
+            x: [-100, 200],
+            opacity: [0, 0.5, 0]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
 
-      {renderMessageContent()}
+        {/* Message content */}
+        <div className="relative z-10">
+          {/* File/Media content */}
+          {message.media && (
+            <motion.div 
+              className="mb-3"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              {message.media.type === 'image' ? (
+                <motion.div 
+                  className="relative rounded-[1.5rem] overflow-hidden cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => onImageClick?.(message.media!.url)}
+                >
+                  {!imageLoaded && !imageError && (
+                    <div className="w-48 h-32 bg-white/10 rounded-[1.5rem] flex items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <ImageIcon className="w-6 h-6 text-white/60" />
+                      </motion.div>
+                    </div>
+                  )}
+                  
+                  {imageError ? (
+                    <div className="w-48 h-32 bg-red-500/20 rounded-[1.5rem] flex items-center justify-center border border-red-400/50">
+                      <AlertCircle className="w-6 h-6 text-red-400" />
+                    </div>
+                  ) : (
+                    <img
+                      src={message.media.url}
+                      alt="Shared image"
+                      className="max-w-xs rounded-[1.5rem] shadow-lg"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                      style={{ display: imageLoaded ? 'block' : 'none' }}
+                    />
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div 
+                  className="flex items-center space-x-3 p-3 bg-white/10 rounded-[1.5rem] border border-white/20"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {React.createElement(getFileIcon(message.media.fileName), {
+                    className: "w-8 h-8 text-white/70 flex-shrink-0"
+                  })}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium truncate">{message.media.fileName}</p>
+                    <p className="text-white/60 text-sm">{message.media.size} bytes</p>
+                  </div>
+                  <motion.button
+                    className="p-2 bg-white/10 hover:bg-white/20 rounded-[1rem] transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Download className="w-4 h-4 text-white/70" />
+                  </motion.button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Text content */}
+          {message.content && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <p className="text-white leading-relaxed break-words">
+                {message.content}
+              </p>
+
+              {/* Translation */}
+              <AnimatePresence>
+                {showTranslation && translatedText && (
+                  <motion.div
+                    className="mt-3 p-3 bg-white/10 rounded-[1.5rem] border border-white/20"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Globe className="w-4 h-4 text-blue-400" />
+                      <span className="text-white/70 text-xs font-medium">
+                        Translated to {getLanguageByCode(targetLanguage)?.name}
+                      </span>
+                    </div>
+                    <p className="text-white/90 text-sm leading-relaxed">
+                      {translatedText}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Translation loading */}
+              {isTranslating && (
+                <motion.div
+                  className="mt-2 flex items-center space-x-2 text-white/60"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Languages className="w-4 h-4" />
+                  </motion.div>
+                  <span className="text-xs">Translating...</span>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Message metadata */}
+          <motion.div 
+            className="flex items-center justify-between mt-3 pt-2 border-t border-white/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="flex items-center space-x-2">
+              <Clock className="w-3 h-3 text-white/50" />
+              <span className="text-white/50 text-xs">
+                {formatTime(message.timestamp)}
+              </span>
+              
+              {/* Encryption indicator */}
+              <motion.div 
+                className="flex items-center space-x-1"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <ShieldCheck className="w-3 h-3 text-green-400" />
+              </motion.div>
+            </div>
+
+            {/* Message status for own messages */}
+            {isOwn && (
+              <motion.div
+                className="flex items-center space-x-1"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, type: "spring" }}
+              >
+                <CheckCheck className="w-4 h-4 text-blue-400" />
+              </motion.div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Hover actions */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              className={`absolute top-0 ${isOwn ? 'left-0' : 'right-0'} transform ${
+                isOwn ? '-translate-x-full' : 'translate-x-full'
+              } flex flex-col space-y-1 p-2`}
+              initial={{ opacity: 0, x: isOwn ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isOwn ? 20 : -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {messageActions.slice(0, 3).map((action, index) => (
+                <motion.button
+                  key={index}
+                  onClick={action.action}
+                  className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-[0.8rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  title={action.label}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <action.icon className="w-4 h-4" />
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Copy confirmation */}
+        <AnimatePresence>
+          {textCopied && (
+            <motion.div
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/20 backdrop-blur-md border border-green-400/50 text-green-300 px-3 py-1 rounded-[1rem] text-xs font-medium"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              Copied!
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Reaction button */}
+      {onReact && (
+        <motion.button
+          className={`absolute -bottom-2 ${isOwn ? 'left-4' : 'right-4'} w-6 h-6 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200 backdrop-blur-sm opacity-0 group-hover:opacity-100`}
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.8 }}
+          onClick={() => onReact('❤️')}
+        >
+          <Heart className="w-3 h-3" />
+        </motion.button>
+      )}
     </motion.div>
   );
-}
+});
+
+MessageBubble.displayName = 'MessageBubble';
+
+export default MessageBubble;
