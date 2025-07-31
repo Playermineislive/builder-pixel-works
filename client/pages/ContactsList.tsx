@@ -16,7 +16,6 @@ import {
   Copy, 
   Check, 
   QrCode,
-  Globe,
   Shield,
   Star,
   Clock,
@@ -24,13 +23,9 @@ import {
   WifiOff,
   RefreshCw,
   Settings,
-  Filter,
   ArrowLeft,
-  Video,
-  Phone,
   MoreVertical,
   Heart,
-  Zap,
   Crown,
   Sparkles,
   Send,
@@ -158,7 +153,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   const handleAddFriendByCode = async () => {
     if (!addFriendCode.trim()) return;
     
-    // For demo purposes, we'll create a simulated user
     const success = await addFriendByCode(addFriendCode, {
       email: `user_${addFriendCode.toLowerCase()}@example.com`,
       username: `User ${addFriendCode}`
@@ -219,31 +213,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-32 h-32 rounded-full bg-white/5 backdrop-blur-sm"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`
-            }}
-            animate={{
-              x: [0, 30, 0],
-              y: [0, -30, 0],
-              opacity: [0.3, 0.6, 0.3],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{
-              duration: 8 + i * 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </div>
-
       {/* Header */}
       <motion.header 
         className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20"
@@ -429,47 +398,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 </motion.button>
               );
             })}
-          </div>
+          </motion.div>
         )}
-
-        {/* Selection mode header */}
-        <AnimatePresence>
-          {isSelectionMode && (
-            <motion.div
-              className="bg-blue-500/20 border-t border-blue-400/30 px-4 py-3"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-white text-sm">
-                  {selectedContacts.length} contact{selectedContacts.length !== 1 ? 's' : ''} selected
-                </span>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setIsSelectionMode(false);
-                      setSelectedContacts([]);
-                    }}
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleCreateGroup}
-                    disabled={selectedContacts.length < 1}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Create Group
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Success/Error Messages */}
         <AnimatePresence>
@@ -525,19 +455,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         }`}
                         onClick={() => handleSelectContact(contact)}
                       >
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
-                          animate={{
-                            x: [-100, 100],
-                            opacity: [0, 1, 0]
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                        
                         <CardContent className="p-4 relative z-10">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
@@ -550,15 +467,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                   animate={contact.isOnline ? { scale: [1, 1.2, 1] } : {}}
                                   transition={{ duration: 2, repeat: Infinity }}
                                 />
-                                {contact.isPinned && (
-                                  <motion.div 
-                                    className="absolute -top-1 -left-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center"
-                                    animate={{ rotate: [0, 10, -10, 0] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                  >
-                                    <Crown className="w-2 h-2 text-white" />
-                                  </motion.div>
-                                )}
                               </div>
                               
                               <div className="flex-1 min-w-0">
@@ -569,64 +477,26 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                   {contact.isFavorite && (
                                     <Heart className="w-4 h-4 text-red-400 fill-current" />
                                   )}
-                                  {contact.isTyping && (
-                                    <motion.div
-                                      animate={{ opacity: [0.5, 1, 0.5] }}
-                                      transition={{ duration: 1, repeat: Infinity }}
-                                      className="text-blue-400 text-xs"
-                                    >
-                                      typing...
-                                    </motion.div>
-                                  )}
                                 </div>
                                 
                                 <p className="text-white/60 text-sm truncate">
                                   {contact.lastMessage?.content || contact.email}
                                 </p>
-                                
-                                <div className="flex items-center space-x-2 mt-1">
-                                  {contact.tags?.map((tag, i) => (
-                                    <Badge key={i} variant="outline" className="bg-white/10 text-white/70 text-xs border-white/20">
-                                      {tag}
-                                    </Badge>
-                                  ))}
-                                </div>
                               </div>
                             </div>
                             
                             <div className="flex flex-col items-end space-y-2">
-                              {contact.lastMessage && (
-                                <span className="text-white/50 text-xs">
-                                  {formatLastSeen(contact.lastMessage.timestamp)}
-                                </span>
+                              {contact.unreadCount! > 0 && (
+                                <motion.div
+                                  className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+                                  animate={{ scale: [1, 1.1, 1] }}
+                                  transition={{ duration: 1, repeat: Infinity }}
+                                >
+                                  <span className="text-white text-xs font-bold">
+                                    {contact.unreadCount}
+                                  </span>
+                                </motion.div>
                               )}
-                              
-                              <div className="flex items-center space-x-2">
-                                {contact.unreadCount! > 0 && (
-                                  <motion.div
-                                    className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 1, repeat: Infinity }}
-                                  >
-                                    <span className="text-white text-xs font-bold">
-                                      {contact.unreadCount}
-                                    </span>
-                                  </motion.div>
-                                )}
-                                
-                                {!isSelectionMode && (
-                                  <motion.button
-                                    className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200"
-                                    whileHover={{ scale: 1.1, rotate: 90 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                    }}
-                                  >
-                                    <MoreVertical className="w-4 h-4" />
-                                  </motion.button>
-                                )}
-                              </div>
                             </div>
                           </div>
                         </CardContent>
@@ -658,182 +528,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               </motion.div>
             )}
 
-            {activeTab === 'groups' && (
-              <motion.div
-                key="groups"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3"
-              >
-                {filteredGroups.map((group, index) => (
-                  <motion.div
-                    key={group.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer relative overflow-hidden">
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
-                        animate={{
-                          x: [-100, 100],
-                          opacity: [0, 1, 0]
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
-                      
-                      <CardContent className="p-4 relative z-10">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
-                                <MessageCircle className="w-6 h-6" />
-                              </div>
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
-                                {group.members.length}
-                              </div>
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-2">
-                                <h3 className="text-white font-medium truncate">{group.name}</h3>
-                                {group.isPrivate && (
-                                  <Shield className="w-4 h-4 text-yellow-400" />
-                                )}
-                              </div>
-                              <p className="text-white/60 text-sm truncate">
-                                {group.lastMessage?.content || group.description}
-                              </p>
-                              <p className="text-white/50 text-xs">
-                                {group.members.length} member{group.members.length !== 1 ? 's' : ''}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end space-y-2">
-                            {group.lastMessage && (
-                              <span className="text-white/50 text-xs">
-                                {formatLastSeen(group.lastMessage.timestamp)}
-                              </span>
-                            )}
-                            
-                            {group.unreadCount! > 0 && (
-                              <motion.div
-                                className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
-                                animate={{ scale: [1, 1.1, 1] }}
-                                transition={{ duration: 1, repeat: Infinity }}
-                              >
-                                <span className="text-white text-xs font-bold">
-                                  {group.unreadCount}
-                                </span>
-                              </motion.div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-                
-                {filteredGroups.length === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-12"
-                  >
-                    <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">No groups found</h3>
-                    <p className="text-white/60 text-sm mb-4">
-                      {searchQuery ? 'Try adjusting your search' : 'Create your first group chat'}
-                    </p>
-                    <Button
-                      onClick={() => setIsSelectionMode(true)}
-                      className="bg-green-500 hover:bg-green-600 text-white"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Group
-                    </Button>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-
-            {activeTab === 'requests' && (
-              <motion.div
-                key="requests"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3"
-              >
-                {pendingRequests.map((request, index) => (
-                  <motion.div
-                    key={request.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                  >
-                    <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
-                              {request.username?.charAt(0) || request.email.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <h3 className="text-white font-medium">
-                                {request.username || request.email}
-                              </h3>
-                              <p className="text-white/60 text-sm">Wants to connect</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              onClick={() => acceptFriendRequest(request.id)}
-                              className="bg-green-500 hover:bg-green-600 text-white"
-                            >
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => rejectFriendRequest(request.id)}
-                              className="border-red-400/50 text-red-400 hover:bg-red-500/20"
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-                
-                {pendingRequests.length === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-12"
-                  >
-                    <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">No pending requests</h3>
-                    <p className="text-white/60 text-sm">Friend requests will appear here</p>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-
             {activeTab === 'invites' && (
               <motion.div
                 key="invites"
@@ -843,21 +537,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Your invite code */}
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20 relative overflow-hidden">
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                    animate={{
-                      x: [-100, 100],
-                      opacity: [0, 1, 0]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                  
                   <CardHeader className="relative z-10">
                     <CardTitle className="text-white flex items-center space-x-2">
                       <QrCode className="w-5 h-5" />
@@ -873,7 +553,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         Share this code with friends to connect securely
                       </p>
                       <p className="text-white/50 text-xs mt-2">
-                        Code refreshes daily • {currentInviteCode?.currentUses || 0}/{currentInviteCode?.maxUses || 0} uses
+                        Code refreshes daily
                       </p>
                     </div>
                     
@@ -905,42 +585,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         New Code
                       </Button>
                     </div>
-                    
-                    <AnimatePresence>
-                      {showQRCode && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-white rounded-[1.5rem] p-4 text-center"
-                        >
-                          <div className="w-32 h-32 bg-black/10 rounded-[1rem] mx-auto flex items-center justify-center">
-                            <QrCode className="w-16 h-16 text-black/50" />
-                          </div>
-                          <p className="text-black/60 text-sm mt-2">
-                            QR Code for {currentInviteCode?.code}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </CardContent>
-                </Card>
-
-                {/* Recent activity */}
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center space-x-2">
-                      <Clock className="w-5 h-5" />
-                      <span>Recent Activity</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Sparkles className="w-12 h-12 text-white/30 mx-auto mb-3" />
-                      <p className="text-white/60 text-sm">
-                        No recent invite activity
-                      </p>
-                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -948,21 +592,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Connection status */}
-      <AnimatePresence>
-        {!isOnline && (
-          <motion.div
-            className="fixed bottom-4 left-4 right-4 bg-red-500/20 backdrop-blur-md border border-red-400/50 text-red-300 px-4 py-3 rounded-[1.5rem] flex items-center justify-center space-x-2 z-50"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-          >
-            <WifiOff className="w-4 h-4" />
-            <span className="text-sm font-medium">You're offline</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
