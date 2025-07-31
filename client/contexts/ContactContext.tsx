@@ -123,9 +123,17 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
   // Initialize invite code and load saved data
   useEffect(() => {
-    loadSavedData();
-    generateInitialInviteCode();
-    startInviteCodeRotation();
+    if (user) {
+      setUserProfile({
+        id: user.id,
+        email: user.email,
+        username: user.username || user.email.split('@')[0],
+        avatar: undefined
+      });
+      loadSavedData();
+      generateInitialInviteCode();
+      startInviteCodeRotation();
+    }
   }, [user]);
 
   const loadSavedData = () => {
