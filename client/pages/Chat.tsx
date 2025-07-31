@@ -78,6 +78,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
   const [showSearch, setShowSearch] = useState(false);
   const [messageReactions, setMessageReactions] = useState<{[key: string]: string[]}>({});
   const [chatTheme, setChatTheme] = useState(0);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
