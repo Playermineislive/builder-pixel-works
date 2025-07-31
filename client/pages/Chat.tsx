@@ -594,8 +594,15 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
         )}
       </AnimatePresence>
 
+      {/* Debug Panel */}
+      <AnimatePresence>
+        {showDebugPanel && (
+          <DebugPanel onClose={() => setShowDebugPanel(false)} />
+        )}
+      </AnimatePresence>
+
       {/* Security indicator */}
-      <motion.div 
+      <motion.div
         className="fixed bottom-4 right-4 bg-green-500/20 backdrop-blur-md border border-green-400/50 text-green-300 px-3 py-2 rounded-[1.5rem] flex items-center space-x-2 z-40"
         animate={{ y: [0, -2, 0] }}
         transition={{ duration: 3, repeat: Infinity }}
