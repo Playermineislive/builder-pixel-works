@@ -164,6 +164,8 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
     setPartnerPublicKey,
     encryptForPartner,
     decryptFromPartner,
+    encryptFileForPartner,
+    decryptFileFromPartner,
     clearKeys,
   };
 
