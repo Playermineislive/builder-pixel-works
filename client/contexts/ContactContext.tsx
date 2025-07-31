@@ -6,6 +6,7 @@ export interface Contact {
   id: string;
   email: string;
   username?: string;
+  displayName?: string; // Custom name set by user
   avatar?: string;
   isOnline: boolean;
   lastSeen?: string;
@@ -24,15 +25,35 @@ export interface Contact {
   };
 }
 
+export interface GroupMember extends Contact {
+  role: 'admin' | 'member';
+  joinedAt: string;
+  permissions: {
+    canInvite: boolean;
+    canRemoveMembers: boolean;
+    canEditGroup: boolean;
+    canDeleteMessages: boolean;
+  };
+}
+
 export interface Group {
   id: string;
   name: string;
+  displayName?: string; // Custom name set by user
   description?: string;
   avatar?: string;
   isPrivate: boolean;
   createdAt: string;
   createdBy: string;
-  members: Contact[];
+  members: GroupMember[];
+  admins: string[]; // Array of user IDs who are admins
+  settings: {
+    allowMemberInvites: boolean;
+    requireAdminApproval: boolean;
+    allowMemberMessages: boolean;
+    encryptionLevel: 'standard' | 'enhanced';
+    allowNameChange: boolean;
+  };
   unreadCount?: number;
   lastMessage?: {
     content: string;
