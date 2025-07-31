@@ -191,16 +191,16 @@ export default function Chat({ partner, onDisconnect }: ChatProps) {
     } else if (keyPair && !partnerPublicKey) {
       return {
         icon: AlertTriangle,
-        text: 'Setting up encryption',
+        text: 'Awaiting partner keys',
         color: 'bg-yellow-500/20 text-yellow-300',
         iconColor: 'text-yellow-400'
       };
     } else {
       return {
         icon: AlertTriangle,
-        text: 'Plain text mode',
-        color: 'bg-blue-500/20 text-blue-300',
-        iconColor: 'text-blue-400'
+        text: 'Setting up encryption',
+        color: 'bg-orange-500/20 text-orange-300',
+        iconColor: 'text-orange-400'
       };
     }
   };
