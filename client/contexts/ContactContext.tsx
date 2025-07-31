@@ -212,15 +212,20 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
   const generateNewInviteCode = () => {
     if (!user) return;
-    
+
     const newCode = generateInviteCode('friend', user.id, {
       expiresInHours: 24,
       maxUses: 50
     });
-    
+
     setCurrentInviteCode(newCode);
     localStorage.setItem('secureChat_inviteCode', JSON.stringify(newCode));
     localStorage.setItem('secureChat_inviteCodeDate', new Date().toISOString());
+  };
+
+  const forceRefreshInviteCode = () => {
+    // Instantly generate new code regardless of time
+    generateNewInviteCode();
   };
 
   const startInviteCodeRotation = () => {
