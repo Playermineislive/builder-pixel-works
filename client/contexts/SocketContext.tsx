@@ -145,7 +145,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                   console.log('✅ Successfully decrypted text message');
                   content = decryptedContent;
                 } else {
-                  console.error('�� Failed to decrypt text message');
+                  console.error('❌ Failed to decrypt text message');
                   content = '[Message could not be decrypted]';
                 }
               } catch (error) {
@@ -267,8 +267,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       console.log('🔐 Key exchange complete:', keyExchangeComplete);
       console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
 
-      if (keyExchangeComplete && type === 'text') {
-        console.log('🔒 Encrypting text message...');
+      if (keyExchangeComplete && (type === 'text' || type === 'emoji')) {
+        console.log('🔒 Encrypting text/emoji message...');
         try {
           const encrypted = encryptForPartner(content);
           if (encrypted) {
@@ -282,8 +282,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           console.error('❌ Encryption error, sending plain text:', error);
           messageContent = content;
         }
+      } else if (['image', 'video', 'file'].includes(type)) {
+        console.log('📁 Sending media content (already encrypted if needed)');
+        messageContent = content; // Media content is pre-processed and encrypted
       } else {
-        console.log('📝 Sending plain text (encryption not ready or non-text message)');
+        console.log('📝 Sending plain content');
         messageContent = content;
       }
       
