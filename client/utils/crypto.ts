@@ -227,40 +227,41 @@ export function encryptFile(
  */
 export function decryptFile(
   encryptedFile: EncryptedFile,
-  privateKey: string
+  sharedKey: string
 ): ArrayBuffer {
   try {
-    // Decrypt the AES key
-    const decryptedKeyBytes = CryptoJS.AES.decrypt(
-      encryptedFile.encryptedKey,
-      privateKey
-    );
-    const aesKeyString = decryptedKeyBytes.toString(CryptoJS.enc.Utf8);
-    const aesKey = CryptoJS.enc.Base64.parse(aesKeyString);
-    
+    // Verify key hash (optional security check)
+    const expectedKeyHash = CryptoJS.SHA256(sharedKey).toString(CryptoJS.enc.Base64);
+    if (encryptedFile.encryptedKey !== expectedKeyHash) {
+      console.warn('⚠️ File key hash mismatch - possible key incompatibility');
+    }
+
+    // Create consistent key from shared key
+    const key = CryptoJS.SHA256(sharedKey);
+
     // Parse IV
     const iv = CryptoJS.enc.Base64.parse(encryptedFile.iv);
-    
+
     // Decrypt the file data
     const decryptedData = CryptoJS.AES.decrypt(
       encryptedFile.encryptedData,
-      aesKey,
+      key,
       {
         iv: iv,
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       }
     );
-    
+
     const base64Data = decryptedData.toString(CryptoJS.enc.Utf8);
-    
+
     // Convert Base64 back to ArrayBuffer
     const binaryString = atob(base64Data);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
-    
+
     return bytes.buffer;
   } catch (error) {
     console.error('File decryption failed:', error);
