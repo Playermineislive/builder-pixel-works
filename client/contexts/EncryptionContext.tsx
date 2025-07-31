@@ -195,14 +195,17 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   const clearKeys = () => {
     setKeyPair(null);
     setPartnerPublicKeyState(null);
+    setSharedKey(null);
     setIsKeysGenerated(false);
     localStorage.removeItem('encryptionKeyPair');
     localStorage.removeItem('partnerPublicKey');
+    localStorage.removeItem('sharedEncryptionKey');
   };
 
   const value: EncryptionContextType = {
     keyPair,
     partnerPublicKey,
+    sharedKey,
     isKeysGenerated,
     generateKeys,
     setPartnerPublicKey,
