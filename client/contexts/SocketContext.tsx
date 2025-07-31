@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { useEncryption } from './EncryptionContext';
-import { WebSocketMessage, ChatMessage } from '@shared/api';
-import { EncryptedMessage, isValidEncryptedMessage } from '../utils/crypto';
+import { WebSocketMessage, ChatMessage, MediaContent } from '@shared/api';
+import { EncryptedMessage, EncryptedFile, isValidEncryptedMessage, isValidEncryptedFile } from '../utils/crypto';
 
 interface SocketContextType {
   socket: Socket | null;
