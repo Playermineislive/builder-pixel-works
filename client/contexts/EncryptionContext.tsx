@@ -100,13 +100,14 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const encryptForPartner = (message: string): EncryptedMessage | null => {
-    if (!partnerPublicKey) {
-      console.error('No partner public key available for encryption');
+    if (!sharedKey) {
+      console.error('No shared key available for encryption');
       return null;
     }
 
     try {
-      return encryptMessage(message, partnerPublicKey);
+      console.log('🔒 Encrypting message with shared key...');
+      return encryptMessage(message, sharedKey);
     } catch (error) {
       console.error('Failed to encrypt message:', error);
       return null;
@@ -114,8 +115,8 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   };
 
   const decryptFromPartner = (encryptedMessage: EncryptedMessage): string | null => {
-    if (!keyPair?.privateKey) {
-      console.error('No private key available for decryption');
+    if (!sharedKey) {
+      console.error('No shared key available for decryption');
       return null;
     }
 
@@ -127,8 +128,8 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
       return null;
     }
 
-    console.log('🔓 Attempting to decrypt message with private key...');
-    console.log('🔑 Private key length:', keyPair.privateKey.length);
+    console.log('🔓 Attempting to decrypt message with shared key...');
+    console.log('🔑 Shared key available:', !!sharedKey);
     console.log('📦 Cleaned encrypted message structure:', {
       contentLength: cleanedMessage.encryptedContent.length,
       keyLength: cleanedMessage.encryptedKey.length,
@@ -136,7 +137,7 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
     });
 
     try {
-      const result = decryptMessage(cleanedMessage, keyPair.privateKey);
+      const result = decryptMessage(cleanedMessage, sharedKey);
       console.log('✅ Decryption successful in EncryptionContext, result length:', result.length);
       return result;
     } catch (error) {
