@@ -101,14 +101,34 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
     }
 
     if (!isValidEncryptedMessage(encryptedMessage)) {
-      console.error('Invalid encrypted message format');
+      console.error('Invalid encrypted message format:', encryptedMessage);
       return null;
     }
 
+    console.log('🔓 Attempting to decrypt message with private key...');
+    console.log('🔑 Private key length:', keyPair.privateKey.length);
+    console.log('📦 Encrypted message structure:', {
+      hasContent: !!encryptedMessage.encryptedContent,
+      hasKey: !!encryptedMessage.encryptedKey,
+      hasIv: !!encryptedMessage.iv,
+      contentLength: encryptedMessage.encryptedContent?.length,
+      keyLength: encryptedMessage.encryptedKey?.length,
+      ivLength: encryptedMessage.iv?.length
+    });
+
     try {
-      return decryptMessage(encryptedMessage, keyPair.privateKey);
+      const result = decryptMessage(encryptedMessage, keyPair.privateKey);
+      console.log('✅ Decryption successful in EncryptionContext');
+      return result;
     } catch (error) {
-      console.error('Failed to decrypt message:', error);
+      console.error('❌ Failed to decrypt message in EncryptionContext:', error);
+
+      // Check if this might be a key mismatch
+      if (error.message.includes('UTF-8') || error.message.includes('malformed')) {
+        console.error('🔑 Possible key mismatch or corrupted data');
+        console.error('🔑 This might happen if messages were encrypted with different keys');
+      }
+
       return null;
     }
   };
