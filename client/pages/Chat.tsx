@@ -48,7 +48,7 @@ interface ChatProps {
   onBack?: () => void;
 }
 
-export default function Chat({ partner, onDisconnect }: ChatProps) {
+export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
   const { user } = useAuth();
   const { 
     messages, 
