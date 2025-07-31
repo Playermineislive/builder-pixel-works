@@ -271,10 +271,27 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   }, [isAuthenticated, token, isKeysGenerated, keyPair]);
 
   const sendMessage = (content: string, type: string = 'text') => {
-    if (isConnected) { // Remove socket dependency for fallback mode
+    console.log('📤 Attempting to send message:', { content, type, isConnected });
+
+    if (!content.trim()) {
+      console.warn('⚠️ Empty message content, not sending');
+      return;
+    }
+
+    // Always add message to local state immediately for better UX
+    const localMessage: ChatMessage = {
+      id: `${user?.id}-${Date.now()}`,
+      senderId: user?.id || '',
+      content: content, // Always show original content locally
+      timestamp: new Date().toISOString(),
+      type: type as any,
+    };
+    setMessages(prev => [...prev, localMessage]);
+
+    if (isConnected || !socket) { // Allow fallback mode
       let messageContent: string | EncryptedMessage = content;
-      
-      // Encrypt message if keys are available
+
+      // Encrypt message if keys are available and it's a text/emoji message
       console.log('🔐 Key exchange complete:', keyExchangeComplete);
       console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
 
@@ -286,39 +303,29 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             console.log('✅ Message encrypted successfully');
             messageContent = encrypted;
           } else {
-            console.error('❌ Failed to encrypt message, sending plain text');
+            console.warn('⚠️ Failed to encrypt message, sending plain text');
             messageContent = content;
           }
         } catch (error) {
-          console.error('❌ Encryption error, sending plain text:', error);
+          console.warn('⚠️ Encryption error, sending plain text:', error);
           messageContent = content;
         }
-      } else if (['image', 'video', 'file'].includes(type)) {
-        console.log('📁 Sending media content (already encrypted if needed)');
-        messageContent = content; // Media content is pre-processed and encrypted
       } else {
-        console.log('📝 Sending plain content');
+        console.log('📝 Sending plain content (no encryption available or not text)');
         messageContent = content;
       }
-      
-      // Add message to local state immediately for better UX
-      const localMessage: ChatMessage = {
-        id: `${user?.id}-${Date.now()}`,
-        senderId: user?.id || '',
-        content: content, // Always show decrypted content locally
-        timestamp: new Date().toISOString(),
-        type: type as any,
-      };
-      setMessages(prev => [...prev, localMessage]);
-      
-      // Send to server (encrypted or plain) or simulate in fallback mode
+
+      // Send to server or simulate in fallback mode
       if (socket && socket.connected) {
-        console.log('📤 Sending message via socket:', content);
+        console.log('📤 Sending message via socket');
         socket.emit('send_message', { content: messageContent, type });
       } else {
-        console.log('�� Sending message in fallback mode:', content);
+        console.log('🔄 Socket not connected, message stored locally only');
         // In fallback mode, messages are only stored locally
+        // This allows the app to work even without a server connection
       }
+    } else {
+      console.warn('⚠️ Not connected and no fallback mode');
     }
   };
 
