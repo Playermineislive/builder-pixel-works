@@ -108,7 +108,7 @@ export function decryptMessage(
 
     console.log('🔓 Starting decryption process...');
     console.log('🔑 Encrypted key length:', encryptedMessage.encryptedKey.length);
-    console.log('�� Encrypted content length:', encryptedMessage.encryptedContent.length);
+    console.log('📦 Encrypted content length:', encryptedMessage.encryptedContent.length);
     console.log('🔐 IV:', encryptedMessage.iv);
 
     // Decrypt the AES key
@@ -316,13 +316,96 @@ export function sha256(input: string): string {
  * Validate if an object is a valid encrypted message
  */
 export function isValidEncryptedMessage(data: any): data is EncryptedMessage {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    typeof data.encryptedContent === 'string' &&
-    typeof data.encryptedKey === 'string' &&
-    typeof data.iv === 'string'
-  );
+  if (typeof data !== 'object' || data === null) {
+    console.log('🔍 Invalid encrypted message: not an object');
+    return false;
+  }
+
+  const hasContent = typeof data.encryptedContent === 'string' && data.encryptedContent.length > 0;
+  const hasKey = typeof data.encryptedKey === 'string' && data.encryptedKey.length > 0;
+  const hasIv = typeof data.iv === 'string' && data.iv.length > 0;
+
+  console.log('🔍 Validating encrypted message:', {
+    hasContent,
+    hasKey,
+    hasIv,
+    contentLength: data.encryptedContent?.length,
+    keyLength: data.encryptedKey?.length,
+    ivLength: data.iv?.length
+  });
+
+  return hasContent && hasKey && hasIv;
+}
+
+/**
+ * Validate if a Base64 string is properly formatted
+ */
+export function isValidBase64(str: string): boolean {
+  try {
+    // Check if string contains only valid Base64 characters
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Regex.test(str)) {
+      return false;
+    }
+
+    // Try to decode and re-encode to verify validity
+    const decoded = atob(str);
+    const encoded = btoa(decoded);
+    return encoded === str;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Clean and validate encrypted message data
+ */
+export function cleanEncryptedMessage(data: any): EncryptedMessage | null {
+  if (!data || typeof data !== 'object') {
+    console.error('🧹 Invalid encrypted message data type');
+    return null;
+  }
+
+  try {
+    // Clean and validate each field
+    const encryptedContent = typeof data.encryptedContent === 'string'
+      ? data.encryptedContent.trim()
+      : '';
+    const encryptedKey = typeof data.encryptedKey === 'string'
+      ? data.encryptedKey.trim()
+      : '';
+    const iv = typeof data.iv === 'string'
+      ? data.iv.trim()
+      : '';
+
+    // Validate Base64 format for IV (required for proper decryption)
+    if (!isValidBase64(iv)) {
+      console.error('🧹 Invalid IV Base64 format');
+      return null;
+    }
+
+    if (!encryptedContent || !encryptedKey || !iv) {
+      console.error('🧹 Missing required encrypted message fields');
+      return null;
+    }
+
+    const cleaned: EncryptedMessage = {
+      encryptedContent,
+      encryptedKey,
+      iv
+    };
+
+    console.log('🧹 Cleaned encrypted message:', {
+      contentLength: cleaned.encryptedContent.length,
+      keyLength: cleaned.encryptedKey.length,
+      ivLength: cleaned.iv.length
+    });
+
+    return cleaned;
+  } catch (error) {
+    console.error('🧹 Failed to clean encrypted message:', error);
+    return null;
+  }
 }
 
 /**
