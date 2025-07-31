@@ -45,6 +45,7 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
   useEffect(() => {
     const savedKeyPair = localStorage.getItem('encryptionKeyPair');
     const savedPartnerKey = localStorage.getItem('partnerPublicKey');
+    const savedSharedKey = localStorage.getItem('sharedEncryptionKey');
 
     if (savedKeyPair) {
       try {
@@ -59,6 +60,10 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
 
     if (savedPartnerKey) {
       setPartnerPublicKeyState(savedPartnerKey);
+    }
+
+    if (savedSharedKey) {
+      setSharedKey(savedSharedKey);
     }
   }, []);
 
@@ -111,7 +116,7 @@ export const EncryptionProvider: React.FC<EncryptionProviderProps> = ({ children
       return null;
     }
 
-    console.log('�� Attempting to decrypt message with private key...');
+    console.log('🔓 Attempting to decrypt message with private key...');
     console.log('🔑 Private key length:', keyPair.privateKey.length);
     console.log('📦 Cleaned encrypted message structure:', {
       contentLength: cleanedMessage.encryptedContent.length,
