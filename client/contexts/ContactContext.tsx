@@ -181,7 +181,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   // Save data whenever it changes
   useEffect(() => {
     saveData();
-  }, [contacts, groups, pendingRequests]);
+  }, [contacts, groups, pendingRequests, userProfile]);
 
   const generateInitialInviteCode = () => {
     if (!user) return;
