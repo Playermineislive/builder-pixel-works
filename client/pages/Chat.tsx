@@ -179,7 +179,8 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
     { icon: Phone, label: "Voice Call", action: () => console.log('Voice call') },
     { icon: Video, label: "Video Call", action: () => console.log('Video call') },
     { icon: Search, label: "Search", action: () => setShowSearch(!showSearch) },
-    { icon: Settings, label: "Settings", action: () => setShowTranslationSettings(true) }
+    { icon: Settings, label: "Settings", action: () => setShowTranslationSettings(true) },
+    { icon: AlertTriangle, label: "Debug", action: () => setShowDebugPanel(true) }
   ];
 
   const quickReactions = ['❤️', '😊', '👍', '😂', '😮', '😢'];
