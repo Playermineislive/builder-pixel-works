@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useContacts, Contact, Group } from '../contexts/ContactContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,43 +32,11 @@ import {
   Heart,
   Zap,
   Crown,
-  Sparkles
+  Sparkles,
+  Send,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
-
-interface Contact {
-  id: string;
-  email: string;
-  username?: string;
-  avatar?: string;
-  isOnline: boolean;
-  lastSeen?: string;
-  status?: 'online' | 'away' | 'busy' | 'offline';
-  unreadCount?: number;
-  isTyping?: boolean;
-  isFavorite?: boolean;
-  isPinned?: boolean;
-  tags?: string[];
-  lastMessage?: {
-    content: string;
-    timestamp: string;
-    isOwn: boolean;
-  };
-}
-
-interface Group {
-  id: string;
-  name: string;
-  description?: string;
-  members: Contact[];
-  avatar?: string;
-  isPrivate: boolean;
-  unreadCount?: number;
-  lastMessage?: {
-    content: string;
-    timestamp: string;
-    sender: string;
-  };
-}
 
 interface ContactsListProps {
   onSelectContact: (contact: Contact) => void;
@@ -77,126 +46,39 @@ interface ContactsListProps {
 
 export default function ContactsList({ onSelectContact, onCreateGroup, onBack }: ContactsListProps) {
   const { user } = useAuth();
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
+  const {
+    contacts,
+    groups,
+    pendingRequests,
+    currentInviteCode,
+    generateNewInviteCode,
+    addFriendByCode,
+    sendFriendRequest,
+    acceptFriendRequest,
+    rejectFriendRequest,
+    searchContacts,
+    getFavoriteContacts,
+    getOnlineContacts,
+    getRecentContacts,
+    createGroup,
+    isLoading,
+    error
+  } = useContacts();
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'contacts' | 'groups' | 'invites'>('contacts');
+  const [activeTab, setActiveTab] = useState<'contacts' | 'groups' | 'invites' | 'requests'>('contacts');
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [showInviteCode, setShowInviteCode] = useState(false);
-  const [inviteCode, setInviteCode] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
   const [filterBy, setFilterBy] = useState<'all' | 'online' | 'favorites' | 'recent'>('all');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [newFriendEmail, setNewFriendEmail] = useState('');
+  const [addFriendCode, setAddFriendCode] = useState('');
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Mock data - in real app this would come from API
   useEffect(() => {
-    const mockContacts: Contact[] = [
-      {
-        id: '1',
-        email: 'alice@example.com',
-        username: 'Alice Johnson',
-        isOnline: true,
-        status: 'online',
-        unreadCount: 3,
-        isFavorite: true,
-        isPinned: true,
-        tags: ['work', 'team'],
-        lastMessage: {
-          content: 'Hey! How are you doing?',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-          isOwn: false
-        }
-      },
-      {
-        id: '2',
-        email: 'bob@example.com',
-        username: 'Bob Smith',
-        isOnline: true,
-        status: 'away',
-        unreadCount: 0,
-        isFavorite: false,
-        isPinned: false,
-        tags: ['friend'],
-        lastMessage: {
-          content: 'Thanks for the help!',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          isOwn: true
-        }
-      },
-      {
-        id: '3',
-        email: 'carol@example.com',
-        username: 'Carol Wilson',
-        isOnline: false,
-        status: 'offline',
-        lastSeen: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        unreadCount: 0,
-        isFavorite: true,
-        isPinned: false,
-        tags: ['family'],
-        lastMessage: {
-          content: 'See you tomorrow!',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          isOwn: false
-        }
-      },
-      {
-        id: '4',
-        email: 'david@example.com',
-        username: 'David Brown',
-        isOnline: true,
-        status: 'busy',
-        unreadCount: 1,
-        isTyping: true,
-        isFavorite: false,
-        isPinned: true,
-        tags: ['colleague'],
-        lastMessage: {
-          content: 'Can we schedule a meeting?',
-          timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-          isOwn: false
-        }
-      }
-    ];
-
-    const mockGroups: Group[] = [
-      {
-        id: 'g1',
-        name: 'Team Project',
-        description: 'Work collaboration group',
-        members: mockContacts.slice(0, 3),
-        isPrivate: false,
-        unreadCount: 5,
-        lastMessage: {
-          content: 'Let\'s finalize the presentation',
-          timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-          sender: 'Alice Johnson'
-        }
-      },
-      {
-        id: 'g2',
-        name: 'Family Chat',
-        description: 'Family group',
-        members: [mockContacts[2]],
-        isPrivate: true,
-        unreadCount: 2,
-        lastMessage: {
-          content: 'Dinner at 7?',
-          timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-          sender: 'Carol Wilson'
-        }
-      }
-    ];
-
-    setContacts(mockContacts);
-    setGroups(mockGroups);
-
-    // Generate invite code
-    setInviteCode(Math.random().toString(36).substring(2, 8).toUpperCase());
-
-    // Listen for online/offline status
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     
@@ -209,25 +91,31 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     };
   }, []);
 
-  const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         contact.username?.toLowerCase().includes(searchQuery.toLowerCase());
+  const getFilteredContacts = () => {
+    let filteredContacts = contacts;
     
-    if (!matchesSearch) return false;
-
-    switch (filterBy) {
-      case 'online':
-        return contact.isOnline;
-      case 'favorites':
-        return contact.isFavorite;
-      case 'recent':
-        return contact.lastMessage && 
-               new Date(contact.lastMessage.timestamp) > new Date(Date.now() - 24 * 60 * 60 * 1000);
-      default:
-        return true;
+    if (searchQuery) {
+      filteredContacts = searchContacts(searchQuery);
+    } else {
+      switch (filterBy) {
+        case 'online':
+          filteredContacts = getOnlineContacts();
+          break;
+        case 'favorites':
+          filteredContacts = getFavoriteContacts();
+          break;
+        case 'recent':
+          filteredContacts = getRecentContacts();
+          break;
+        default:
+          filteredContacts = contacts;
+      }
     }
-  });
 
+    return filteredContacts;
+  };
+
+  const filteredContacts = getFilteredContacts();
   const filteredGroups = groups.filter(group =>
     group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     group.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -247,18 +135,50 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
 
   const handleCreateGroup = () => {
     const selectedContactObjects = contacts.filter(c => selectedContacts.includes(c.id));
-    onCreateGroup(selectedContactObjects);
-    setIsSelectionMode(false);
-    setSelectedContacts([]);
+    if (selectedContactObjects.length >= 1) {
+      const newGroup = createGroup(`Group with ${selectedContactObjects.map(c => c.username || c.email).join(', ')}`, selectedContactObjects);
+      onCreateGroup(selectedContactObjects);
+      setIsSelectionMode(false);
+      setSelectedContacts([]);
+    }
   };
 
   const copyInviteCode = async () => {
+    if (!currentInviteCode) return;
+    
     try {
-      await navigator.clipboard.writeText(inviteCode);
+      await navigator.clipboard.writeText(currentInviteCode.code);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
     } catch (error) {
       console.error('Failed to copy code:', error);
+    }
+  };
+
+  const handleAddFriendByCode = async () => {
+    if (!addFriendCode.trim()) return;
+    
+    // For demo purposes, we'll create a simulated user
+    const success = await addFriendByCode(addFriendCode, {
+      email: `user_${addFriendCode.toLowerCase()}@example.com`,
+      username: `User ${addFriendCode}`
+    });
+    
+    if (success) {
+      setAddFriendCode('');
+      setSuccessMessage('Friend added successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  const handleSendFriendRequest = async () => {
+    if (!newFriendEmail.trim()) return;
+    
+    const success = await sendFriendRequest(newFriendEmail);
+    if (success) {
+      setNewFriendEmail('');
+      setSuccessMessage('Friend request sent!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     }
   };
 
@@ -286,6 +206,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   const tabs = [
     { id: 'contacts', label: 'Contacts', icon: Users, count: contacts.length },
     { id: 'groups', label: 'Groups', icon: MessageCircle, count: groups.length },
+    { id: 'requests', label: 'Requests', icon: UserPlus, count: pendingRequests.length },
     { id: 'invites', label: 'Invite', icon: UserPlus, count: 0 }
   ] as const;
 
@@ -344,7 +265,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             <div>
               <h1 className="text-2xl font-bold text-white">SecureChat</h1>
               <p className="text-white/70 text-sm">
-                {isOnline ? `${contacts.filter(c => c.isOnline).length} online` : 'Offline'}
+                {isOnline ? `${getOnlineContacts().length} online` : 'Offline'}
               </p>
             </div>
           </div>
@@ -365,6 +286,16 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             </motion.button>
 
             <motion.button
+              onClick={() => setShowAddFriend(!showAddFriend)}
+              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-[1rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              title="Add Friend"
+            >
+              <UserPlus className="w-5 h-5" />
+            </motion.button>
+
+            <motion.button
               className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-[1rem] flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 backdrop-blur-sm"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -374,6 +305,61 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             </motion.button>
           </div>
         </div>
+
+        {/* Quick add friend panel */}
+        <AnimatePresence>
+          {showAddFriend && (
+            <motion.div
+              className="bg-white/5 border-t border-white/10 p-4"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="space-y-3">
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Enter friend's email"
+                    value={newFriendEmail}
+                    onChange={(e) => setNewFriendEmail(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[1.5rem] flex-1"
+                    type="email"
+                  />
+                  <Button
+                    onClick={handleSendFriendRequest}
+                    disabled={!newFriendEmail.trim() || isLoading}
+                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-[1.5rem]"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex items-center text-white/60 text-sm">
+                  <div className="flex-1 h-px bg-white/20"></div>
+                  <span className="px-3">or use invite code</span>
+                  <div className="flex-1 h-px bg-white/20"></div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Enter invite code"
+                    value={addFriendCode}
+                    onChange={(e) => setAddFriendCode(e.target.value.toUpperCase())}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[1.5rem] flex-1 uppercase tracking-wider text-center"
+                    maxLength={8}
+                  />
+                  <Button
+                    onClick={handleAddFriendByCode}
+                    disabled={!addFriendCode.trim() || isLoading}
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-[1.5rem]"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search bar */}
         <div className="px-4 pb-4">
@@ -443,7 +429,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 </motion.button>
               );
             })}
-          </motion.div>
+          </div>
         )}
 
         {/* Selection mode header */}
@@ -474,13 +460,36 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   <Button
                     size="sm"
                     onClick={handleCreateGroup}
-                    disabled={selectedContacts.length < 2}
+                    disabled={selectedContacts.length < 1}
                     className="bg-blue-500 hover:bg-blue-600 text-white"
                   >
                     Create Group
                   </Button>
                 </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Success/Error Messages */}
+        <AnimatePresence>
+          {(successMessage || error) && (
+            <motion.div
+              className="px-4 pb-4"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <Alert className={`${
+                successMessage 
+                  ? 'bg-green-500/20 border-green-400/50 text-green-300' 
+                  : 'bg-red-500/20 border-red-400/50 text-red-300'
+              } backdrop-blur-sm rounded-[1.5rem]`}>
+                {successMessage ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                <AlertDescription>
+                  {successMessage || error}
+                </AlertDescription>
+              </Alert>
             </motion.div>
           )}
         </AnimatePresence>
@@ -516,7 +525,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         }`}
                         onClick={() => handleSelectContact(contact)}
                       >
-                        {/* Shimmer effect */}
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
                           animate={{
@@ -613,7 +621,6 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                     whileTap={{ scale: 0.9 }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      // Handle more options
                                     }}
                                   >
                                     <MoreVertical className="w-4 h-4" />
@@ -636,9 +643,16 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   >
                     <Users className="w-16 h-16 text-white/30 mx-auto mb-4" />
                     <h3 className="text-white text-lg font-medium mb-2">No contacts found</h3>
-                    <p className="text-white/60 text-sm">
-                      {searchQuery ? 'Try adjusting your search' : 'Start by inviting some friends'}
+                    <p className="text-white/60 text-sm mb-4">
+                      {searchQuery ? 'Try adjusting your search' : 'Start by adding some friends'}
                     </p>
+                    <Button
+                      onClick={() => setShowAddFriend(true)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Add Friends
+                    </Button>
                   </motion.div>
                 )}
               </motion.div>
@@ -737,9 +751,84 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   >
                     <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
                     <h3 className="text-white text-lg font-medium mb-2">No groups found</h3>
-                    <p className="text-white/60 text-sm">
+                    <p className="text-white/60 text-sm mb-4">
                       {searchQuery ? 'Try adjusting your search' : 'Create your first group chat'}
                     </p>
+                    <Button
+                      onClick={() => setIsSelectionMode(true)}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Group
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'requests' && (
+              <motion.div
+                key="requests"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
+              >
+                {pendingRequests.map((request, index) => (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                  >
+                    <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
+                              {request.username?.charAt(0) || request.email.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <h3 className="text-white font-medium">
+                                {request.username || request.email}
+                              </h3>
+                              <p className="text-white/60 text-sm">Wants to connect</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={() => acceptFriendRequest(request.id)}
+                              className="bg-green-500 hover:bg-green-600 text-white"
+                            >
+                              <Check className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => rejectFriendRequest(request.id)}
+                              className="border-red-400/50 text-red-400 hover:bg-red-500/20"
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+                
+                {pendingRequests.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center py-12"
+                  >
+                    <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                    <h3 className="text-white text-lg font-medium mb-2">No pending requests</h3>
+                    <p className="text-white/60 text-sm">Friend requests will appear here</p>
                   </motion.div>
                 )}
               </motion.div>
@@ -778,10 +867,13 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   <CardContent className="space-y-4 relative z-10">
                     <div className="bg-white/10 rounded-[1.5rem] p-4 text-center">
                       <div className="text-3xl font-bold text-white tracking-wider mb-2">
-                        {inviteCode}
+                        {currentInviteCode?.code || 'LOADING...'}
                       </div>
                       <p className="text-white/60 text-sm">
                         Share this code with friends to connect securely
+                      </p>
+                      <p className="text-white/50 text-xs mt-2">
+                        Code refreshes daily • {currentInviteCode?.currentUses || 0}/{currentInviteCode?.maxUses || 0} uses
                       </p>
                     </div>
                     
@@ -790,6 +882,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         onClick={copyInviteCode}
                         className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20"
                         variant="outline"
+                        disabled={!currentInviteCode}
                       >
                         {copiedCode ? (
                           <>
@@ -805,11 +898,11 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                       </Button>
                       
                       <Button
-                        onClick={() => setShowQRCode(!showQRCode)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={generateNewInviteCode}
+                        className="bg-purple-500 hover:bg-purple-600 text-white"
                       >
-                        <QrCode className="w-4 h-4 mr-2" />
-                        QR Code
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        New Code
                       </Button>
                     </div>
                     
@@ -825,7 +918,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                             <QrCode className="w-16 h-16 text-black/50" />
                           </div>
                           <p className="text-black/60 text-sm mt-2">
-                            QR Code for {inviteCode}
+                            QR Code for {currentInviteCode?.code}
                           </p>
                         </motion.div>
                       )}
@@ -833,28 +926,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   </CardContent>
                 </Card>
 
-                {/* Add friend by code */}
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center space-x-2">
-                      <UserPlus className="w-5 h-5" />
-                      <span>Add Friend</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Input
-                      placeholder="Enter invite code"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[1.5rem] uppercase tracking-wider text-center"
-                      maxLength={6}
-                    />
-                    <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Add Friend
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Recent invites */}
+                {/* Recent activity */}
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center space-x-2">
