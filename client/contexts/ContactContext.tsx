@@ -331,8 +331,88 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   };
 
   const updateGroup = (groupId: string, updates: Partial<Group>) => {
-    setGroups(prev => prev.map(group => 
+    setGroups(prev => prev.map(group =>
       group.id === groupId ? { ...group, ...updates } : group
+    ));
+  };
+
+  const renameGroup = (groupId: string, newName: string) => {
+    setGroups(prev => prev.map(group =>
+      group.id === groupId ? { ...group, displayName: newName.trim() } : group
+    ));
+  };
+
+  const addGroupAdmin = (groupId: string, userId: string) => {
+    setGroups(prev => prev.map(group => {
+      if (group.id === groupId) {
+        const updatedAdmins = [...group.admins];
+        if (!updatedAdmins.includes(userId)) {
+          updatedAdmins.push(userId);
+        }
+
+        const updatedMembers = group.members.map(member =>
+          member.id === userId
+            ? {
+                ...member,
+                role: 'admin' as const,
+                permissions: {
+                  canInvite: true,
+                  canRemoveMembers: true,
+                  canEditGroup: true,
+                  canDeleteMessages: true
+                }
+              }
+            : member
+        );
+
+        return { ...group, admins: updatedAdmins, members: updatedMembers };
+      }
+      return group;
+    }));
+  };
+
+  const removeGroupAdmin = (groupId: string, userId: string) => {
+    setGroups(prev => prev.map(group => {
+      if (group.id === groupId && group.createdBy !== userId) { // Can't remove creator
+        const updatedAdmins = group.admins.filter(id => id !== userId);
+
+        const updatedMembers = group.members.map(member =>
+          member.id === userId
+            ? {
+                ...member,
+                role: 'member' as const,
+                permissions: {
+                  canInvite: group.settings.allowMemberInvites,
+                  canRemoveMembers: false,
+                  canEditGroup: false,
+                  canDeleteMessages: false
+                }
+              }
+            : member
+        );
+
+        return { ...group, admins: updatedAdmins, members: updatedMembers };
+      }
+      return group;
+    }));
+  };
+
+  const removeGroupMember = (groupId: string, userId: string) => {
+    setGroups(prev => prev.map(group => {
+      if (group.id === groupId) {
+        const updatedMembers = group.members.filter(member => member.id !== userId);
+        const updatedAdmins = group.admins.filter(id => id !== userId);
+        return { ...group, members: updatedMembers, admins: updatedAdmins };
+      }
+      return group;
+    }));
+  };
+
+  const updateGroupSettings = (groupId: string, settings: Partial<Group['settings']>) => {
+    setGroups(prev => prev.map(group =>
+      group.id === groupId
+        ? { ...group, settings: { ...group.settings, ...settings } }
+        : group
     ));
   };
 
