@@ -9,7 +9,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { EncryptionProvider } from "./contexts/EncryptionContext";
 import { TranslationProvider } from "./contexts/TranslationContext";
+import { ContactProvider } from "./contexts/ContactContext";
 import Index from "./pages/Index";
+import ContactsList from "./pages/ContactsList";
+import GroupChat from "./pages/GroupChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +28,8 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/contacts" element={<ContactsList onSelectContact={() => {}} onCreateGroup={() => {}} onBack={() => {}} />} />
+                <Route path="/invite/:code" element={<Index />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
