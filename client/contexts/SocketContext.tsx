@@ -213,14 +213,29 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     if (isConnected) { // Remove socket dependency for fallback mode
       let messageContent: string | EncryptedMessage = content;
       
-      // Temporarily disable encryption to fix message flow
+      // Encrypt message if keys are available
       console.log('🔐 Key exchange complete:', keyExchangeComplete);
       console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
 
-      // For now, always send plain text to avoid decryption errors
-      // TODO: Fix encryption implementation
-      console.log('📝 Sending plain text message');
-      messageContent = content;
+      if (keyExchangeComplete && type === 'text') {
+        console.log('🔒 Encrypting text message...');
+        try {
+          const encrypted = encryptForPartner(content);
+          if (encrypted) {
+            console.log('✅ Message encrypted successfully');
+            messageContent = encrypted;
+          } else {
+            console.error('❌ Failed to encrypt message, sending plain text');
+            messageContent = content;
+          }
+        } catch (error) {
+          console.error('❌ Encryption error, sending plain text:', error);
+          messageContent = content;
+        }
+      } else {
+        console.log('📝 Sending plain text (encryption not ready or non-text message)');
+        messageContent = content;
+      }
       
       // Add message to local state immediately for better UX
       const localMessage: ChatMessage = {
