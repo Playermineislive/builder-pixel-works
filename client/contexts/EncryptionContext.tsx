@@ -18,6 +18,7 @@ import {
 interface EncryptionContextType {
   keyPair: KeyPair | null;
   partnerPublicKey: string | null;
+  sharedKey: string | null;
   isKeysGenerated: boolean;
   generateKeys: () => Promise<void>;
   setPartnerPublicKey: (key: string) => void;
