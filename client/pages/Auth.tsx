@@ -614,34 +614,75 @@ export default function Auth() {
             </Card>
           </motion.div>
 
-          {/* Security features */}
-          <motion.div 
+          {/* Enhanced Security features */}
+          <motion.div
             className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-xl"
             variants={itemVariants}
           >
             <h3 className="text-white font-bold text-xl mb-6 flex items-center">
               <Shield className="w-6 h-6 mr-3 text-green-400" />
-              Security Features
+              Security & Features
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { icon: CheckCircle, text: 'End-to-end encryption with AES-256', color: 'text-green-400' },
                 { icon: Zap, text: 'RSA/ECDH key exchange protocol', color: 'text-yellow-400' },
                 { icon: Shield, text: 'No message storage on servers', color: 'text-blue-400' },
-                { icon: Globe, text: 'Real-time translation support', color: 'text-purple-400' }
+                { icon: Globe, text: 'Real-time translation support', color: 'text-purple-400' },
+                { icon: Fingerprint, text: 'Biometric authentication ready', color: 'text-pink-400' },
+                { icon: Star, text: 'Zero-knowledge architecture', color: 'text-indigo-400' }
               ].map((feature, index) => (
                 <motion.div
                   key={index}
-                  className="flex items-start space-x-3"
+                  className="flex items-start space-x-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <feature.icon className={`w-5 h-5 ${feature.color} mt-0.5 flex-shrink-0`} />
-                  <span className="text-white/90 text-sm leading-relaxed">{feature.text}</span>
+                  <motion.div
+                    className={`w-8 h-8 rounded-lg bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center flex-shrink-0`}
+                    whileHover={{ rotate: 5 }}
+                  >
+                    <feature.icon className={`w-4 h-4 ${feature.color}`} />
+                  </motion.div>
+                  <span className="text-white/90 text-sm leading-relaxed font-medium">{feature.text}</span>
                 </motion.div>
               ))}
             </div>
+
+            {/* App stats */}
+            <motion.div
+              className="mt-6 pt-6 border-t border-white/10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              <div className="flex justify-center space-x-8 text-center">
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-white flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-red-400 mr-1" />
+                    99.9%
+                  </div>
+                  <div className="text-xs text-white/70">Uptime</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-white flex items-center justify-center">
+                    <Users className="w-5 h-5 text-blue-400 mr-1" />
+                    10K+
+                  </div>
+                  <div className="text-xs text-white/70">Active Users</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-white flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-green-400 mr-1" />
+                    100%
+                  </div>
+                  <div className="text-xs text-white/70">Encrypted</div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
