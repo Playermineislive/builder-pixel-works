@@ -54,8 +54,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   // Check if key exchange is complete
   useEffect(() => {
-    setKeyExchangeComplete(!!(keyPair && partnerPublicKey));
-  }, [keyPair, partnerPublicKey]);
+    setKeyExchangeComplete(!!(keyPair && partnerPublicKey && sharedKey));
+  }, [keyPair, partnerPublicKey, sharedKey]);
 
   useEffect(() => {
     if (isAuthenticated && token && !socket && isKeysGenerated) {
