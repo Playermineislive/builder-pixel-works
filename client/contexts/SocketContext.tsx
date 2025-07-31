@@ -319,6 +319,39 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     // In fallback mode, typing indicators are disabled
   };
 
+  const sendFile = async (file: File): Promise<void> => {
+    try {
+      // Convert file to base64 for transmission
+      const reader = new FileReader();
+      const fileData = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Create media content
+      const mediaContent = {
+        data: fileData,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size
+      };
+
+      // Send as message with type based on file type
+      let messageType = 'file';
+      if (file.type.startsWith('image/')) {
+        messageType = 'image';
+      } else if (file.type.startsWith('video/')) {
+        messageType = 'video';
+      }
+
+      sendMessage(JSON.stringify(mediaContent), messageType);
+    } catch (error) {
+      console.error('Failed to send file:', error);
+      throw error;
+    }
+  };
+
   const clearMessages = () => {
     setMessages([]);
   };
@@ -328,6 +361,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     isConnected,
     messages,
     sendMessage,
+    sendFile,
     sendTyping,
     partnerTyping,
     partnerOnline,
