@@ -134,26 +134,59 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             console.log('📦 Message content:', content);
             console.log('🔐 Key exchange complete:', keyExchangeComplete);
 
-            // Handle both encrypted and plain text messages
-            console.log('📦 Processing received message...');
+            // Handle encrypted/plain text messages and media
+            console.log('📦 Processing received message...', { type: wsMessage.data.type });
 
             if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
-              console.log('🔓 Attempting to decrypt message...');
+              console.log('🔓 Attempting to decrypt text message...');
               try {
                 const decryptedContent = decryptFromPartner(content as EncryptedMessage);
                 if (decryptedContent) {
-                  console.log('✅ Successfully decrypted message');
+                  console.log('✅ Successfully decrypted text message');
                   content = decryptedContent;
                 } else {
-                  console.error('❌ Failed to decrypt message');
+                  console.error('�� Failed to decrypt text message');
                   content = '[Message could not be decrypted]';
                 }
               } catch (error) {
-                console.error('❌ Decryption error:', error);
+                console.error('❌ Text decryption error:', error);
                 content = '[Decryption failed]';
               }
+            } else if (wsMessage.data.type && ['image', 'video', 'file'].includes(wsMessage.data.type)) {
+              console.log('📁 Processing media message...');
+              try {
+                // Parse media content
+                const mediaContent: MediaContent = typeof content === 'string'
+                  ? JSON.parse(content)
+                  : content;
+
+                // Check if the media data is encrypted
+                if (typeof mediaContent.data === 'string' && mediaContent.data.startsWith('{')) {
+                  try {
+                    const encryptedFile = JSON.parse(mediaContent.data);
+                    if (isValidEncryptedFile(encryptedFile)) {
+                      console.log('🔓 Attempting to decrypt file...');
+                      const decryptedUrl = await decryptFileFromPartner(encryptedFile);
+                      if (decryptedUrl) {
+                        mediaContent.data = decryptedUrl;
+                        console.log('✅ Successfully decrypted file');
+                      } else {
+                        console.error('❌ Failed to decrypt file');
+                        mediaContent.data = '#'; // Placeholder
+                      }
+                    }
+                  } catch (parseError) {
+                    console.log('📝 Media data is not encrypted JSON');
+                  }
+                }
+
+                content = mediaContent;
+              } catch (error) {
+                console.error('❌ Media processing error:', error);
+                content = '[Failed to process media]';
+              }
             } else {
-              console.log('📝 Message is plain text');
+              console.log('📝 Message is plain text or emoji');
               if (typeof content !== 'string') {
                 console.warn('⚠️ Non-string content received, converting:', content);
                 content = String(content);
