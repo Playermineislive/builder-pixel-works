@@ -109,8 +109,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
       // Handle key exchange
       newSocket.on('key_exchange', (data: { publicKey: string; userId: string }) => {
-        console.log('Received partner public key for key exchange');
-        setPartnerPublicKey(data.publicKey);
+        console.log('📜 Received partner public key for key exchange from:', data.userId);
+        console.log('📜 Public key length:', data.publicKey?.length);
+        if (data.publicKey && data.publicKey.length > 0) {
+          setPartnerPublicKey(data.publicKey);
+          console.log('✅ Partner public key set successfully');
+        } else {
+          console.error('❌ Invalid public key received');
+        }
       });
 
       newSocket.on('message', async (wsMessage: WebSocketMessage) => {
