@@ -79,6 +79,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   const [addFriendCode, setAddFriendCode] = useState('');
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [renamingContact, setRenamingContact] = useState<Contact | null>(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
