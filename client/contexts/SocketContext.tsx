@@ -302,14 +302,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       console.log('🔑 Available keys:', { hasKeyPair: !!keyPair, hasPartnerKey: !!partnerPublicKey });
 
       if (keyExchangeComplete && (type === 'text' || type === 'emoji')) {
-        console.log('🔒 Encrypting text/emoji message...');
+        console.log('🔒 Encryption available - encrypting text/emoji message...');
         try {
           const encrypted = encryptForPartner(content);
           if (encrypted) {
             console.log('✅ Message encrypted successfully');
             messageContent = encrypted;
           } else {
-            console.warn('⚠️ Failed to encrypt message, sending plain text');
+            console.warn('⚠️ Encryption failed, sending plain text');
             messageContent = content;
           }
         } catch (error) {
@@ -317,7 +317,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           messageContent = content;
         }
       } else {
-        console.log('📝 Sending plain content (no encryption available or not text)');
+        console.log('📝 No encryption available or not text message - sending plain');
         messageContent = content;
       }
 
