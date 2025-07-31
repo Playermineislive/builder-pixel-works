@@ -150,25 +150,46 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             if (wsMessage.data.type === 'text' || wsMessage.data.type === 'emoji') {
               if (typeof content === 'object' && content !== null && isValidEncryptedMessage(content)) {
                 console.log('🔓 Attempting to decrypt text message...');
+                console.log('🔐 Encrypted message details:', {
+                  hasContent: !!content.encryptedContent,
+                  hasKey: !!content.encryptedKey,
+                  hasIv: !!content.iv,
+                  contentLength: content.encryptedContent?.length,
+                  keyLength: content.encryptedKey?.length
+                });
+
                 try {
                   const decryptedContent = decryptFromPartner(content as EncryptedMessage);
-                  if (decryptedContent) {
-                    console.log('✅ Successfully decrypted text message');
+                  if (decryptedContent && decryptedContent.length > 0) {
+                    console.log('✅ Successfully decrypted text message, length:', decryptedContent.length);
                     content = decryptedContent;
                   } else {
-                    console.warn('⚠️ Failed to decrypt text message - showing encrypted indicator');
-                    content = '🔒 [Encrypted message - unable to decrypt]';
+                    console.warn('⚠️ Decryption returned empty/null content');
+                    content = '🔒 [Encrypted message - decryption returned empty]';
                   }
                 } catch (error) {
-                  console.warn('⚠️ Text decryption error, showing encrypted indicator:', error);
-                  content = '🔒 [Encrypted message - decryption failed]';
+                  console.error('❌ Text decryption error:', error);
+                  // Provide more specific error messages based on the error type
+                  if (error.message.includes('UTF-8') || error.message.includes('malformed')) {
+                    content = '🔒 [Encrypted message - data corrupted or key mismatch]';
+                  } else if (error.message.includes('key')) {
+                    content = '🔒 [Encrypted message - invalid encryption key]';
+                  } else {
+                    content = `🔒 [Encrypted message - ${error.message}]`;
+                  }
                 }
               } else if (typeof content === 'string') {
-                console.log('📝 Received plain text message');
+                console.log('📝 Received plain text message, length:', content.length);
                 // Content is already plain text, no decryption needed
               } else {
-                console.warn('⚠️ Unexpected content format for text message, converting to string');
-                content = String(content);
+                console.warn('⚠️ Unexpected content format for text message:', typeof content, content);
+                try {
+                  content = JSON.stringify(content);
+                  console.log('📝 Converted to JSON string');
+                } catch {
+                  content = String(content);
+                  console.log('📝 Converted to string');
+                }
               }
             } else if (wsMessage.data.type && ['image', 'video', 'file'].includes(wsMessage.data.type)) {
               console.log('📁 Processing media message...');
