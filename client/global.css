@@ -415,6 +415,54 @@
     }
   }
 
+  @keyframes glow {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+    }
+  }
+
+  @keyframes messageGlow {
+    0%, 100% {
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+    }
+    50% {
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+  }
+
+  @keyframes heartBeat {
+    0%, 100% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    75% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes weatherPulse {
+    0%, 100% {
+      opacity: 0.8;
+      transform: translateY(0px);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-5px);
+    }
+  }
+
   /* Animation utility classes */
   .animate-slide-in-right {
     animation: slideInFromRight 0.3s ease-out;
