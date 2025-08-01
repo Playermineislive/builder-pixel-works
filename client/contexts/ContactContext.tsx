@@ -231,7 +231,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     generateNewInviteCode();
   };
 
-  const generateNewInviteCode = () => {
+  const generateNewInviteCode = async () => {
     if (!user) return;
 
     const newCode = generateInviteCode('friend', user.id, {
@@ -242,6 +242,24 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     setCurrentInviteCode(newCode);
     localStorage.setItem('secureChat_inviteCode', JSON.stringify(newCode));
     localStorage.setItem('secureChat_inviteCodeDate', new Date().toISOString());
+
+    // Register the code with the server
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        await fetch('/api/invites/register-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ code: newCode.code })
+        });
+        console.log('Invite code registered with server:', newCode.code);
+      }
+    } catch (error) {
+      console.error('Failed to register invite code with server:', error);
+    }
   };
 
   const forceRefreshInviteCode = () => {
