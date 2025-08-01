@@ -498,7 +498,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
               onChange={(e) => handleTyping(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Type a message..."
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[2rem] pr-12 h-12 backdrop-blur-sm focus:ring-2 focus:ring-white/30 transition-all duration-200"
+              className={`${currentTheme.inputStyle.background} ${currentTheme.inputStyle.border} ${currentTheme.inputStyle.text} ${currentTheme.inputStyle.placeholder} rounded-[2rem] pr-12 h-12 backdrop-blur-sm focus:ring-2 focus:ring-white/30 transition-all duration-200`}
               disabled={!isConnected}
               style={{ fontSize: '16px' }}
             />
