@@ -133,10 +133,10 @@ const MessageBubble = memo(({
     >
       {/* Message container */}
       <motion.div
-        className={`relative p-4 backdrop-blur-sm border border-white/20 overflow-hidden ${
-          isOwn 
-            ? 'rounded-[2rem_0.5rem_2rem_2rem] ml-auto' 
-            : 'rounded-[0.5rem_2rem_2rem_2rem] mr-auto'
+        className={`relative p-4 ${currentTheme.bubbleStyle.backdrop} border border-white/20 overflow-hidden ${currentTheme.bubbleStyle.borderRadius} ${currentTheme.bubbleStyle.shadow} ${
+          isOwn
+            ? `${currentTheme.messageColors.sent} ${currentTheme.messageColors.sentText} ml-auto`
+            : `${currentTheme.messageColors.received} ${currentTheme.messageColors.receivedText} mr-auto`
         }`}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
