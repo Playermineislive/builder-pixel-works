@@ -681,44 +681,64 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
         return false;
       }
 
-      // Update request status
-      setInviteRequests(prev => prev.map(r =>
-        r.id === requestId ? { ...r, status: 'accepted' } : r
-      ));
+      // Check if user has valid auth token
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setError('Please log in to respond to invite requests');
+        return false;
+      }
 
-      // Add contact
-      const newContact: Contact = {
-        id: request.senderId,
-        email: request.senderEmail,
-        username: request.senderUsername || request.senderEmail.split('@')[0],
-        isOnline: true,
-        status: 'online',
-        connectionDate: new Date().toISOString(),
-        unreadCount: 0,
-        isFavorite: false,
-        isPinned: false,
-        tags: ['new']
-      };
+      // Send response to server
+      const response = await fetch('/api/invites/respond', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId, response: 'accept' })
+      });
 
-      addContact(newContact);
+      const result = await response.json();
 
-      // Add success notification
-      const notification: InviteNotification = {
-        id: `notification_${Date.now()}`,
-        type: 'invite_accepted',
-        senderId: request.senderId,
-        senderEmail: request.senderEmail,
-        senderUsername: request.senderUsername,
-        timestamp: new Date().toISOString(),
-        message: `You are now connected with ${request.senderUsername || request.senderEmail}!`
-      };
+      if (result.success) {
+        // Remove request from pending
+        setInviteRequests(prev => prev.filter(r => r.id !== requestId));
 
-      addInviteNotification(notification);
+        // Add contact if contact info provided
+        if (result.contactInfo) {
+          const newContact: Contact = {
+            id: result.contactInfo.id,
+            email: result.contactInfo.email,
+            username: result.contactInfo.username || result.contactInfo.email.split('@')[0],
+            isOnline: true,
+            status: 'online',
+            connectionDate: new Date().toISOString(),
+            unreadCount: 0,
+            isFavorite: false,
+            isPinned: false,
+            tags: ['new']
+          };
 
-      // In a real app, this would send a socket event to notify the sender
-      console.log('Invite request accepted:', requestId);
+          addContact(newContact);
+        }
 
-      return true;
+        // Add success notification
+        const notification: InviteNotification = {
+          id: `notification_${Date.now()}`,
+          type: 'invite_accepted',
+          senderId: request.senderId,
+          senderEmail: request.senderEmail,
+          senderUsername: request.senderUsername,
+          timestamp: new Date().toISOString(),
+          message: `You are now connected with ${request.senderUsername || request.senderEmail}!`
+        };
+
+        addInviteNotification(notification);
+        return true;
+      } else {
+        setError(result.message || 'Failed to accept invite request');
+        return false;
+      }
     } catch (error) {
       console.error('Failed to accept invite request:', error);
       setError('Failed to accept invite request. Please try again.');
