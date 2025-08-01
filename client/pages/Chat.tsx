@@ -36,7 +36,8 @@ import {
   Heart,
   Coffee,
   Music,
-  ArrowLeft
+  ArrowLeft,
+  Palette
 } from 'lucide-react';
 import { ChatMessage, FileUpload, MediaContent } from '@shared/api';
 import MessageBubble from '../components/MessageBubble';
@@ -44,6 +45,7 @@ import MediaUpload from '../components/MediaUpload';
 import EmojiPicker from '../components/EmojiPicker';
 import TranslationSettings from '../components/TranslationSettings';
 import DebugPanel from '../components/DebugPanel';
+import ThemeSelector from '../components/ThemeSelector';
 
 interface ChatProps {
   partner: { id: string; email: string };
