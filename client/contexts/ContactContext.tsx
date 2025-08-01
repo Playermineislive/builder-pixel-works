@@ -759,26 +759,46 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
         return false;
       }
 
-      // Update request status and remove from pending
-      setInviteRequests(prev => prev.filter(r => r.id !== requestId));
+      // Check if user has valid auth token
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setError('Please log in to respond to invite requests');
+        return false;
+      }
 
-      // Add rejection notification
-      const notification: InviteNotification = {
-        id: `notification_${Date.now()}`,
-        type: 'invite_rejected',
-        senderId: request.senderId,
-        senderEmail: request.senderEmail,
-        senderUsername: request.senderUsername,
-        timestamp: new Date().toISOString(),
-        message: `Declined invite request from ${request.senderUsername || request.senderEmail}`
-      };
+      // Send response to server
+      const response = await fetch('/api/invites/respond', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId, response: 'reject' })
+      });
 
-      addInviteNotification(notification);
+      const result = await response.json();
 
-      // In a real app, this would send a socket event to notify the sender
-      console.log('Invite request rejected:', requestId);
+      if (result.success) {
+        // Remove request from pending
+        setInviteRequests(prev => prev.filter(r => r.id !== requestId));
 
-      return true;
+        // Add rejection notification
+        const notification: InviteNotification = {
+          id: `notification_${Date.now()}`,
+          type: 'invite_rejected',
+          senderId: request.senderId,
+          senderEmail: request.senderEmail,
+          senderUsername: request.senderUsername,
+          timestamp: new Date().toISOString(),
+          message: `Declined invite request from ${request.senderUsername || request.senderEmail}`
+        };
+
+        addInviteNotification(notification);
+        return true;
+      } else {
+        setError(result.message || 'Failed to reject invite request');
+        return false;
+      }
     } catch (error) {
       console.error('Failed to reject invite request:', error);
       setError('Failed to reject invite request. Please try again.');
