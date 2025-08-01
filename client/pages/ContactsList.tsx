@@ -801,6 +801,73 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
           />
         )}
       </AnimatePresence>
+
+      {/* Invite Notifications Overlay */}
+      <AnimatePresence>
+        {inviteNotifications.map((notification) => (
+          <motion.div
+            key={notification.id}
+            initial={{ opacity: 0, y: -50, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -50, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-4 right-4 z-50 max-w-sm"
+          >
+            <Card className={`border-2 ${
+              notification.type === 'invite_request'
+                ? 'bg-blue-500/20 border-blue-400/50 backdrop-blur-xl'
+                : notification.type === 'invite_accepted'
+                ? 'bg-green-500/20 border-green-400/50 backdrop-blur-xl'
+                : 'bg-red-500/20 border-red-400/50 backdrop-blur-xl'
+            }`}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between space-x-3">
+                  <div className="flex items-start space-x-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      notification.type === 'invite_request'
+                        ? 'bg-blue-500/30 text-blue-300'
+                        : notification.type === 'invite_accepted'
+                        ? 'bg-green-500/30 text-green-300'
+                        : 'bg-red-500/30 text-red-300'
+                    }`}>
+                      {notification.type === 'invite_request' && <UserPlus className="w-5 h-5" />}
+                      {notification.type === 'invite_accepted' && <CheckCircle className="w-5 h-5" />}
+                      {notification.type === 'invite_rejected' && <AlertCircle className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium text-sm ${
+                        notification.type === 'invite_request'
+                          ? 'text-blue-200'
+                          : notification.type === 'invite_accepted'
+                          ? 'text-green-200'
+                          : 'text-red-200'
+                      }`}>
+                        {notification.type === 'invite_request' && 'New Invite Request'}
+                        {notification.type === 'invite_accepted' && 'Invite Accepted!'}
+                        {notification.type === 'invite_rejected' && 'Invite Declined'}
+                      </h4>
+                      <p className="text-white/80 text-xs mt-1">
+                        {notification.message}
+                      </p>
+                      <p className="text-white/50 text-xs mt-1">
+                        From: {notification.senderUsername || notification.senderEmail}
+                      </p>
+                    </div>
+                  </div>
+                  <motion.button
+                    onClick={() => clearNotification(notification.id)}
+                    className="text-white/50 hover:text-white/80 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
