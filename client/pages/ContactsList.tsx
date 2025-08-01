@@ -214,7 +214,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   const tabs = [
     { id: 'contacts', label: 'Contacts', icon: Users, count: contacts.length },
     { id: 'groups', label: 'Groups', icon: MessageCircle, count: groups.length },
-    { id: 'requests', label: 'Requests', icon: UserPlus, count: pendingRequests.length },
+    { id: 'requests', label: 'Requests', icon: UserPlus, count: pendingRequests.length + inviteRequests.length },
     { id: 'invites', label: 'Invite', icon: UserPlus, count: 0 }
   ] as const;
 
