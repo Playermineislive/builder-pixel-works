@@ -30,9 +30,9 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<AppEntryPoint />} />
                   <Route path="/contacts" element={<ContactsList onSelectContact={() => {}} onCreateGroup={() => {}} onBack={() => {}} />} />
-                  <Route path="/invite/:code" element={<Index />} />
+                  <Route path="/invite/:code" element={<AppEntryPoint />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
