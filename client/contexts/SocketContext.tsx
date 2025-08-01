@@ -263,7 +263,21 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children, onInvi
             setPartnerOnline(false);
             setPartnerTyping(false);
             break;
-            
+
+          case 'invite_request':
+            console.log('📨 Received invite request:', wsMessage.data);
+            if (onInviteRequest) {
+              onInviteRequest(wsMessage.data);
+            }
+            break;
+
+          case 'invite_response':
+            console.log('📨 Received invite response:', wsMessage.data);
+            if (onInviteResponse) {
+              onInviteResponse(wsMessage.data);
+            }
+            break;
+
           case 'error':
             console.error('WebSocket error:', wsMessage.data);
             break;
