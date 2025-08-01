@@ -613,6 +613,165 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     }
   };
 
+  const sendInviteByCode = async (code: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Validate code format
+      if (!/^[A-Z0-9]{6,12}$/.test(code)) {
+        setError('Invalid code format');
+        return false;
+      }
+
+      // In a real app, this would make an API call to send the invite request
+      // For demo, we'll simulate finding the user and sending a request
+      console.log('Sending invite request for code:', code);
+
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Add notification that request was sent
+      const notification: InviteNotification = {
+        id: `notification_${Date.now()}`,
+        type: 'invite_request',
+        senderId: user?.id || '',
+        senderEmail: user?.email || '',
+        senderUsername: userProfile?.username,
+        timestamp: new Date().toISOString(),
+        message: 'Invite request sent! Waiting for response...'
+      };
+
+      addInviteNotification(notification);
+      return true;
+    } catch (error) {
+      console.error('Failed to send invite request:', error);
+      setError('Failed to send invite request. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const acceptInviteRequest = async (requestId: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const request = inviteRequests.find(r => r.id === requestId);
+      if (!request) {
+        setError('Invite request not found');
+        return false;
+      }
+
+      // Update request status
+      setInviteRequests(prev => prev.map(r =>
+        r.id === requestId ? { ...r, status: 'accepted' } : r
+      ));
+
+      // Add contact
+      const newContact: Contact = {
+        id: request.senderId,
+        email: request.senderEmail,
+        username: request.senderUsername || request.senderEmail.split('@')[0],
+        isOnline: true,
+        status: 'online',
+        connectionDate: new Date().toISOString(),
+        unreadCount: 0,
+        isFavorite: false,
+        isPinned: false,
+        tags: ['new']
+      };
+
+      addContact(newContact);
+
+      // Add success notification
+      const notification: InviteNotification = {
+        id: `notification_${Date.now()}`,
+        type: 'invite_accepted',
+        senderId: request.senderId,
+        senderEmail: request.senderEmail,
+        senderUsername: request.senderUsername,
+        timestamp: new Date().toISOString(),
+        message: `You are now connected with ${request.senderUsername || request.senderEmail}!`
+      };
+
+      addInviteNotification(notification);
+
+      // In a real app, this would send a socket event to notify the sender
+      console.log('Invite request accepted:', requestId);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to accept invite request:', error);
+      setError('Failed to accept invite request. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const rejectInviteRequest = async (requestId: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const request = inviteRequests.find(r => r.id === requestId);
+      if (!request) {
+        setError('Invite request not found');
+        return false;
+      }
+
+      // Update request status and remove from pending
+      setInviteRequests(prev => prev.filter(r => r.id !== requestId));
+
+      // Add rejection notification
+      const notification: InviteNotification = {
+        id: `notification_${Date.now()}`,
+        type: 'invite_rejected',
+        senderId: request.senderId,
+        senderEmail: request.senderEmail,
+        senderUsername: request.senderUsername,
+        timestamp: new Date().toISOString(),
+        message: `Declined invite request from ${request.senderUsername || request.senderEmail}`
+      };
+
+      addInviteNotification(notification);
+
+      // In a real app, this would send a socket event to notify the sender
+      console.log('Invite request rejected:', requestId);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to reject invite request:', error);
+      setError('Failed to reject invite request. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addInviteRequest = (request: InviteRequest) => {
+    setInviteRequests(prev => {
+      const exists = prev.find(r => r.id === request.id);
+      if (exists) return prev;
+      return [...prev, request];
+    });
+  };
+
+  const addInviteNotification = (notification: InviteNotification) => {
+    setInviteNotifications(prev => [...prev, notification]);
+
+    // Auto-remove notification after 10 seconds
+    setTimeout(() => {
+      clearNotification(notification.id);
+    }, 10000);
+  };
+
+  const clearNotification = (notificationId: string) => {
+    setInviteNotifications(prev => prev.filter(n => n.id !== notificationId));
+  };
+
   const value: ContactContextType = {
     contacts,
     groups,
