@@ -410,6 +410,24 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children, onInvi
     }
   };
 
+  const sendInviteRequest = (code: string) => {
+    if (socket && socket.connected) {
+      console.log('📤 Sending invite request for code:', code);
+      socket.emit('send_invite_request', { code });
+    } else {
+      console.warn('⚠️ Socket not connected, cannot send invite request');
+    }
+  };
+
+  const respondToInviteRequest = (requestId: string, response: 'accept' | 'reject') => {
+    if (socket && socket.connected) {
+      console.log('📤 Responding to invite request:', requestId, response);
+      socket.emit('respond_invite_request', { requestId, response });
+    } else {
+      console.warn('⚠️ Socket not connected, cannot respond to invite request');
+    }
+  };
+
   const clearMessages = () => {
     setMessages([]);
   };
