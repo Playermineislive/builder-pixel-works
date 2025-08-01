@@ -65,6 +65,7 @@ interface GroupInfo {
 
 export default function Index() {
   const { isAuthenticated, isLoading, token, user } = useAuth();
+  const { addInviteRequest, addInviteNotification } = useContacts();
   const [appState, setAppState] = useState<AppState>('auth');
   const [partner, setPartner] = useState<Contact | null>(null);
   const [currentGroup, setCurrentGroup] = useState<GroupInfo | null>(null);
