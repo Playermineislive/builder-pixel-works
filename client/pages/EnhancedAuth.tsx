@@ -190,7 +190,7 @@ export default function EnhancedAuth() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
       {/* Dynamic background */}
       <motion.div
         className="absolute inset-0"
