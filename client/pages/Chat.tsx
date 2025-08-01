@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import { useEncryption } from '../contexts/EncryptionContext';
 import { useTranslation } from '../contexts/TranslationContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
