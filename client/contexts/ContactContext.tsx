@@ -152,6 +152,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       const savedContacts = localStorage.getItem('secureChat_contacts');
       const savedGroups = localStorage.getItem('secureChat_groups');
       const savedRequests = localStorage.getItem('secureChat_pendingRequests');
+      const savedInviteRequests = localStorage.getItem('secureChat_inviteRequests');
+      const savedInviteNotifications = localStorage.getItem('secureChat_inviteNotifications');
       const savedProfile = localStorage.getItem('secureChat_userProfile');
 
       if (savedContacts) {
@@ -162,6 +164,12 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       }
       if (savedRequests) {
         setPendingRequests(JSON.parse(savedRequests));
+      }
+      if (savedInviteRequests) {
+        setInviteRequests(JSON.parse(savedInviteRequests));
+      }
+      if (savedInviteNotifications) {
+        setInviteNotifications(JSON.parse(savedInviteNotifications));
       }
       if (savedProfile && user) {
         const profile = JSON.parse(savedProfile);
