@@ -589,61 +589,31 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               >
                 {/* Invite Requests Section */}
                 {inviteRequests.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-white font-medium text-lg">Invite Requests</h3>
-                    {inviteRequests.map((request, index) => (
-                      <motion.div
-                        key={request.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05, duration: 0.3 }}
-                      >
-                        <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-200">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
-                                  {request.senderUsername?.charAt(0) || request.senderEmail.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                  <h4 className="text-white font-medium">
-                                    {request.senderUsername || request.senderEmail}
-                                  </h4>
-                                  <p className="text-white/60 text-sm">
-                                    {request.senderEmail}
-                                  </p>
-                                  <p className="text-white/50 text-xs">
-                                    Wants to connect with you
-                                  </p>
-                                </div>
-                              </div>
+                  <div className="space-y-4">
+                    <motion.h3
+                      className="text-white font-semibold text-xl flex items-center space-x-2"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <Sparkles className="w-6 h-6 text-yellow-400" />
+                      <span>Invite Requests</span>
+                      <Badge variant="outline" className="bg-blue-500/20 border-blue-400/50 text-blue-300">
+                        {inviteRequests.length}
+                      </Badge>
+                    </motion.h3>
 
-                              <div className="flex space-x-2">
-                                <motion.button
-                                  onClick={() => acceptInviteRequest(request.id)}
-                                  className="w-10 h-10 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 rounded-[1rem] flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  title="Accept"
-                                >
-                                  <Check className="w-5 h-5" />
-                                </motion.button>
-
-                                <motion.button
-                                  onClick={() => rejectInviteRequest(request.id)}
-                                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 rounded-[1rem] flex items-center justify-center text-red-400 hover:text-red-300 transition-all duration-200"
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  title="Reject"
-                                >
-                                  <AlertCircle className="w-5 h-5" />
-                                </motion.button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
+                    <div className="space-y-4">
+                      {inviteRequests.map((request, index) => (
+                        <InviteRequestCard
+                          key={request.id}
+                          request={request}
+                          onAccept={acceptInviteRequest}
+                          onReject={rejectInviteRequest}
+                          onView={(req) => console.log('View request:', req)}
+                          index={index}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
 
