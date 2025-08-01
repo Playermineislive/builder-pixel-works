@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { generateSecureCode, generateInviteCode, InviteCode } from '../utils/groupCrypto';
+import { InviteRequest, InviteNotification } from '@shared/api';
 
 export interface Contact {
   id: string;
