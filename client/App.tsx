@@ -20,31 +20,33 @@ import ErrorBoundary from "./components/ErrorBoundary";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <EncryptionProvider>
-        <TranslationProvider>
-          <ContactProvider>
-            <ThemeProvider>
-              <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<AppEntryPoint />} />
-                  <Route path="/contacts" element={<ContactsList onSelectContact={() => {}} onCreateGroup={() => {}} onBack={() => {}} />} />
-                  <Route path="/invite/:code" element={<AppEntryPoint />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-              </TooltipProvider>
-            </ThemeProvider>
-          </ContactProvider>
-        </TranslationProvider>
-      </EncryptionProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <EncryptionProvider>
+          <TranslationProvider>
+            <ContactProvider>
+              <ThemeProvider>
+                <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<AppEntryPoint />} />
+                    <Route path="/contacts" element={<ContactsList onSelectContact={() => {}} onCreateGroup={() => {}} onBack={() => {}} />} />
+                    <Route path="/invite/:code" element={<AppEntryPoint />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+                </TooltipProvider>
+              </ThemeProvider>
+            </ContactProvider>
+          </TranslationProvider>
+        </EncryptionProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 createRoot(document.getElementById("root")!).render(<App />);
