@@ -30,7 +30,7 @@ interface SocketProviderProps {
   onInviteResponse?: (notification: InviteNotification) => void;
 }
 
-export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+export const SocketProvider: React.FC<SocketProviderProps> = ({ children, onInviteRequest, onInviteResponse }) => {
   const { token, isAuthenticated, user } = useAuth();
   const {
     keyPair,
