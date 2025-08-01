@@ -201,6 +201,16 @@ export default function Index() {
     setCurrentGroup(updatedGroup);
   };
 
+  const handleInviteRequest = (request: InviteRequest) => {
+    console.log('📨 Received invite request in Index:', request);
+    addInviteRequest(request);
+  };
+
+  const handleInviteResponse = (notification: InviteNotification) => {
+    console.log('📨 Received invite response in Index:', notification);
+    addInviteNotification(notification);
+  };
+
   // Enhanced loading screen with stats
   if (isLoading || isCheckingConnection) {
     return (
