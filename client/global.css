@@ -571,6 +571,92 @@
     }
   }
 
+  /* Theme-specific patterns and effects */
+  .theme-love {
+    background-image: radial-gradient(circle at 25% 25%, rgba(255, 105, 180, 0.2) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, rgba(255, 20, 147, 0.2) 0%, transparent 50%);
+  }
+
+  .theme-ocean {
+    background-image: linear-gradient(45deg, rgba(70, 195, 247, 0.1) 25%, transparent 25%),
+                      linear-gradient(-45deg, rgba(70, 195, 247, 0.1) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, rgba(70, 195, 247, 0.1) 75%),
+                      linear-gradient(-45deg, transparent 75%, rgba(70, 195, 247, 0.1) 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+  }
+
+  .theme-galaxy {
+    background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 215, 0, 0.8), transparent),
+                      radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
+                      radial-gradient(1px 1px at 90px 40px, rgba(255, 215, 0, 0.5), transparent),
+                      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.4), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+  }
+
+  .theme-weather-sunny {
+    background-image: radial-gradient(circle at 50% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 50%);
+  }
+
+  .theme-weather-rainy {
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 98px,
+      rgba(79, 195, 247, 0.1) 100px
+    );
+  }
+
+  /* Weather theme animations */
+  .weather-rain-animation {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .weather-rain-animation::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background-image: linear-gradient(180deg, transparent 0%, rgba(79, 195, 247, 0.3) 50%, transparent 100%);
+    background-size: 2px 20px;
+    background-repeat: repeat-x;
+    animation: rainFall 2s linear infinite;
+  }
+
+  @keyframes rainFall {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  .weather-snow-animation::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: snowFall 10s linear infinite;
+  }
+
+  @keyframes snowFall {
+    0% {
+      transform: translateY(-100%) translateX(0px);
+    }
+    100% {
+      transform: translateY(100%) translateX(50px);
+    }
+  }
+
   /* Prevent horizontal scroll on mobile */
   .prevent-horizontal-scroll {
     overflow-x: hidden;
