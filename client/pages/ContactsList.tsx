@@ -169,15 +169,12 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
 
   const handleAddFriendByCode = async () => {
     if (!addFriendCode.trim()) return;
-    
-    const success = await addFriendByCode(addFriendCode, {
-      email: `user_${addFriendCode.toLowerCase()}@example.com`,
-      username: `User ${addFriendCode}`
-    });
-    
+
+    const success = await sendInviteByCode(addFriendCode);
+
     if (success) {
       setAddFriendCode('');
-      setSuccessMessage('Friend added successfully!');
+      setSuccessMessage('Invite request sent! Waiting for response...');
       setTimeout(() => setSuccessMessage(''), 3000);
     }
   };
