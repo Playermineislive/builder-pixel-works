@@ -11,14 +11,22 @@ import {
   verifyToken, 
   getUserById 
 } from "./routes/auth";
-import { 
-  handleGenerateCode, 
-  handleConnectCode, 
-  handleGetConnectionStatus, 
-  handleDisconnect, 
-  authenticateUser, 
-  getPartnerIdForUser 
+import {
+  handleGenerateCode,
+  handleConnectCode,
+  handleGetConnectionStatus,
+  handleDisconnect,
+  authenticateUser,
+  getPartnerIdForUser
 } from "./routes/pairing";
+import {
+  handleSendInviteRequest,
+  handleRespondToInviteRequest,
+  handleGetInviteRequests,
+  handleRegisterInviteCode,
+  getInviteRequestsForUser,
+  findUserByInviteCode
+} from "./routes/invites";
 import { WebSocketMessage } from "@shared/api";
 
 export function createAppServer() {
