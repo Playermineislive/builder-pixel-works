@@ -464,8 +464,8 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
       </div>
 
       {/* Input section */}
-      <motion.div 
-        className="relative z-10 p-4 bg-white/5 backdrop-blur-xl border-t border-white/20"
+      <motion.div
+        className={`relative z-10 p-4 ${currentTheme.inputStyle.background} backdrop-blur-xl border-t ${currentTheme.inputStyle.border}`}
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
