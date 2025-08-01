@@ -19,7 +19,8 @@
     "test": "vitest --run",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
-    "deploy": "gh-pages -d dist"
+    "predeploy": "npm run build:client",
+    "deploy": "gh-pages -d dist/spa"
   },
   "dependencies": {
     "@google-cloud/translate": "^9.2.0",
