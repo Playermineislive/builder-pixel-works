@@ -501,6 +501,22 @@
     animation: sparkle 2s ease-in-out infinite;
   }
 
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .animate-message-glow {
+    animation: messageGlow 3s ease-in-out infinite;
+  }
+
+  .animate-heart-beat {
+    animation: heartBeat 1.5s ease-in-out infinite;
+  }
+
+  .animate-weather-pulse {
+    animation: weatherPulse 3s ease-in-out infinite;
+  }
+
   /* Enhanced hover effects */
   .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
