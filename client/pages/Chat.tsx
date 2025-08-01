@@ -191,13 +191,23 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
 
   return (
     <div className="h-screen flex flex-col relative overflow-hidden">
-      {/* Animated background */}
-      <motion.div 
+      {/* Animated background with theme */}
+      <motion.div
         className="absolute inset-0"
-        style={{ background: currentTheme.bg }}
+        style={{ background: currentTheme.background }}
         animate={{ opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Theme pattern overlay */}
+      {currentTheme.pattern && (
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: currentTheme.pattern }}
+          animate={{ opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
       
       {/* Floating elements for ambiance */}
       <div className="absolute inset-0 pointer-events-none">
