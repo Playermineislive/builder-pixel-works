@@ -65,6 +65,12 @@ export function createAppServer() {
   app.get("/api/pairing/status", authenticateUser, handleGetConnectionStatus);
   app.post("/api/pairing/disconnect", authenticateUser, handleDisconnect);
 
+  // Invite request routes (require authentication)
+  app.post("/api/invites/send", authenticateUser, handleSendInviteRequest);
+  app.post("/api/invites/respond", authenticateUser, handleRespondToInviteRequest);
+  app.get("/api/invites", authenticateUser, handleGetInviteRequests);
+  app.post("/api/invites/register-code", authenticateUser, handleRegisterInviteCode);
+
   // WebSocket authentication middleware
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
