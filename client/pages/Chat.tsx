@@ -119,7 +119,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
     }
   ];
 
-  const currentTheme = chatThemes[chatTheme];
+  const localChatTheme = chatThemes[chatTheme];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
