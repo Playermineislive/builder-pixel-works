@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { SocketProvider } from '../contexts/SocketContext';
-import { ContactProvider } from '../contexts/ContactContext';
+import { ContactProvider, useContacts } from '../contexts/ContactContext';
+import { InviteRequest, InviteNotification } from '@shared/api';
 import Auth from './Auth';
 import Pairing from './Pairing';
 import Chat from './Chat';
