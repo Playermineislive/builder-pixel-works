@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../contexts/ThemeContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Palette, 
-  CloudSun, 
-  MapPin, 
-  Loader2, 
-  Check, 
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "../contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Palette,
+  CloudSun,
+  MapPin,
+  Loader2,
+  Check,
   Heart,
   Sparkles,
   Sun,
@@ -19,8 +19,8 @@ import {
   CloudRain,
   Snowflake,
   X,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
 
 interface ThemeSelectorProps {
   onClose: () => void;
@@ -39,28 +39,34 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
     toggleWeatherThemes,
     getUserLocation,
     isLoading,
-    error
+    error,
   } = useTheme();
 
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'favorites' | 'weather'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<
+    "all" | "favorites" | "weather"
+  >("all");
   const [isLocationLoading, setIsLocationLoading] = useState(false);
 
   const getThemePreview = (theme: any) => (
-    <div 
+    <div
       className="w-full h-20 rounded-lg relative overflow-hidden"
       style={{ background: theme.background }}
     >
       {theme.pattern && (
-        <div 
+        <div
           className="absolute inset-0 opacity-20"
           style={{ backgroundImage: theme.pattern }}
         />
       )}
       <div className="absolute inset-0 flex items-center justify-center space-x-2 p-2">
-        <div className={`px-3 py-1 rounded-full text-xs ${theme.messageColors.sent} ${theme.messageColors.sentText}`}>
+        <div
+          className={`px-3 py-1 rounded-full text-xs ${theme.messageColors.sent} ${theme.messageColors.sentText}`}
+        >
           Hey! 👋
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs ${theme.messageColors.received} ${theme.messageColors.receivedText}`}>
+        <div
+          className={`px-3 py-1 rounded-full text-xs ${theme.messageColors.received} ${theme.messageColors.receivedText}`}
+        >
           Hi there!
         </div>
       </div>
@@ -72,7 +78,7 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
     try {
       await getUserLocation();
     } catch (error) {
-      console.error('Failed to get location:', error);
+      console.error("Failed to get location:", error);
     } finally {
       setIsLocationLoading(false);
     }
@@ -80,19 +86,27 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
 
   const getWeatherIcon = (weather: string) => {
     switch (weather) {
-      case 'sunny': return <Sun className="w-4 h-4" />;
-      case 'rainy': return <CloudRain className="w-4 h-4" />;
-      case 'cloudy': return <Cloud className="w-4 h-4" />;
-      case 'snowy': return <Snowflake className="w-4 h-4" />;
-      default: return <CloudSun className="w-4 h-4" />;
+      case "sunny":
+        return <Sun className="w-4 h-4" />;
+      case "rainy":
+        return <CloudRain className="w-4 h-4" />;
+      case "cloudy":
+        return <Cloud className="w-4 h-4" />;
+      case "snowy":
+        return <Snowflake className="w-4 h-4" />;
+      default:
+        return <CloudSun className="w-4 h-4" />;
     }
   };
 
-  const filteredThemes = selectedCategory === 'weather' 
-    ? Object.values(weatherThemes)
-    : selectedCategory === 'favorites'
-    ? availableThemes.filter(theme => ['love', 'galaxy', 'ocean'].includes(theme.name))
-    : availableThemes;
+  const filteredThemes =
+    selectedCategory === "weather"
+      ? Object.values(weatherThemes)
+      : selectedCategory === "favorites"
+        ? availableThemes.filter((theme) =>
+            ["love", "galaxy", "ocean"].includes(theme.name),
+          )
+        : availableThemes;
 
   if (!isOpen) return null;
 
@@ -122,10 +136,12 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-white">Chat Themes</h2>
-                  <p className="text-white/60 text-sm">Customize your chat experience</p>
+                  <p className="text-white/60 text-sm">
+                    Customize your chat experience
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 onClick={onClose}
                 className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-all duration-200"
@@ -153,9 +169,14 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
                       </p>
                       {currentWeather && isWeatherEnabled && (
                         <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="outline" className="bg-white/10 border-white/20 text-white">
+                          <Badge
+                            variant="outline"
+                            className="bg-white/10 border-white/20 text-white"
+                          >
                             {getWeatherIcon(currentWeather)}
-                            <span className="ml-1 capitalize">{currentWeather}</span>
+                            <span className="ml-1 capitalize">
+                              {currentWeather}
+                            </span>
                           </Badge>
                         </div>
                       )}
@@ -207,23 +228,25 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
             <div className="px-6 py-4">
               <div className="flex space-x-2">
                 {[
-                  { id: 'all', label: 'All Themes', icon: Palette },
-                  { id: 'favorites', label: 'Popular', icon: Heart },
-                  { id: 'weather', label: 'Weather', icon: CloudSun }
+                  { id: "all", label: "All Themes", icon: Palette },
+                  { id: "favorites", label: "Popular", icon: Heart },
+                  { id: "weather", label: "Weather", icon: CloudSun },
                 ].map((category) => (
                   <motion.button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id as any)}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                       selectedCategory === category.id
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                        ? "bg-white/20 text-white"
+                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <category.icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{category.label}</span>
+                    <span className="text-sm font-medium">
+                      {category.label}
+                    </span>
                   </motion.button>
                 ))}
               </div>
@@ -239,9 +262,11 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05, duration: 0.3 }}
                   >
-                    <Card 
+                    <Card
                       className={`bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-200 cursor-pointer relative overflow-hidden ${
-                        currentTheme.id === theme.id ? 'ring-2 ring-blue-400/50' : ''
+                        currentTheme.id === theme.id
+                          ? "ring-2 ring-blue-400/50"
+                          : ""
                       }`}
                       onClick={() => setTheme(theme.id)}
                     >
@@ -269,12 +294,17 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
                                 <span className="text-lg">{theme.emoji}</span>
                               </h3>
                               {theme.weatherType && (
-                                <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-xs">
+                                <Badge
+                                  variant="outline"
+                                  className="bg-white/10 border-white/20 text-white text-xs"
+                                >
                                   {getWeatherIcon(theme.weatherType)}
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-white/60 text-xs">{theme.description}</p>
+                            <p className="text-white/60 text-xs">
+                              {theme.description}
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -286,7 +316,9 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
               {filteredThemes.length === 0 && (
                 <div className="text-center py-12">
                   <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                  <h3 className="text-white text-lg font-medium mb-2">No themes found</h3>
+                  <h3 className="text-white text-lg font-medium mb-2">
+                    No themes found
+                  </h3>
                   <p className="text-white/60 text-sm">
                     Try selecting a different category
                   </p>
@@ -298,7 +330,10 @@ export default function ThemeSelector({ onClose, isOpen }: ThemeSelectorProps) {
             <div className="p-6 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <div className="text-white/60 text-sm">
-                  Currently using: <span className="text-white font-medium">{currentTheme.displayName}</span>
+                  Currently using:{" "}
+                  <span className="text-white font-medium">
+                    {currentTheme.displayName}
+                  </span>
                 </div>
                 <Button
                   onClick={onClose}

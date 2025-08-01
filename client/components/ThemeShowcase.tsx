@@ -1,48 +1,55 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../contexts/ThemeContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Palette, 
-  Heart, 
-  CloudSun, 
-  Sparkles, 
-  Sun, 
-  CloudRain, 
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "../contexts/ThemeContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import {
+  Palette,
+  Heart,
+  CloudSun,
+  Sparkles,
+  Sun,
+  CloudRain,
   Snowflake,
   Cloud,
   Zap,
   Star,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
 
 interface ThemeShowcaseProps {
   onClose: () => void;
 }
 
 export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
-  const { 
-    currentTheme, 
-    availableThemes, 
-    weatherThemes, 
-    isWeatherEnabled, 
-    currentWeather, 
-    setTheme, 
-    toggleWeatherThemes 
+  const {
+    currentTheme,
+    availableThemes,
+    weatherThemes,
+    isWeatherEnabled,
+    currentWeather,
+    setTheme,
+    toggleWeatherThemes,
   } = useTheme();
 
-  const [demoMessage, setDemoMessage] = useState("Hey! This is how your messages will look 💫");
+  const [demoMessage, setDemoMessage] = useState(
+    "Hey! This is how your messages will look 💫",
+  );
 
   const getWeatherIcon = (weather: string) => {
     switch (weather) {
-      case 'sunny': return <Sun className="w-4 h-4" />;
-      case 'rainy': return <CloudRain className="w-4 h-4" />;
-      case 'cloudy': return <Cloud className="w-4 h-4" />;
-      case 'snowy': return <Snowflake className="w-4 h-4" />;
-      default: return <CloudSun className="w-4 h-4" />;
+      case "sunny":
+        return <Sun className="w-4 h-4" />;
+      case "rainy":
+        return <CloudRain className="w-4 h-4" />;
+      case "cloudy":
+        return <Cloud className="w-4 h-4" />;
+      case "snowy":
+        return <Snowflake className="w-4 h-4" />;
+      default:
+        return <CloudSun className="w-4 h-4" />;
     }
   };
 
@@ -73,11 +80,15 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                   <Palette className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Theme Showcase</h2>
-                  <p className="text-white/60">Explore beautiful chat themes and weather integration</p>
+                  <h2 className="text-2xl font-bold text-white">
+                    Theme Showcase
+                  </h2>
+                  <p className="text-white/60">
+                    Explore beautiful chat themes and weather integration
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 onClick={onClose}
                 className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-all duration-200"
@@ -105,17 +116,17 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div 
+                  <div
                     className="w-full h-40 rounded-xl relative overflow-hidden mb-4"
                     style={{ background: currentTheme.background }}
                   >
                     {currentTheme.pattern && (
-                      <div 
+                      <div
                         className="absolute inset-0 opacity-30"
                         style={{ backgroundImage: currentTheme.pattern }}
                       />
                     )}
-                    
+
                     {/* Demo messages */}
                     <div className="absolute inset-0 flex flex-col justify-center space-y-3 p-6">
                       <motion.div
@@ -134,8 +145,10 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                       </motion.div>
                     </div>
                   </div>
-                  
-                  <p className="text-white/70 text-sm">{currentTheme.description}</p>
+
+                  <p className="text-white/70 text-sm">
+                    {currentTheme.description}
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -156,12 +169,19 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white/80">Automatically adapt themes to your local weather</p>
+                      <p className="text-white/80">
+                        Automatically adapt themes to your local weather
+                      </p>
                       {isWeatherEnabled && currentWeather && (
                         <div className="flex items-center space-x-2 mt-2">
-                          <Badge variant="outline" className="bg-blue-500/20 border-blue-400/50 text-blue-300">
+                          <Badge
+                            variant="outline"
+                            className="bg-blue-500/20 border-blue-400/50 text-blue-300"
+                          >
                             {getWeatherIcon(currentWeather)}
-                            <span className="ml-1 capitalize">{currentWeather} Theme Active</span>
+                            <span className="ml-1 capitalize">
+                              {currentWeather} Theme Active
+                            </span>
                           </Badge>
                         </div>
                       )}
@@ -197,7 +217,9 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                             />
                           )}
                         </div>
-                        <p className="text-white/80 text-xs text-center mt-1">{theme.displayName}</p>
+                        <p className="text-white/80 text-xs text-center mt-1">
+                          {theme.displayName}
+                        </p>
                       </motion.div>
                     ))}
                   </div>
@@ -229,16 +251,20 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                         className="relative group cursor-pointer"
                         onClick={() => setTheme(theme.id)}
                       >
-                        <Card className={`bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-200 overflow-hidden ${
-                          currentTheme.id === theme.id ? 'ring-2 ring-blue-400/50' : ''
-                        }`}>
+                        <Card
+                          className={`bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-200 overflow-hidden ${
+                            currentTheme.id === theme.id
+                              ? "ring-2 ring-blue-400/50"
+                              : ""
+                          }`}
+                        >
                           <CardContent className="p-4">
-                            <div 
+                            <div
                               className="w-full h-16 rounded-lg mb-3 relative overflow-hidden"
                               style={{ background: theme.background }}
                             >
                               {theme.pattern && (
-                                <div 
+                                <div
                                   className="absolute inset-0 opacity-20"
                                   style={{ backgroundImage: theme.pattern }}
                                 />
@@ -247,8 +273,12 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                                 <span className="text-xl">{theme.emoji}</span>
                               </div>
                             </div>
-                            <h3 className="text-white font-medium text-sm mb-1">{theme.displayName}</h3>
-                            <p className="text-white/60 text-xs">{theme.description}</p>
+                            <h3 className="text-white font-medium text-sm mb-1">
+                              {theme.displayName}
+                            </h3>
+                            <p className="text-white/60 text-xs">
+                              {theme.description}
+                            </p>
                           </CardContent>
                         </Card>
                       </motion.div>
@@ -277,24 +307,36 @@ export default function ThemeShowcase({ onClose }: ThemeShowcaseProps) {
                       <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto">
                         <Palette className="w-6 h-6 text-purple-400" />
                       </div>
-                      <h4 className="text-white font-medium">10+ Beautiful Themes</h4>
-                      <p className="text-white/60 text-sm">Love, Ocean, Galaxy, and more</p>
+                      <h4 className="text-white font-medium">
+                        10+ Beautiful Themes
+                      </h4>
+                      <p className="text-white/60 text-sm">
+                        Love, Ocean, Galaxy, and more
+                      </p>
                     </div>
-                    
+
                     <div className="text-center space-y-2">
                       <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto">
                         <CloudSun className="w-6 h-6 text-blue-400" />
                       </div>
-                      <h4 className="text-white font-medium">Weather Integration</h4>
-                      <p className="text-white/60 text-sm">Themes adapt to your weather</p>
+                      <h4 className="text-white font-medium">
+                        Weather Integration
+                      </h4>
+                      <p className="text-white/60 text-sm">
+                        Themes adapt to your weather
+                      </p>
                     </div>
-                    
+
                     <div className="text-center space-y-2">
                       <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
                         <Zap className="w-6 h-6 text-green-400" />
                       </div>
-                      <h4 className="text-white font-medium">Real-time Switching</h4>
-                      <p className="text-white/60 text-sm">Instant theme changes</p>
+                      <h4 className="text-white font-medium">
+                        Real-time Switching
+                      </h4>
+                      <p className="text-white/60 text-sm">
+                        Instant theme changes
+                      </p>
                     </div>
                   </div>
                 </CardContent>

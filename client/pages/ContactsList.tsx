@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../contexts/AuthContext';
-import { useContacts, Contact, Group } from '../contexts/ContactContext';
-import { InviteNotification } from '@shared/api';
-import InviteRequestCard from '../components/InviteRequestCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import ProfileSettings from '../components/ProfileSettings';
-import ContactRename from '../components/ContactRename';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
+import { useContacts, Contact, Group } from "../contexts/ContactContext";
+import { InviteNotification } from "@shared/api";
+import InviteRequestCard from "../components/InviteRequestCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ProfileSettings from "../components/ProfileSettings";
+import ContactRename from "../components/ContactRename";
 import {
   Users,
   Search,
@@ -37,8 +37,8 @@ import {
   AlertCircle,
   CheckCircle,
   Edit2,
-  User
-} from 'lucide-react';
+  User,
+} from "lucide-react";
 
 interface ContactsListProps {
   onSelectContact: (contact: Contact) => void;
@@ -46,7 +46,11 @@ interface ContactsListProps {
   onBack: () => void;
 }
 
-export default function ContactsList({ onSelectContact, onCreateGroup, onBack }: ContactsListProps) {
+export default function ContactsList({
+  onSelectContact,
+  onCreateGroup,
+  onBack,
+}: ContactsListProps) {
   const { user } = useAuth();
   const {
     contacts,
@@ -73,51 +77,55 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     createGroup,
     renameContact,
     isLoading,
-    error
+    error,
   } = useContacts();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'contacts' | 'groups' | 'invites' | 'requests'>('contacts');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<
+    "contacts" | "groups" | "invites" | "requests"
+  >("contacts");
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [filterBy, setFilterBy] = useState<'all' | 'online' | 'favorites' | 'recent'>('all');
+  const [filterBy, setFilterBy] = useState<
+    "all" | "online" | "favorites" | "recent"
+  >("all");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showQRCode, setShowQRCode] = useState(false);
-  const [newFriendEmail, setNewFriendEmail] = useState('');
-  const [addFriendCode, setAddFriendCode] = useState('');
+  const [newFriendEmail, setNewFriendEmail] = useState("");
+  const [addFriendCode, setAddFriendCode] = useState("");
   const [showAddFriend, setShowAddFriend] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [renamingContact, setRenamingContact] = useState<Contact | null>(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
   const getFilteredContacts = () => {
     let filteredContacts = contacts;
-    
+
     if (searchQuery) {
       filteredContacts = searchContacts(searchQuery);
     } else {
       switch (filterBy) {
-        case 'online':
+        case "online":
           filteredContacts = getOnlineContacts();
           break;
-        case 'favorites':
+        case "favorites":
           filteredContacts = getFavoriteContacts();
           break;
-        case 'recent':
+        case "recent":
           filteredContacts = getRecentContacts();
           break;
         default:
@@ -129,17 +137,18 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   };
 
   const filteredContacts = getFilteredContacts();
-  const filteredGroups = groups.filter(group =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    group.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredGroups = groups.filter(
+    (group) =>
+      group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      group.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleSelectContact = (contact: Contact) => {
     if (isSelectionMode) {
-      setSelectedContacts(prev =>
+      setSelectedContacts((prev) =>
         prev.includes(contact.id)
-          ? prev.filter(id => id !== contact.id)
-          : [...prev, contact.id]
+          ? prev.filter((id) => id !== contact.id)
+          : [...prev, contact.id],
       );
     } else {
       onSelectContact(contact);
@@ -147,9 +156,14 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
   };
 
   const handleCreateGroup = () => {
-    const selectedContactObjects = contacts.filter(c => selectedContacts.includes(c.id));
+    const selectedContactObjects = contacts.filter((c) =>
+      selectedContacts.includes(c.id),
+    );
     if (selectedContactObjects.length >= 1) {
-      const newGroup = createGroup(`Group with ${selectedContactObjects.map(c => c.username || c.email).join(', ')}`, selectedContactObjects);
+      const newGroup = createGroup(
+        `Group with ${selectedContactObjects.map((c) => c.username || c.email).join(", ")}`,
+        selectedContactObjects,
+      );
       onCreateGroup(selectedContactObjects);
       setIsSelectionMode(false);
       setSelectedContacts([]);
@@ -158,13 +172,13 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
 
   const copyInviteCode = async () => {
     if (!currentInviteCode) return;
-    
+
     try {
       await navigator.clipboard.writeText(currentInviteCode.code);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
     } catch (error) {
-      console.error('Failed to copy code:', error);
+      console.error("Failed to copy code:", error);
     }
   };
 
@@ -174,29 +188,33 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     const success = await sendInviteByCode(addFriendCode);
 
     if (success) {
-      setAddFriendCode('');
-      setSuccessMessage('Invite request sent! Waiting for response...');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setAddFriendCode("");
+      setSuccessMessage("Invite request sent! Waiting for response...");
+      setTimeout(() => setSuccessMessage(""), 3000);
     }
   };
 
   const handleSendFriendRequest = async () => {
     if (!newFriendEmail.trim()) return;
-    
+
     const success = await sendFriendRequest(newFriendEmail);
     if (success) {
-      setNewFriendEmail('');
-      setSuccessMessage('Friend request sent!');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setNewFriendEmail("");
+      setSuccessMessage("Friend request sent!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     }
   };
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'away': return 'bg-yellow-500';
-      case 'busy': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case "online":
+        return "bg-green-500";
+      case "away":
+        return "bg-yellow-500";
+      case "busy":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
@@ -206,30 +224,40 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'Just now';
+    if (minutes < 1) return "Just now";
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return `${days}d ago`;
   };
 
   const tabs = [
-    { id: 'contacts', label: 'Contacts', icon: Users, count: contacts.length },
-    { id: 'groups', label: 'Groups', icon: MessageCircle, count: groups.length },
-    { id: 'requests', label: 'Requests', icon: UserPlus, count: pendingRequests.length + inviteRequests.length },
-    { id: 'invites', label: 'Invite', icon: UserPlus, count: 0 }
+    { id: "contacts", label: "Contacts", icon: Users, count: contacts.length },
+    {
+      id: "groups",
+      label: "Groups",
+      icon: MessageCircle,
+      count: groups.length,
+    },
+    {
+      id: "requests",
+      label: "Requests",
+      icon: UserPlus,
+      count: pendingRequests.length + inviteRequests.length,
+    },
+    { id: "invites", label: "Invite", icon: UserPlus, count: 0 },
   ] as const;
 
   const filters = [
-    { id: 'all', label: 'All', icon: Users },
-    { id: 'online', label: 'Online', icon: Wifi },
-    { id: 'favorites', label: 'Favorites', icon: Star },
-    { id: 'recent', label: 'Recent', icon: Clock }
+    { id: "all", label: "All", icon: Users },
+    { id: "online", label: "Online", icon: Wifi },
+    { id: "favorites", label: "Favorites", icon: Star },
+    { id: "recent", label: "Recent", icon: Clock },
   ] as const;
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 relative overflow-hidden">
       {/* Header */}
-      <motion.header 
+      <motion.header
         className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -245,7 +273,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             >
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
-            
+
             <div className="flex items-center space-x-3">
               <motion.div
                 onClick={() => setShowProfileSettings(true)}
@@ -256,7 +284,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 <Avatar className="w-12 h-12 border-2 border-white/20">
                   <AvatarImage src={userProfile?.avatar} />
                   <AvatarFallback className="bg-gradient-to-br from-purple-400 to-blue-500 text-white font-bold">
-                    {userProfile?.username?.charAt(0) || userProfile?.email.charAt(0).toUpperCase()}
+                    {userProfile?.username?.charAt(0) ||
+                      userProfile?.email.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </motion.div>
@@ -264,7 +293,9 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               <div>
                 <h1 className="text-2xl font-bold text-white">SecureChat</h1>
                 <p className="text-white/70 text-sm">
-                  {isOnline ? `${getOnlineContacts().length} online` : 'Offline'}
+                  {isOnline
+                    ? `${getOnlineContacts().length} online`
+                    : "Offline"}
                 </p>
               </div>
             </div>
@@ -274,9 +305,9 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             <motion.button
               onClick={() => setIsSelectionMode(!isSelectionMode)}
               className={`w-10 h-10 rounded-[1rem] flex items-center justify-center transition-all duration-200 backdrop-blur-sm ${
-                isSelectionMode 
-                  ? 'bg-blue-500/30 text-blue-300' 
-                  : 'bg-white/10 hover:bg-white/20 text-white/70 hover:text-white'
+                isSelectionMode
+                  ? "bg-blue-500/30 text-blue-300"
+                  : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
               }`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -313,7 +344,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             <motion.div
               className="bg-white/5 border-t border-white/10 p-4"
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
@@ -334,18 +365,20 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center text-white/60 text-sm">
                   <div className="flex-1 h-px bg-white/20"></div>
                   <span className="px-3">or use invite code</span>
                   <div className="flex-1 h-px bg-white/20"></div>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   <Input
                     placeholder="Enter invite code"
                     value={addFriendCode}
-                    onChange={(e) => setAddFriendCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setAddFriendCode(e.target.value.toUpperCase())
+                    }
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/60 rounded-[1.5rem] flex-1 uppercase tracking-wider text-center"
                     maxLength={8}
                   />
@@ -385,8 +418,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-[1.5rem] transition-all duration-200 ${
                   isActive
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                    ? "bg-white/20 text-white shadow-lg"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -394,7 +427,10 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 <tab.icon className="w-4 h-4" />
                 <span className="text-sm font-medium">{tab.label}</span>
                 {tab.count > 0 && (
-                  <Badge variant="secondary" className="bg-white/20 text-white text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="bg-white/20 text-white text-xs"
+                  >
                     {tab.count}
                   </Badge>
                 )}
@@ -404,8 +440,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
         </div>
 
         {/* Filters for contacts tab */}
-        {activeTab === 'contacts' && (
-          <motion.div 
+        {activeTab === "contacts" && (
+          <motion.div
             className="flex items-center space-x-2 px-4 pb-4 overflow-x-auto"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -419,8 +455,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   onClick={() => setFilterBy(filter.id as any)}
                   className={`flex items-center space-x-1 px-3 py-1 rounded-[1rem] transition-all duration-200 whitespace-nowrap ${
                     isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                      ? "bg-white/20 text-white"
+                      : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
                   }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -442,15 +478,19 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              <Alert className={`${
-                successMessage 
-                  ? 'bg-green-500/20 border-green-400/50 text-green-300' 
-                  : 'bg-red-500/20 border-red-400/50 text-red-300'
-              } backdrop-blur-sm rounded-[1.5rem]`}>
-                {successMessage ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                <AlertDescription>
-                  {successMessage || error}
-                </AlertDescription>
+              <Alert
+                className={`${
+                  successMessage
+                    ? "bg-green-500/20 border-green-400/50 text-green-300"
+                    : "bg-red-500/20 border-red-400/50 text-red-300"
+                } backdrop-blur-sm rounded-[1.5rem]`}
+              >
+                {successMessage ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
+                )}
+                <AlertDescription>{successMessage || error}</AlertDescription>
               </Alert>
             </motion.div>
           )}
@@ -461,7 +501,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
       <div className="flex-1 overflow-hidden relative z-10">
         <div className="h-full overflow-y-auto p-4 space-y-4">
           <AnimatePresence mode="wait">
-            {activeTab === 'contacts' && (
+            {activeTab === "contacts" && (
               <motion.div
                 key="contacts"
                 initial={{ opacity: 0, x: -20 }}
@@ -481,9 +521,11 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Card 
+                      <Card
                         className={`bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer relative overflow-hidden ${
-                          isSelected ? 'ring-2 ring-blue-400/50 bg-blue-500/20' : ''
+                          isSelected
+                            ? "ring-2 ring-blue-400/50 bg-blue-500/20"
+                            : ""
                         }`}
                         onClick={() => handleSelectContact(contact)}
                       >
@@ -492,19 +534,26 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                             <div className="flex items-center space-x-3">
                               <div className="relative">
                                 <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
-                                  {contact.username?.charAt(0) || contact.email.charAt(0).toUpperCase()}
+                                  {contact.username?.charAt(0) ||
+                                    contact.email.charAt(0).toUpperCase()}
                                 </div>
-                                <motion.div 
+                                <motion.div
                                   className={`absolute -bottom-1 -right-1 w-4 h-4 ${getStatusColor(contact.status)} rounded-full border-2 border-white`}
-                                  animate={contact.isOnline ? { scale: [1, 1.2, 1] } : {}}
+                                  animate={
+                                    contact.isOnline
+                                      ? { scale: [1, 1.2, 1] }
+                                      : {}
+                                  }
                                   transition={{ duration: 2, repeat: Infinity }}
                                 />
                               </div>
-                              
+
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-2">
                                   <h3 className="text-white font-medium truncate">
-                                    {contact.displayName || contact.username || contact.email}
+                                    {contact.displayName ||
+                                      contact.username ||
+                                      contact.email}
                                   </h3>
                                   {contact.isFavorite && (
                                     <Heart className="w-4 h-4 text-red-400 fill-current" />
@@ -515,11 +564,12 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                 </div>
 
                                 <p className="text-white/60 text-sm truncate">
-                                  {contact.lastMessage?.content || contact.email}
+                                  {contact.lastMessage?.content ||
+                                    contact.email}
                                 </p>
                               </div>
                             </div>
-                            
+
                             <div className="flex flex-col items-end space-y-2">
                               {contact.unreadCount! > 0 && (
                                 <motion.div
@@ -554,7 +604,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                     </motion.div>
                   );
                 })}
-                
+
                 {filteredContacts.length === 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -562,9 +612,13 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                     className="text-center py-12"
                   >
                     <Users className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">No contacts found</h3>
+                    <h3 className="text-white text-lg font-medium mb-2">
+                      No contacts found
+                    </h3>
                     <p className="text-white/60 text-sm mb-4">
-                      {searchQuery ? 'Try adjusting your search' : 'Start by adding some friends'}
+                      {searchQuery
+                        ? "Try adjusting your search"
+                        : "Start by adding some friends"}
                     </p>
                     <Button
                       onClick={() => setShowAddFriend(true)}
@@ -578,7 +632,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               </motion.div>
             )}
 
-            {activeTab === 'requests' && (
+            {activeTab === "requests" && (
               <motion.div
                 key="requests"
                 initial={{ opacity: 0, x: -20 }}
@@ -597,7 +651,10 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                     >
                       <Sparkles className="w-6 h-6 text-yellow-400" />
                       <span>Invite Requests</span>
-                      <Badge variant="outline" className="bg-blue-500/20 border-blue-400/50 text-blue-300">
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-500/20 border-blue-400/50 text-blue-300"
+                      >
                         {inviteRequests.length}
                       </Badge>
                     </motion.h3>
@@ -609,7 +666,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                           request={request}
                           onAccept={acceptInviteRequest}
                           onReject={rejectInviteRequest}
-                          onView={(req) => console.log('View request:', req)}
+                          onView={(req) => console.log("View request:", req)}
                           index={index}
                         />
                       ))}
@@ -620,7 +677,9 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                 {/* Friend Requests Section */}
                 {pendingRequests.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="text-white font-medium text-lg">Friend Requests</h3>
+                    <h3 className="text-white font-medium text-lg">
+                      Friend Requests
+                    </h3>
                     {pendingRequests.map((request, index) => (
                       <motion.div
                         key={request.id}
@@ -633,7 +692,8 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
-                                  {request.username?.charAt(0) || request.email.charAt(0).toUpperCase()}
+                                  {request.username?.charAt(0) ||
+                                    request.email.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                   <h4 className="text-white font-medium">
@@ -647,7 +707,9 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
 
                               <div className="flex space-x-2">
                                 <motion.button
-                                  onClick={() => acceptFriendRequest(request.id)}
+                                  onClick={() =>
+                                    acceptFriendRequest(request.id)
+                                  }
                                   className="w-10 h-10 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 rounded-[1rem] flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
@@ -657,7 +719,9 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                                 </motion.button>
 
                                 <motion.button
-                                  onClick={() => rejectFriendRequest(request.id)}
+                                  onClick={() =>
+                                    rejectFriendRequest(request.id)
+                                  }
                                   className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 rounded-[1rem] flex items-center justify-center text-red-400 hover:text-red-300 transition-all duration-200"
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
@@ -674,23 +738,26 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   </div>
                 )}
 
-                {pendingRequests.length === 0 && inviteRequests.length === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-12"
-                  >
-                    <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">No pending requests</h3>
-                    <p className="text-white/60 text-sm">
-                      You'll see invite and friend requests here
-                    </p>
-                  </motion.div>
-                )}
+                {pendingRequests.length === 0 &&
+                  inviteRequests.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center py-12"
+                    >
+                      <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                      <h3 className="text-white text-lg font-medium mb-2">
+                        No pending requests
+                      </h3>
+                      <p className="text-white/60 text-sm">
+                        You'll see invite and friend requests here
+                      </p>
+                    </motion.div>
+                  )}
               </motion.div>
             )}
 
-            {activeTab === 'invites' && (
+            {activeTab === "invites" && (
               <motion.div
                 key="invites"
                 initial={{ opacity: 0, x: -20 }}
@@ -709,7 +776,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                   <CardContent className="space-y-4 relative z-10">
                     <div className="bg-white/10 rounded-[1.5rem] p-4 text-center">
                       <div className="text-3xl font-bold text-white tracking-wider mb-2">
-                        {currentInviteCode?.code || 'LOADING...'}
+                        {currentInviteCode?.code || "LOADING..."}
                       </div>
                       <p className="text-white/60 text-sm">
                         Share this code with friends to connect securely
@@ -784,44 +851,61 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
             transition={{ duration: 0.3 }}
             className="fixed top-4 right-4 z-50 max-w-sm"
           >
-            <Card className={`border-2 ${
-              notification.type === 'invite_request'
-                ? 'bg-blue-500/20 border-blue-400/50 backdrop-blur-xl'
-                : notification.type === 'invite_accepted'
-                ? 'bg-green-500/20 border-green-400/50 backdrop-blur-xl'
-                : 'bg-red-500/20 border-red-400/50 backdrop-blur-xl'
-            }`}>
+            <Card
+              className={`border-2 ${
+                notification.type === "invite_request"
+                  ? "bg-blue-500/20 border-blue-400/50 backdrop-blur-xl"
+                  : notification.type === "invite_accepted"
+                    ? "bg-green-500/20 border-green-400/50 backdrop-blur-xl"
+                    : "bg-red-500/20 border-red-400/50 backdrop-blur-xl"
+              }`}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between space-x-3">
                   <div className="flex items-start space-x-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      notification.type === 'invite_request'
-                        ? 'bg-blue-500/30 text-blue-300'
-                        : notification.type === 'invite_accepted'
-                        ? 'bg-green-500/30 text-green-300'
-                        : 'bg-red-500/30 text-red-300'
-                    }`}>
-                      {notification.type === 'invite_request' && <UserPlus className="w-5 h-5" />}
-                      {notification.type === 'invite_accepted' && <CheckCircle className="w-5 h-5" />}
-                      {notification.type === 'invite_rejected' && <AlertCircle className="w-5 h-5" />}
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        notification.type === "invite_request"
+                          ? "bg-blue-500/30 text-blue-300"
+                          : notification.type === "invite_accepted"
+                            ? "bg-green-500/30 text-green-300"
+                            : "bg-red-500/30 text-red-300"
+                      }`}
+                    >
+                      {notification.type === "invite_request" && (
+                        <UserPlus className="w-5 h-5" />
+                      )}
+                      {notification.type === "invite_accepted" && (
+                        <CheckCircle className="w-5 h-5" />
+                      )}
+                      {notification.type === "invite_rejected" && (
+                        <AlertCircle className="w-5 h-5" />
+                      )}
                     </div>
                     <div className="flex-1">
-                      <h4 className={`font-medium text-sm ${
-                        notification.type === 'invite_request'
-                          ? 'text-blue-200'
-                          : notification.type === 'invite_accepted'
-                          ? 'text-green-200'
-                          : 'text-red-200'
-                      }`}>
-                        {notification.type === 'invite_request' && 'New Invite Request'}
-                        {notification.type === 'invite_accepted' && 'Invite Accepted!'}
-                        {notification.type === 'invite_rejected' && 'Invite Declined'}
+                      <h4
+                        className={`font-medium text-sm ${
+                          notification.type === "invite_request"
+                            ? "text-blue-200"
+                            : notification.type === "invite_accepted"
+                              ? "text-green-200"
+                              : "text-red-200"
+                        }`}
+                      >
+                        {notification.type === "invite_request" &&
+                          "New Invite Request"}
+                        {notification.type === "invite_accepted" &&
+                          "Invite Accepted!"}
+                        {notification.type === "invite_rejected" &&
+                          "Invite Declined"}
                       </h4>
                       <p className="text-white/80 text-xs mt-1">
                         {notification.message}
                       </p>
                       <p className="text-white/50 text-xs mt-1">
-                        From: {notification.senderUsername || notification.senderEmail}
+                        From:{" "}
+                        {notification.senderUsername ||
+                          notification.senderEmail}
                       </p>
                     </div>
                   </div>

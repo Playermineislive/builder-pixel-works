@@ -26,32 +26,56 @@ interface WeatherData {
 }
 
 class WeatherService {
-  private readonly API_KEY = process.env.REACT_APP_WEATHER_API_KEY || 'demo_key';
-  private readonly BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+  private readonly API_KEY =
+    process.env.REACT_APP_WEATHER_API_KEY || "demo_key";
+  private readonly BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
   async getCurrentWeather(lat: number, lon: number): Promise<WeatherData> {
     try {
       // For demo purposes, simulate weather API response
       // In production, uncomment the real API call below
-      
+
       const demoWeatherConditions = [
-        { condition: 'sunny', temp: 22, description: 'Clear sky', humidity: 65 },
-        { condition: 'rainy', temp: 18, description: 'Light rain', humidity: 85 },
-        { condition: 'cloudy', temp: 20, description: 'Partly cloudy', humidity: 70 },
-        { condition: 'snowy', temp: -2, description: 'Light snow', humidity: 90 }
+        {
+          condition: "sunny",
+          temp: 22,
+          description: "Clear sky",
+          humidity: 65,
+        },
+        {
+          condition: "rainy",
+          temp: 18,
+          description: "Light rain",
+          humidity: 85,
+        },
+        {
+          condition: "cloudy",
+          temp: 20,
+          description: "Partly cloudy",
+          humidity: 70,
+        },
+        {
+          condition: "snowy",
+          temp: -2,
+          description: "Light snow",
+          humidity: 90,
+        },
       ];
 
-      const randomWeather = demoWeatherConditions[Math.floor(Math.random() * demoWeatherConditions.length)];
-      
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+      const randomWeather =
+        demoWeatherConditions[
+          Math.floor(Math.random() * demoWeatherConditions.length)
+        ];
+
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API delay
 
       return {
         condition: randomWeather.condition,
         temperature: randomWeather.temp,
         description: randomWeather.description,
-        city: 'Your City',
+        city: "Your City",
         humidity: randomWeather.humidity,
-        feelsLike: randomWeather.temp + Math.floor(Math.random() * 4) - 2
+        feelsLike: randomWeather.temp + Math.floor(Math.random() * 4) - 2,
       };
 
       // Real API call (uncomment for production):
@@ -75,8 +99,8 @@ class WeatherService {
       };
       */
     } catch (error) {
-      console.error('Failed to fetch weather data:', error);
-      throw new Error('Unable to fetch weather data');
+      console.error("Failed to fetch weather data:", error);
+      throw new Error("Unable to fetch weather data");
     }
   }
 
@@ -84,15 +108,18 @@ class WeatherService {
     try {
       // Demo implementation
       const demoWeatherConditions = [
-        { condition: 'sunny', temp: 25, description: 'Clear sky' },
-        { condition: 'rainy', temp: 16, description: 'Heavy rain' },
-        { condition: 'cloudy', temp: 19, description: 'Overcast' },
-        { condition: 'snowy', temp: -5, description: 'Snow showers' }
+        { condition: "sunny", temp: 25, description: "Clear sky" },
+        { condition: "rainy", temp: 16, description: "Heavy rain" },
+        { condition: "cloudy", temp: 19, description: "Overcast" },
+        { condition: "snowy", temp: -5, description: "Snow showers" },
       ];
 
-      const randomWeather = demoWeatherConditions[Math.floor(Math.random() * demoWeatherConditions.length)];
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const randomWeather =
+        demoWeatherConditions[
+          Math.floor(Math.random() * demoWeatherConditions.length)
+        ];
+
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       return {
         condition: randomWeather.condition,
@@ -100,7 +127,7 @@ class WeatherService {
         description: randomWeather.description,
         city: cityName,
         humidity: Math.floor(Math.random() * 40) + 50,
-        feelsLike: randomWeather.temp + Math.floor(Math.random() * 6) - 3
+        feelsLike: randomWeather.temp + Math.floor(Math.random() * 6) - 3,
       };
 
       // Real API call for city name:
@@ -124,31 +151,31 @@ class WeatherService {
       };
       */
     } catch (error) {
-      console.error('Failed to fetch weather data for city:', error);
-      throw new Error('Unable to fetch weather data for the specified city');
+      console.error("Failed to fetch weather data for city:", error);
+      throw new Error("Unable to fetch weather data for the specified city");
     }
   }
 
   private mapWeatherCondition(condition: string): string {
     const weatherMap: Record<string, string> = {
-      'clear': 'sunny',
-      'clouds': 'cloudy',
-      'rain': 'rainy',
-      'drizzle': 'rainy',
-      'thunderstorm': 'rainy',
-      'snow': 'snowy',
-      'mist': 'cloudy',
-      'fog': 'cloudy',
-      'haze': 'cloudy'
+      clear: "sunny",
+      clouds: "cloudy",
+      rain: "rainy",
+      drizzle: "rainy",
+      thunderstorm: "rainy",
+      snow: "snowy",
+      mist: "cloudy",
+      fog: "cloudy",
+      haze: "cloudy",
     };
 
-    return weatherMap[condition] || 'sunny';
+    return weatherMap[condition] || "sunny";
   }
 
   async getUserLocation(): Promise<{ lat: number; lon: number }> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser'));
+        reject(new Error("Geolocation is not supported by this browser"));
         return;
       }
 
@@ -156,41 +183,41 @@ class WeatherService {
         (position) => {
           resolve({
             lat: position.coords.latitude,
-            lon: position.coords.longitude
+            lon: position.coords.longitude,
           });
         },
         (error) => {
-          reject(new Error('Unable to retrieve your location'));
+          reject(new Error("Unable to retrieve your location"));
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 300000 // 5 minutes
-        }
+          maximumAge: 300000, // 5 minutes
+        },
       );
     });
   }
 
   getWeatherIcon(condition: string): string {
     const iconMap: Record<string, string> = {
-      'sunny': '☀️',
-      'rainy': '🌧️',
-      'cloudy': '☁️',
-      'snowy': '❄️'
+      sunny: "☀️",
+      rainy: "🌧️",
+      cloudy: "☁️",
+      snowy: "❄️",
     };
 
-    return iconMap[condition] || '🌤️';
+    return iconMap[condition] || "🌤️";
   }
 
   getWeatherDescription(condition: string): string {
     const descriptionMap: Record<string, string> = {
-      'sunny': 'Bright and sunny',
-      'rainy': 'Rainy weather',
-      'cloudy': 'Cloudy skies',
-      'snowy': 'Snow falling'
+      sunny: "Bright and sunny",
+      rainy: "Rainy weather",
+      cloudy: "Cloudy skies",
+      snowy: "Snow falling",
     };
 
-    return descriptionMap[condition] || 'Pleasant weather';
+    return descriptionMap[condition] || "Pleasant weather";
   }
 }
 

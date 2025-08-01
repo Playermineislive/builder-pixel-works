@@ -1,20 +1,20 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  RefreshCw, 
-  Bug, 
-  Home, 
-  Copy, 
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertTriangle,
+  RefreshCw,
+  Bug,
+  Home,
+  Copy,
   Send,
   Shield,
   Wifi,
   WifiOff,
-  ExternalLink
-} from 'lucide-react';
+  ExternalLink,
+} from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -40,7 +40,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       isOnline: navigator.onLine,
-      errorId: ''
+      errorId: "",
     };
   }
 
@@ -48,33 +48,39 @@ export default class ErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorId: Math.random().toString(36).substring(2, 15)
+      errorId: Math.random().toString(36).substring(2, 15),
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Log error to console for debugging
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
 
     // In production, you'd send this to your error reporting service
     this.reportError(error, errorInfo);
   }
 
   componentDidMount() {
-    window.addEventListener('online', this.handleOnline);
-    window.addEventListener('offline', this.handleOffline);
-    window.addEventListener('unhandledrejection', this.handleUnhandledRejection);
+    window.addEventListener("online", this.handleOnline);
+    window.addEventListener("offline", this.handleOffline);
+    window.addEventListener(
+      "unhandledrejection",
+      this.handleUnhandledRejection,
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener('online', this.handleOnline);
-    window.removeEventListener('offline', this.handleOffline);
-    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
+    window.removeEventListener("online", this.handleOnline);
+    window.removeEventListener("offline", this.handleOffline);
+    window.removeEventListener(
+      "unhandledrejection",
+      this.handleUnhandledRejection,
+    );
   }
 
   handleOnline = () => {
@@ -86,7 +92,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   };
 
   handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-    console.error('Unhandled promise rejection:', event.reason);
+    console.error("Unhandled promise rejection:", event.reason);
     event.preventDefault();
   };
 
@@ -100,11 +106,11 @@ export default class ErrorBoundary extends Component<Props, State> {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         url: window.location.href,
-        errorId: this.state.errorId
+        errorId: this.state.errorId,
       };
 
-      console.log('Error report:', errorReport);
-      
+      console.log("Error report:", errorReport);
+
       // Example: Send to error reporting service
       // await fetch('/api/errors', {
       //   method: 'POST',
@@ -112,7 +118,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       //   body: JSON.stringify(errorReport)
       // });
     } catch (reportingError) {
-      console.error('Failed to report error:', reportingError);
+      console.error("Failed to report error:", reportingError);
     }
   };
 
@@ -122,7 +128,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       this.setState({
         hasError: false,
         error: null,
-        errorInfo: null
+        errorInfo: null,
       });
     } else {
       // Force reload if retries exhausted
@@ -131,7 +137,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = () => {
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   handleCopyError = () => {
@@ -144,11 +150,14 @@ URL: ${window.location.href}
 User Agent: ${navigator.userAgent}
     `.trim();
 
-    navigator.clipboard.writeText(errorText).then(() => {
-      alert('Error details copied to clipboard');
-    }).catch(() => {
-      console.error('Failed to copy error details');
-    });
+    navigator.clipboard
+      .writeText(errorText)
+      .then(() => {
+        alert("Error details copied to clipboard");
+      })
+      .catch(() => {
+        console.error("Failed to copy error details");
+      });
   };
 
   render() {
@@ -178,7 +187,7 @@ User Agent: ${navigator.userAgent}
                   duration: 3 + Math.random() * 2,
                   repeat: Infinity,
                   delay: Math.random() * 2,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               />
             ))}
@@ -209,7 +218,7 @@ User Agent: ${navigator.userAgent}
                 <CardTitle className="text-2xl font-bold text-white mb-2">
                   Oops! Something went wrong
                 </CardTitle>
-                
+
                 <p className="text-white/70">
                   Don't worry, we're here to help you get back on track.
                 </p>
@@ -222,23 +231,26 @@ User Agent: ${navigator.userAgent}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <Alert className={`${
-                    this.state.isOnline 
-                      ? 'bg-green-500/20 border-green-400/50' 
-                      : 'bg-red-500/20 border-red-400/50'
-                  }`}>
+                  <Alert
+                    className={`${
+                      this.state.isOnline
+                        ? "bg-green-500/20 border-green-400/50"
+                        : "bg-red-500/20 border-red-400/50"
+                    }`}
+                  >
                     {this.state.isOnline ? (
                       <Wifi className="w-4 h-4" />
                     ) : (
                       <WifiOff className="w-4 h-4" />
                     )}
-                    <AlertDescription className={
-                      this.state.isOnline ? 'text-green-200' : 'text-red-200'
-                    }>
-                      {this.state.isOnline 
-                        ? 'Connection status: Online' 
-                        : 'Connection status: Offline - Please check your internet connection'
+                    <AlertDescription
+                      className={
+                        this.state.isOnline ? "text-green-200" : "text-red-200"
                       }
+                    >
+                      {this.state.isOnline
+                        ? "Connection status: Online"
+                        : "Connection status: Offline - Please check your internet connection"}
                     </AlertDescription>
                   </Alert>
                 </motion.div>
@@ -254,23 +266,27 @@ User Agent: ${navigator.userAgent}
                     <AlertTriangle className="w-5 h-5 text-yellow-400" />
                     <span>Error Details</span>
                   </h3>
-                  
+
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-white/60">Error ID:</span>
-                      <span className="text-white ml-2 font-mono">{this.state.errorId}</span>
+                      <span className="text-white ml-2 font-mono">
+                        {this.state.errorId}
+                      </span>
                     </div>
-                    
+
                     <div>
                       <span className="text-white/60">Message:</span>
                       <p className="text-red-300 ml-2 break-words">
-                        {this.state.error?.message || 'Unknown error occurred'}
+                        {this.state.error?.message || "Unknown error occurred"}
                       </p>
                     </div>
-                    
+
                     <div>
                       <span className="text-white/60">Time:</span>
-                      <span className="text-white ml-2">{new Date().toLocaleString()}</span>
+                      <span className="text-white ml-2">
+                        {new Date().toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </motion.div>
@@ -286,7 +302,7 @@ User Agent: ${navigator.userAgent}
                     <Shield className="w-5 h-5 text-blue-400" />
                     <span>What you can do:</span>
                   </h3>
-                  
+
                   <ul className="space-y-2 text-white/80 text-sm">
                     <li className="flex items-center space-x-2">
                       <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
@@ -319,9 +335,10 @@ User Agent: ${navigator.userAgent}
                     className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white h-12"
                   >
                     <RefreshCw className="w-5 h-5 mr-2" />
-                    Try Again ({this.maxRetries - this.retryCount} attempts left)
+                    Try Again ({this.maxRetries - this.retryCount} attempts
+                    left)
                   </Button>
-                  
+
                   <Button
                     onClick={this.handleGoHome}
                     variant="outline"
@@ -348,9 +365,16 @@ User Agent: ${navigator.userAgent}
                     <Copy className="w-4 h-4 mr-2" />
                     Copy Error Details
                   </Button>
-                  
+
                   <Button
-                    onClick={() => window.open('mailto:support@securechat.com?subject=Error Report&body=' + encodeURIComponent(`Error ID: ${this.state.errorId}\nMessage: ${this.state.error?.message}`))}
+                    onClick={() =>
+                      window.open(
+                        "mailto:support@securechat.com?subject=Error Report&body=" +
+                          encodeURIComponent(
+                            `Error ID: ${this.state.errorId}\nMessage: ${this.state.error?.message}`,
+                          ),
+                      )
+                    }
                     variant="outline"
                     size="sm"
                     className="flex-1 bg-white/5 border-white/20 text-white/80 hover:bg-white/10"
@@ -369,16 +393,16 @@ User Agent: ${navigator.userAgent}
                 >
                   <p>Need more help? Visit our</p>
                   <div className="flex items-center justify-center space-x-4 mt-2">
-                    <button 
-                      onClick={() => window.open('/help', '_blank')}
+                    <button
+                      onClick={() => window.open("/help", "_blank")}
                       className="text-blue-400 hover:text-blue-300 flex items-center space-x-1"
                     >
                       <span>Help Center</span>
                       <ExternalLink className="w-3 h-3" />
                     </button>
                     <span>•</span>
-                    <button 
-                      onClick={() => window.open('/status', '_blank')}
+                    <button
+                      onClick={() => window.open("/status", "_blank")}
                       className="text-blue-400 hover:text-blue-300 flex items-center space-x-1"
                     >
                       <span>System Status</span>
@@ -400,8 +424,8 @@ User Agent: ${navigator.userAgent}
 // Hook for functional components to report errors
 export const useErrorReporting = () => {
   const reportError = (error: Error, context?: string) => {
-    console.error('Manual error report:', error, context);
-    
+    console.error("Manual error report:", error, context);
+
     // In production, send to error reporting service
     const errorReport = {
       message: error.message,
@@ -409,10 +433,10 @@ export const useErrorReporting = () => {
       context,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: window.location.href,
     };
 
-    console.log('Error report:', errorReport);
+    console.log("Error report:", errorReport);
   };
 
   return { reportError };

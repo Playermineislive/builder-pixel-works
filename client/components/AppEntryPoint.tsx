@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import AppLoader from './AppLoader';
-import EnhancedAuth from '../pages/EnhancedAuth';
-import Index from '../pages/Index';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import AppLoader from "./AppLoader";
+import EnhancedAuth from "../pages/EnhancedAuth";
+import Index from "../pages/Index";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function AppEntryPoint() {
   const [isLoading, setIsLoading] = useState(true);
@@ -56,10 +56,10 @@ export default function AppEntryPoint() {
           <motion.div
             key="loading"
             initial={{ opacity: 1 }}
-            exit={{ 
+            exit={{
               opacity: 0,
               scale: 1.1,
-              filter: "blur(10px)"
+              filter: "blur(10px)",
             }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="absolute inset-0 z-50"
@@ -72,28 +72,28 @@ export default function AppEntryPoint() {
         {!isLoading && showAuth && !isAppReady && (
           <motion.div
             key="auth"
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0.9,
-              y: 50
+              y: 50,
             }}
-            animate={{ 
-              opacity: 1, 
+            animate={{
+              opacity: 1,
               scale: 1,
-              y: 0
+              y: 0,
             }}
-            exit={{ 
-              opacity: 0, 
+            exit={{
+              opacity: 0,
               scale: 1.1,
               y: -50,
-              filter: "blur(5px)"
+              filter: "blur(5px)",
             }}
-            transition={{ 
-              duration: 0.8, 
+            transition={{
+              duration: 0.8,
               ease: "easeOut",
               type: "spring",
               stiffness: 100,
-              damping: 20
+              damping: 20,
             }}
             className="absolute inset-0 z-40"
           >
@@ -105,22 +105,22 @@ export default function AppEntryPoint() {
         {!isLoading && !showAuth && isAppReady && (
           <motion.div
             key="app"
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0.95,
-              y: 30
+              y: 30,
             }}
-            animate={{ 
-              opacity: 1, 
+            animate={{
+              opacity: 1,
               scale: 1,
-              y: 0
+              y: 0,
             }}
-            transition={{ 
-              duration: 1, 
+            transition={{
+              duration: 1,
               ease: "easeOut",
               type: "spring",
               stiffness: 80,
-              damping: 20
+              damping: 20,
             }}
             className="absolute inset-0 z-30"
           >
@@ -131,7 +131,7 @@ export default function AppEntryPoint() {
               transition={{ delay: 0.5, duration: 0.5 }}
               className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-blue-900/60 to-transparent z-10 pointer-events-none"
             />
-            
+
             {/* Sparkle effect on entry */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -155,12 +155,12 @@ export default function AppEntryPoint() {
                   transition={{
                     duration: 2,
                     delay: Math.random() * 1,
-                    ease: "easeOut"
+                    ease: "easeOut",
                   }}
                 />
               ))}
             </motion.div>
-            
+
             <Index />
           </motion.div>
         )}
@@ -181,7 +181,7 @@ export default function AppEntryPoint() {
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
             <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />

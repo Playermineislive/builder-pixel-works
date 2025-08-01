@@ -1,18 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Loader2, 
-  Shield, 
-  MessageCircle, 
-  Lock, 
-  Eye, 
+import React, { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2,
+  Shield,
+  MessageCircle,
+  Lock,
+  Eye,
   EyeOff,
   Sparkles,
   Zap,
@@ -37,17 +48,17 @@ import {
   Waves,
   X,
   Check,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle,
+} from "lucide-react";
 
 export default function EnhancedAuth() {
   const { login, signup } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -66,24 +77,28 @@ export default function EnhancedAuth() {
   const backgroundThemes = [
     {
       name: "Aurora",
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-      particles: "aurora"
+      gradient:
+        "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+      particles: "aurora",
     },
     {
       name: "Ocean",
-      gradient: "linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%)",
-      particles: "waves"
+      gradient:
+        "linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%)",
+      particles: "waves",
     },
     {
       name: "Sunset",
-      gradient: "linear-gradient(135deg, #ff9a56 0%, #ff6b9d 50%, #c44569 100%)",
-      particles: "glow"
+      gradient:
+        "linear-gradient(135deg, #ff9a56 0%, #ff6b9d 50%, #c44569 100%)",
+      particles: "glow",
     },
     {
       name: "Galaxy",
-      gradient: "linear-gradient(135deg, #2c3e50 0%, #4a00e0 50%, #8e2de2 100%)",
-      particles: "stars"
-    }
+      gradient:
+        "linear-gradient(135deg, #2c3e50 0%, #4a00e0 50%, #8e2de2 100%)",
+      particles: "stars",
+    },
   ];
 
   const [currentTheme, setCurrentTheme] = useState(0);
@@ -91,34 +106,34 @@ export default function EnhancedAuth() {
   useEffect(() => {
     // Show features after delay
     const featuresTimer = setTimeout(() => setShowFeatures(true), 1500);
-    
+
     // Auto theme cycling
     const themeInterval = setInterval(() => {
-      setCurrentTheme(prev => (prev + 1) % backgroundThemes.length);
+      setCurrentTheme((prev) => (prev + 1) % backgroundThemes.length);
     }, 8000);
 
     // Mouse tracking for interactive effects
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
+        y: (e.clientY / window.innerHeight) * 100,
       });
     };
 
     // Network status
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('mousemove', handleMouseMove);
-    
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("mousemove", handleMouseMove);
+
     return () => {
       clearTimeout(featuresTimer);
       clearInterval(themeInterval);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [backgroundThemes.length]);
 
@@ -135,13 +150,13 @@ export default function EnhancedAuth() {
     if (/[a-z]/.test(password)) strength += 25;
     if (/[0-9]/.test(password)) strength += 15;
     if (/[^A-Za-z0-9]/.test(password)) strength += 10;
-    
+
     setPasswordStrength(Math.min(strength, 100));
   }, [password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
@@ -149,18 +164,18 @@ export default function EnhancedAuth() {
         await login(email, password);
       } else {
         if (password !== confirmPassword) {
-          throw new Error('Passwords do not match');
+          throw new Error("Passwords do not match");
         }
         if (passwordStrength < 60) {
-          throw new Error('Password is too weak');
+          throw new Error("Password is too weak");
         }
         await signup(email, password);
       }
-      
+
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setError(err.message || "Authentication failed");
     } finally {
       setIsLoading(false);
     }
@@ -168,25 +183,25 @@ export default function EnhancedAuth() {
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
-    setError('');
-    setPassword('');
-    setConfirmPassword('');
+    setError("");
+    setPassword("");
+    setConfirmPassword("");
     setPasswordStrength(0);
     setCurrentStep(0);
   };
 
   const getPasswordStrengthColor = () => {
-    if (passwordStrength < 30) return 'bg-red-500';
-    if (passwordStrength < 60) return 'bg-yellow-500';
-    if (passwordStrength < 80) return 'bg-blue-500';
-    return 'bg-green-500';
+    if (passwordStrength < 30) return "bg-red-500";
+    if (passwordStrength < 60) return "bg-yellow-500";
+    if (passwordStrength < 80) return "bg-blue-500";
+    return "bg-green-500";
   };
 
   const getPasswordStrengthText = () => {
-    if (passwordStrength < 30) return 'Weak';
-    if (passwordStrength < 60) return 'Fair';
-    if (passwordStrength < 80) return 'Good';
-    return 'Strong';
+    if (passwordStrength < 30) return "Weak";
+    if (passwordStrength < 60) return "Fair";
+    if (passwordStrength < 80) return "Good";
+    return "Strong";
   };
 
   return (
@@ -205,7 +220,7 @@ export default function EnhancedAuth() {
       <motion.div
         className="absolute inset-0 opacity-30"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1), transparent 40%)`
+          background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1), transparent 40%)`,
         }}
       />
 
@@ -228,7 +243,7 @@ export default function EnhancedAuth() {
               duration: 4 + Math.random() * 2,
               repeat: Infinity,
               delay: Math.random() * 2,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
@@ -244,10 +259,10 @@ export default function EnhancedAuth() {
         transition={{
           duration: 20,
           repeat: Infinity,
-          ease: "linear"
+          ease: "linear",
         }}
       />
-      
+
       <motion.div
         className="absolute bottom-20 right-20 w-24 h-24 bg-white/10 rounded-lg backdrop-blur-sm"
         animate={{
@@ -257,14 +272,13 @@ export default function EnhancedAuth() {
         transition={{
           duration: 15,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: "easeInOut",
         }}
       />
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-8 lg:py-4">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start lg:items-center">
-          
           {/* Left side - Branding and features */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -276,11 +290,11 @@ export default function EnhancedAuth() {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 200, 
+              transition={{
+                type: "spring",
+                stiffness: 200,
                 damping: 20,
-                delay: 0.3 
+                delay: 0.3,
               }}
               className="space-y-4"
             >
@@ -293,7 +307,7 @@ export default function EnhancedAuth() {
                   transition={{
                     duration: 10,
                     repeat: Infinity,
-                    ease: "linear"
+                    ease: "linear",
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-sm" />
@@ -301,7 +315,7 @@ export default function EnhancedAuth() {
                     🔒
                   </div>
                 </motion.div>
-                
+
                 <div>
                   <motion.h1
                     className="text-4xl lg:text-5xl font-bold text-white"
@@ -333,10 +347,22 @@ export default function EnhancedAuth() {
                   className="grid grid-cols-2 gap-4"
                 >
                   {[
-                    { icon: Shield, title: "Secure", desc: "End-to-end encryption" },
-                    { icon: Sparkles, title: "Beautiful", desc: "10+ stunning themes" },
+                    {
+                      icon: Shield,
+                      title: "Secure",
+                      desc: "End-to-end encryption",
+                    },
+                    {
+                      icon: Sparkles,
+                      title: "Beautiful",
+                      desc: "10+ stunning themes",
+                    },
                     { icon: Zap, title: "Fast", desc: "Real-time messaging" },
-                    { icon: Globe, title: "Connected", desc: "Weather-based themes" },
+                    {
+                      icon: Globe,
+                      title: "Connected",
+                      desc: "Weather-based themes",
+                    },
                   ].map((feature, index) => (
                     <motion.div
                       key={index}
@@ -347,7 +373,9 @@ export default function EnhancedAuth() {
                       whileHover={{ y: -5, scale: 1.05 }}
                     >
                       <feature.icon className="w-8 h-8 text-white mb-2" />
-                      <h3 className="text-white font-semibold">{feature.title}</h3>
+                      <h3 className="text-white font-semibold">
+                        {feature.title}
+                      </h3>
                       <p className="text-white/70 text-sm">{feature.desc}</p>
                     </motion.div>
                   ))}
@@ -363,7 +391,10 @@ export default function EnhancedAuth() {
               className="flex items-center justify-center lg:justify-start space-x-2"
             >
               <span className="text-white/60 text-sm">Current theme:</span>
-              <Badge variant="outline" className="bg-white/10 border-white/30 text-white">
+              <Badge
+                variant="outline"
+                className="bg-white/10 border-white/30 text-white"
+              >
                 {backgroundThemes[currentTheme].name}
               </Badge>
             </motion.div>
@@ -384,14 +415,17 @@ export default function EnhancedAuth() {
                   transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
                 >
                   <CardTitle className="text-2xl font-bold text-white flex items-center justify-center space-x-2">
-                    {isLogin ? <KeyRound className="w-6 h-6" /> : <Users className="w-6 h-6" />}
-                    <span>{isLogin ? 'Welcome Back' : 'Join SecureChat'}</span>
+                    {isLogin ? (
+                      <KeyRound className="w-6 h-6" />
+                    ) : (
+                      <Users className="w-6 h-6" />
+                    )}
+                    <span>{isLogin ? "Welcome Back" : "Join SecureChat"}</span>
                   </CardTitle>
                   <CardDescription className="text-white/70 mt-2">
-                    {isLogin 
-                      ? 'Sign in to continue your secure conversations' 
-                      : 'Create your account and start chatting securely'
-                    }
+                    {isLogin
+                      ? "Sign in to continue your secure conversations"
+                      : "Create your account and start chatting securely"}
                   </CardDescription>
                 </motion.div>
               </CardHeader>
@@ -426,7 +460,10 @@ export default function EnhancedAuth() {
                     transition={{ delay: 1 }}
                     className="space-y-2"
                   >
-                    <Label htmlFor="email" className="text-white font-medium flex items-center space-x-2">
+                    <Label
+                      htmlFor="email"
+                      className="text-white font-medium flex items-center space-x-2"
+                    >
                       <Mail className="w-4 h-4" />
                       <span>Email</span>
                     </Label>
@@ -437,7 +474,7 @@ export default function EnhancedAuth() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        onFocus={() => setFocusedField('email')}
+                        onFocus={() => setFocusedField("email")}
                         onBlur={() => setFocusedField(null)}
                         className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300"
                         placeholder="Enter your email"
@@ -446,9 +483,9 @@ export default function EnhancedAuth() {
                       <motion.div
                         className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
                         initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ 
-                          opacity: focusedField === 'email' ? 1 : 0,
-                          scale: focusedField === 'email' ? 1 : 1.1
+                        animate={{
+                          opacity: focusedField === "email" ? 1 : 0,
+                          scale: focusedField === "email" ? 1 : 1.1,
                         }}
                         transition={{ duration: 0.2 }}
                       />
@@ -462,7 +499,10 @@ export default function EnhancedAuth() {
                     transition={{ delay: 1.1 }}
                     className="space-y-2"
                   >
-                    <Label htmlFor="password" className="text-white font-medium flex items-center space-x-2">
+                    <Label
+                      htmlFor="password"
+                      className="text-white font-medium flex items-center space-x-2"
+                    >
                       <Lock className="w-4 h-4" />
                       <span>Password</span>
                     </Label>
@@ -470,10 +510,10 @@ export default function EnhancedAuth() {
                       <Input
                         ref={passwordRef}
                         id="password"
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        onFocus={() => setFocusedField('password')}
+                        onFocus={() => setFocusedField("password")}
                         onBlur={() => setFocusedField(null)}
                         className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300 pr-12"
                         placeholder="Enter your password"
@@ -484,14 +524,18 @@ export default function EnhancedAuth() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                       <motion.div
                         className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
                         initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ 
-                          opacity: focusedField === 'password' ? 1 : 0,
-                          scale: focusedField === 'password' ? 1 : 1.1
+                        animate={{
+                          opacity: focusedField === "password" ? 1 : 0,
+                          scale: focusedField === "password" ? 1 : 1.1,
                         }}
                         transition={{ duration: 0.2 }}
                       />
@@ -501,16 +545,24 @@ export default function EnhancedAuth() {
                     {!isLogin && password && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         className="space-y-2"
                       >
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/70">Password strength:</span>
-                          <span className={`font-medium ${
-                            passwordStrength < 30 ? 'text-red-400' :
-                            passwordStrength < 60 ? 'text-yellow-400' :
-                            passwordStrength < 80 ? 'text-blue-400' : 'text-green-400'
-                          }`}>
+                          <span className="text-white/70">
+                            Password strength:
+                          </span>
+                          <span
+                            className={`font-medium ${
+                              passwordStrength < 30
+                                ? "text-red-400"
+                                : passwordStrength < 60
+                                  ? "text-yellow-400"
+                                  : passwordStrength < 80
+                                    ? "text-blue-400"
+                                    : "text-green-400"
+                            }`}
+                          >
                             {getPasswordStrengthText()}
                           </span>
                         </div>
@@ -534,7 +586,10 @@ export default function EnhancedAuth() {
                       transition={{ delay: 1.2 }}
                       className="space-y-2"
                     >
-                      <Label htmlFor="confirmPassword" className="text-white font-medium flex items-center space-x-2">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="text-white font-medium flex items-center space-x-2"
+                      >
                         <Fingerprint className="w-4 h-4" />
                         <span>Confirm Password</span>
                       </Label>
@@ -542,10 +597,10 @@ export default function EnhancedAuth() {
                         <Input
                           ref={confirmPasswordRef}
                           id="confirmPassword"
-                          type={showConfirmPassword ? 'text' : 'password'}
+                          type={showConfirmPassword ? "text" : "password"}
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          onFocus={() => setFocusedField('confirmPassword')}
+                          onFocus={() => setFocusedField("confirmPassword")}
                           onBlur={() => setFocusedField(null)}
                           className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300 pr-12"
                           placeholder="Confirm your password"
@@ -553,22 +608,28 @@ export default function EnhancedAuth() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                         >
-                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                         <motion.div
                           className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
                           initial={{ opacity: 0, scale: 1.1 }}
-                          animate={{ 
-                            opacity: focusedField === 'confirmPassword' ? 1 : 0,
-                            scale: focusedField === 'confirmPassword' ? 1 : 1.1
+                          animate={{
+                            opacity: focusedField === "confirmPassword" ? 1 : 0,
+                            scale: focusedField === "confirmPassword" ? 1 : 1.1,
                           }}
                           transition={{ duration: 0.2 }}
                         />
                       </div>
-                      
+
                       {/* Password match indicator */}
                       {confirmPassword && (
                         <motion.div
@@ -579,12 +640,16 @@ export default function EnhancedAuth() {
                           {password === confirmPassword ? (
                             <>
                               <Check className="w-4 h-4 text-green-400" />
-                              <span className="text-green-400 text-sm">Passwords match</span>
+                              <span className="text-green-400 text-sm">
+                                Passwords match
+                              </span>
                             </>
                           ) : (
                             <>
                               <X className="w-4 h-4 text-red-400" />
-                              <span className="text-red-400 text-sm">Passwords don't match</span>
+                              <span className="text-red-400 text-sm">
+                                Passwords don't match
+                              </span>
                             </>
                           )}
                         </motion.div>
@@ -622,7 +687,9 @@ export default function EnhancedAuth() {
                         <Alert className="bg-green-500/20 border-green-400/50">
                           <CheckCircle className="w-4 h-4" />
                           <AlertDescription className="text-green-200">
-                            {isLogin ? 'Login successful! Redirecting...' : 'Account created successfully!'}
+                            {isLogin
+                              ? "Login successful! Redirecting..."
+                              : "Account created successfully!"}
                           </AlertDescription>
                         </Alert>
                       </motion.div>
@@ -647,12 +714,18 @@ export default function EnhancedAuth() {
                           transition={{ duration: 1, repeat: Infinity }}
                         >
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>{isLogin ? 'Signing in...' : 'Creating account...'}</span>
+                          <span>
+                            {isLogin ? "Signing in..." : "Creating account..."}
+                          </span>
                         </motion.div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          {isLogin ? <ArrowRight className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
-                          <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
+                          {isLogin ? (
+                            <ArrowRight className="w-5 h-5" />
+                          ) : (
+                            <Rocket className="w-5 h-5" />
+                          )}
+                          <span>{isLogin ? "Sign In" : "Create Account"}</span>
                         </div>
                       )}
                     </Button>
@@ -667,7 +740,9 @@ export default function EnhancedAuth() {
                   className="text-center pt-4 border-t border-white/20"
                 >
                   <p className="text-white/70 text-sm mb-3">
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}
+                    {isLogin
+                      ? "Don't have an account?"
+                      : "Already have an account?"}
                   </p>
                   <Button
                     type="button"
@@ -675,7 +750,7 @@ export default function EnhancedAuth() {
                     onClick={toggleMode}
                     className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all duration-300"
                   >
-                    {isLogin ? 'Create Account' : 'Sign In'}
+                    {isLogin ? "Create Account" : "Sign In"}
                   </Button>
                 </motion.div>
               </CardContent>

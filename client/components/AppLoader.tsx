@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AppLoaderProps {
   onComplete: () => void;
@@ -15,7 +15,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
     "Loading encryption modules...",
     "Connecting to secure servers...",
     "Preparing your experience...",
-    "Welcome to SecureChat!"
+    "Welcome to SecureChat!",
   ];
 
   useEffect(() => {
@@ -24,20 +24,20 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
 
     // Simulate loading progress
     const progressTimer = setInterval(() => {
-      setLoadingProgress(prev => {
+      setLoadingProgress((prev) => {
         const newProgress = prev + Math.random() * 15 + 5;
-        
+
         // Update phase based on progress
         const phase = Math.floor((newProgress / 100) * loadingPhases.length);
         setCurrentPhase(Math.min(phase, loadingPhases.length - 1));
-        
+
         if (newProgress >= 100) {
           clearInterval(progressTimer);
           // Complete after a short delay to show 100%
           setTimeout(() => onComplete(), 800);
           return 100;
         }
-        
+
         return newProgress;
       });
     }, 200);
@@ -76,7 +76,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                 duration: 3 + Math.random() * 2,
                 repeat: Infinity,
                 delay: Math.random() * 2,
-                ease: "easeInOut"
+                ease: "easeInOut",
               }}
             />
           ))}
@@ -92,7 +92,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
 
@@ -108,7 +108,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                   type: "spring",
                   stiffness: 200,
                   damping: 20,
-                  duration: 1
+                  duration: 1,
                 }}
                 className="mb-8"
               >
@@ -120,15 +120,16 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                   transition={{
                     duration: 20,
                     repeat: Infinity,
-                    ease: "linear"
+                    ease: "linear",
                   }}
                 >
                   {/* Outer ring */}
                   <motion.div
                     className="absolute inset-0 rounded-full border-4 border-gradient-to-r from-purple-400 to-pink-400"
                     style={{
-                      background: 'conic-gradient(from 0deg, #8B5CF6, #EC4899, #3B82F6, #8B5CF6)',
-                      borderRadius: '50%',
+                      background:
+                        "conic-gradient(from 0deg, #8B5CF6, #EC4899, #3B82F6, #8B5CF6)",
+                      borderRadius: "50%",
                     }}
                     animate={{
                       rotate: [0, -360],
@@ -136,10 +137,10 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                     transition={{
                       duration: 15,
                       repeat: Infinity,
-                      ease: "linear"
+                      ease: "linear",
                     }}
                   />
-                  
+
                   {/* Inner logo */}
                   <motion.div
                     className="absolute inset-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl"
@@ -153,7 +154,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                     transition={{
                       duration: 2,
                       repeat: Infinity,
-                      ease: "easeInOut"
+                      ease: "easeInOut",
                     }}
                   >
                     <motion.div
@@ -164,7 +165,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                       transition={{
                         duration: 2,
                         repeat: Infinity,
-                        ease: "easeInOut"
+                        ease: "easeInOut",
                       }}
                     >
                       🔒
@@ -181,7 +182,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                 >
                   SecureChat
                 </motion.h1>
-                
+
                 <motion.p
                   className="text-purple-200 text-lg"
                   initial={{ opacity: 0, y: 20 }}
@@ -211,7 +212,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               </div>
-              
+
               {/* Progress glow */}
               <motion.div
                 className="absolute inset-0 h-2 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-full blur-sm opacity-50"
@@ -233,7 +234,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
               >
                 {loadingPhases[currentPhase]}
               </motion.p>
-              
+
               <motion.p
                 className="text-purple-200 text-sm"
                 animate={{ opacity: [0.5, 1, 0.5] }}
@@ -257,7 +258,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                     duration: 1,
                     repeat: Infinity,
                     delay: i * 0.2,
-                    ease: "easeInOut"
+                    ease: "easeInOut",
                   }}
                 />
               ))}
@@ -274,7 +275,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
             {[
               { icon: "🔐", text: "Encrypted" },
               { icon: "🎨", text: "Themed" },
-              { icon: "🌟", text: "Modern" }
+              { icon: "🌟", text: "Modern" },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -286,11 +287,13 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
                   duration: 2,
                   repeat: Infinity,
                   delay: index * 0.3,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               >
                 <div className="text-2xl">{feature.icon}</div>
-                <p className="text-purple-200 text-xs font-medium">{feature.text}</p>
+                <p className="text-purple-200 text-xs font-medium">
+                  {feature.text}
+                </p>
               </motion.div>
             ))}
           </motion.div>
@@ -306,10 +309,10 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
           transition={{
             duration: 8,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
-        
+
         <motion.div
           className="absolute bottom-10 right-10 w-16 h-16 border-2 border-pink-400/30 rounded-full"
           animate={{
@@ -319,7 +322,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
           transition={{
             duration: 6,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
 
@@ -334,10 +337,10 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
-        
+
         <motion.div
           className="absolute bottom-1/3 left-1/4 w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full"
           animate={{
@@ -348,7 +351,7 @@ export default function AppLoader({ onComplete }: AppLoaderProps) {
           transition={{
             duration: 3,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       </motion.div>
