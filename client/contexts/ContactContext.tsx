@@ -624,26 +624,43 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
         return false;
       }
 
-      // In a real app, this would make an API call to send the invite request
-      // For demo, we'll simulate finding the user and sending a request
-      console.log('Sending invite request for code:', code);
+      // Check if user has valid auth token
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setError('Please log in to send invite requests');
+        return false;
+      }
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Send invite request to server
+      const response = await fetch('/api/invites/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ code })
+      });
 
-      // Add notification that request was sent
-      const notification: InviteNotification = {
-        id: `notification_${Date.now()}`,
-        type: 'invite_request',
-        senderId: user?.id || '',
-        senderEmail: user?.email || '',
-        senderUsername: userProfile?.username,
-        timestamp: new Date().toISOString(),
-        message: 'Invite request sent! Waiting for response...'
-      };
+      const result = await response.json();
 
-      addInviteNotification(notification);
-      return true;
+      if (result.success) {
+        // Add notification that request was sent
+        const notification: InviteNotification = {
+          id: `notification_${Date.now()}`,
+          type: 'invite_request',
+          senderId: user?.id || '',
+          senderEmail: user?.email || '',
+          senderUsername: userProfile?.username,
+          timestamp: new Date().toISOString(),
+          message: 'Invite request sent! Waiting for response...'
+        };
+
+        addInviteNotification(notification);
+        return true;
+      } else {
+        setError(result.message || 'Failed to send invite request');
+        return false;
+      }
     } catch (error) {
       console.error('Failed to send invite request:', error);
       setError('Failed to send invite request. Please try again.');
