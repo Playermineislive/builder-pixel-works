@@ -263,7 +263,7 @@ export default function EnhancedAuth() {
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-8 lg:py-4">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start lg:items-center">
           
           {/* Left side - Branding and features */}
           <motion.div
