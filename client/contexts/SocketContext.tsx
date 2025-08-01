@@ -26,6 +26,8 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 interface SocketProviderProps {
   children: ReactNode;
+  onInviteRequest?: (request: InviteRequest) => void;
+  onInviteResponse?: (notification: InviteNotification) => void;
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
