@@ -16,6 +16,10 @@ interface SocketContextType {
   partnerOnline: boolean;
   clearMessages: () => void;
   keyExchangeComplete: boolean;
+  sendInviteRequest: (code: string) => void;
+  respondToInviteRequest: (requestId: string, response: 'accept' | 'reject') => void;
+  onInviteRequest?: (request: InviteRequest) => void;
+  onInviteResponse?: (notification: InviteNotification) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
