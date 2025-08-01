@@ -201,10 +201,10 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
       />
 
       {/* Theme pattern overlay */}
-      {currentTheme.pattern && (
+      {localChatTheme.pattern && (
         <motion.div
           className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: currentTheme.pattern }}
+          style={{ backgroundImage: localChatTheme.pattern }}
           animate={{ opacity: [0.1, 0.3, 0.1] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -236,7 +236,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
 
       {/* Header */}
       <motion.header
-        className={`relative z-10 ${currentTheme.headerStyle.background} backdrop-blur-xl border-b border-white/20`}
+        className={`relative z-10 ${localChatTheme.headerStyle.background} backdrop-blur-xl border-b border-white/20`}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -338,7 +338,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
           animate={{ y: [0, -2, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          <span className="text-white/80 text-xs font-medium">{currentTheme.name}</span>
+          <span className="text-white/80 text-xs font-medium">{localChatTheme.name}</span>
         </motion.div>
       </motion.header>
 
@@ -364,8 +364,8 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
                 <motion.div
                   className={`p-4 rounded-[2rem] backdrop-blur-sm border border-white/20 relative overflow-hidden ${
                     message.senderEmail === user?.email
-                      ? `bg-gradient-to-br ${currentTheme.messageUser} text-white`
-                      : `bg-gradient-to-br ${currentTheme.messagePartner} text-white`
+                      ? `bg-gradient-to-br ${localChatTheme.messageUser} text-white`
+                      : `bg-gradient-to-br ${localChatTheme.messagePartner} text-white`
                   }`}
                   whileHover={{ scale: 1.02, y: -2 }}
                   transition={{ duration: 0.2 }}
@@ -465,7 +465,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
 
       {/* Input section */}
       <motion.div
-        className={`relative z-10 p-4 ${currentTheme.inputStyle.background} backdrop-blur-xl border-t ${currentTheme.inputStyle.border}`}
+        className={`relative z-10 p-4 ${localChatTheme.inputStyle.background} backdrop-blur-xl border-t ${localChatTheme.inputStyle.border}`}
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -498,7 +498,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
               onChange={(e) => handleTyping(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Type a message..."
-              className={`${currentTheme.inputStyle.background} ${currentTheme.inputStyle.border} ${currentTheme.inputStyle.text} ${currentTheme.inputStyle.placeholder} rounded-[2rem] pr-12 h-12 backdrop-blur-sm focus:ring-2 focus:ring-white/30 transition-all duration-200`}
+              className={`${localChatTheme.inputStyle.background} ${localChatTheme.inputStyle.border} ${localChatTheme.inputStyle.text} ${localChatTheme.inputStyle.placeholder} rounded-[2rem] pr-12 h-12 backdrop-blur-sm focus:ring-2 focus:ring-white/30 transition-all duration-200`}
               disabled={!isConnected}
               style={{ fontSize: '16px' }}
             />
