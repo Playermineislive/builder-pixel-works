@@ -15,6 +15,7 @@ import AppEntryPoint from "./components/AppEntryPoint";
 import ContactsList from "./pages/ContactsList";
 import GroupChat from "./pages/GroupChat";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
