@@ -55,32 +55,33 @@ interface ChatProps {
 
 export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
   const { user } = useAuth();
-  const { 
-    messages, 
-    sendMessage, 
-    sendTyping, 
-    partnerTyping, 
-    partnerOnline, 
+  const {
+    messages,
+    sendMessage,
+    sendTyping,
+    partnerTyping,
+    partnerOnline,
     isConnected,
-    sendFile 
+    sendFile
   } = useSocket();
   // Encryption is handled in SocketContext
-  const { 
-    isTranslationEnabled, 
-    targetLanguage, 
+  const {
+    isTranslationEnabled,
+    targetLanguage,
     translateMessage,
-    supportedLanguages 
+    supportedLanguages
   } = useTranslation();
+  const { currentTheme, isWeatherEnabled, currentWeather } = useTheme();
 
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showTranslationSettings, setShowTranslationSettings] = useState(false);
   const [showMediaUpload, setShowMediaUpload] = useState(false);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [messageReactions, setMessageReactions] = useState<{[key: string]: string[]}>({});
-  const [chatTheme, setChatTheme] = useState(0);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
