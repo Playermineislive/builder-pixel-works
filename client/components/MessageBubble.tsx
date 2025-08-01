@@ -38,12 +38,13 @@ interface MessageBubbleProps {
 }
 
 // Memoized component for better performance
-const MessageBubble = memo(({ 
-  message, 
-  isOwn, 
+const MessageBubble = memo(({
+  message,
+  isOwn,
   onReact,
-  onImageClick 
+  onImageClick
 }: MessageBubbleProps) => {
+  const { currentTheme } = useTheme();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
