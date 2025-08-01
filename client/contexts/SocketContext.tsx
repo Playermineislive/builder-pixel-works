@@ -443,6 +443,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children, onInvi
     partnerOnline,
     clearMessages,
     keyExchangeComplete,
+    sendInviteRequest,
+    respondToInviteRequest,
+    onInviteRequest,
+    onInviteResponse,
   };
 
   return (
