@@ -393,9 +393,12 @@ export default function Index() {
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
         >
-          <SocketProvider>
-            <GroupChat 
-              group={currentGroup} 
+          <SocketProvider
+            onInviteRequest={handleInviteRequest}
+            onInviteResponse={handleInviteResponse}
+          >
+            <GroupChat
+              group={currentGroup}
               onBack={handleBackToContacts}
               onUpdateGroup={handleUpdateGroup}
             />
