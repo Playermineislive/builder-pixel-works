@@ -195,7 +195,7 @@ export default function Chat({ partner, onDisconnect, onBack }: ChatProps) {
       {/* Animated background with theme */}
       <motion.div
         className="absolute inset-0"
-        style={{ background: currentTheme.background }}
+        style={{ background: localChatTheme.background }}
         animate={{ opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
