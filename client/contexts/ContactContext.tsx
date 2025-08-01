@@ -189,6 +189,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       localStorage.setItem('secureChat_contacts', JSON.stringify(contacts));
       localStorage.setItem('secureChat_groups', JSON.stringify(groups));
       localStorage.setItem('secureChat_pendingRequests', JSON.stringify(pendingRequests));
+      localStorage.setItem('secureChat_inviteRequests', JSON.stringify(inviteRequests));
+      localStorage.setItem('secureChat_inviteNotifications', JSON.stringify(inviteNotifications));
       if (userProfile) {
         localStorage.setItem('secureChat_userProfile', JSON.stringify(userProfile));
       }
