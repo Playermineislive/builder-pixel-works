@@ -37,8 +37,7 @@ import {
   AlertCircle,
   CheckCircle,
   Edit2,
-  User,
-  Sparkles
+  User
 } from 'lucide-react';
 
 interface ContactsListProps {
