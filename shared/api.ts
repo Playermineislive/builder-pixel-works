@@ -80,7 +80,7 @@ export interface FileUpload {
 
 // Real-time WebSocket message types
 export interface WebSocketMessage {
-  type: 'message' | 'typing' | 'user_connected' | 'user_disconnected' | 'error';
+  type: 'message' | 'typing' | 'user_connected' | 'user_disconnected' | 'error' | 'invite_request' | 'invite_response';
   data: any;
   timestamp: string;
 }
