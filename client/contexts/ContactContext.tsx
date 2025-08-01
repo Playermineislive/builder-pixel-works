@@ -204,31 +204,48 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     saveData();
   }, [contacts, groups, pendingRequests, inviteRequests, inviteNotifications, userProfile]);
 
-  const generateInitialInviteCode = () => {
+  const generateInitialInviteCode = async () => {
     if (!user) return;
-    
+
     const savedCode = localStorage.getItem('secureChat_inviteCode');
     const savedCodeDate = localStorage.getItem('secureChat_inviteCodeDate');
-    
+
     // Check if saved code is still valid (less than 24 hours old)
     if (savedCode && savedCodeDate) {
       const codeDate = new Date(savedCodeDate);
       const now = new Date();
       const hoursDiff = (now.getTime() - codeDate.getTime()) / (1000 * 60 * 60);
-      
+
       if (hoursDiff < 24) {
         try {
           const parsedCode = JSON.parse(savedCode);
           setCurrentInviteCode(parsedCode);
+
+          // Re-register with server in case it was restarted
+          const token = localStorage.getItem('auth_token');
+          if (token) {
+            try {
+              await fetch('/api/invites/register-code', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ code: parsedCode.code })
+              });
+            } catch (error) {
+              console.error('Failed to re-register existing code:', error);
+            }
+          }
           return;
         } catch (error) {
           console.error('Invalid saved code:', error);
         }
       }
     }
-    
+
     // Generate new code if no valid saved code
-    generateNewInviteCode();
+    await generateNewInviteCode();
   };
 
   const generateNewInviteCode = async () => {
