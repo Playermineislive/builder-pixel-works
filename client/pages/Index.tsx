@@ -351,7 +351,10 @@ export default function Index() {
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
         >
-          <SocketProvider>
+          <SocketProvider
+            onInviteRequest={handleInviteRequest}
+            onInviteResponse={handleInviteResponse}
+          >
             <Pairing onPaired={(partnerInfo) => {
               const contact: Contact = {
                 id: partnerInfo.id,
