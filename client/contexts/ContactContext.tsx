@@ -67,6 +67,8 @@ interface ContactContextType {
   contacts: Contact[];
   groups: Group[];
   pendingRequests: Contact[];
+  inviteRequests: InviteRequest[];
+  inviteNotifications: InviteNotification[];
   currentInviteCode: InviteCode | null;
   userProfile: {
     id: string;
@@ -89,6 +91,12 @@ interface ContactContextType {
   generateNewInviteCode: () => void;
   forceRefreshInviteCode: () => void; // Instant refresh button
   addFriendByCode: (code: string, userInfo: { email: string; username?: string }) => Promise<boolean>;
+  sendInviteByCode: (code: string) => Promise<boolean>;
+  acceptInviteRequest: (requestId: string) => Promise<boolean>;
+  rejectInviteRequest: (requestId: string) => Promise<boolean>;
+  addInviteRequest: (request: InviteRequest) => void;
+  addInviteNotification: (notification: InviteNotification) => void;
+  clearNotification: (notificationId: string) => void;
   searchContacts: (query: string) => Contact[];
   getFavoriteContacts: () => Contact[];
   getOnlineContacts: () => Contact[];
