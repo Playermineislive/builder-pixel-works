@@ -10,6 +10,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { EncryptionProvider } from "./contexts/EncryptionContext";
 import { TranslationProvider } from "./contexts/TranslationContext";
 import { ContactProvider } from "./contexts/ContactContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Index from "./pages/Index";
 import ContactsList from "./pages/ContactsList";
 import GroupChat from "./pages/GroupChat";
