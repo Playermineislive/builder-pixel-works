@@ -202,7 +202,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   // Save data whenever it changes
   useEffect(() => {
     saveData();
-  }, [contacts, groups, pendingRequests, userProfile]);
+  }, [contacts, groups, pendingRequests, inviteRequests, inviteNotifications, userProfile]);
 
   const generateInitialInviteCode = () => {
     if (!user) return;
