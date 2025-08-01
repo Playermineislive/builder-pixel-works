@@ -577,6 +577,148 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
               </motion.div>
             )}
 
+            {activeTab === 'requests' && (
+              <motion.div
+                key="requests"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                {/* Invite Requests Section */}
+                {inviteRequests.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-white font-medium text-lg">Invite Requests</h3>
+                    {inviteRequests.map((request, index) => (
+                      <motion.div
+                        key={request.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05, duration: 0.3 }}
+                      >
+                        <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
+                                  {request.senderUsername?.charAt(0) || request.senderEmail.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <h4 className="text-white font-medium">
+                                    {request.senderUsername || request.senderEmail}
+                                  </h4>
+                                  <p className="text-white/60 text-sm">
+                                    {request.senderEmail}
+                                  </p>
+                                  <p className="text-white/50 text-xs">
+                                    Wants to connect with you
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex space-x-2">
+                                <motion.button
+                                  onClick={() => acceptInviteRequest(request.id)}
+                                  className="w-10 h-10 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 rounded-[1rem] flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  title="Accept"
+                                >
+                                  <Check className="w-5 h-5" />
+                                </motion.button>
+
+                                <motion.button
+                                  onClick={() => rejectInviteRequest(request.id)}
+                                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 rounded-[1rem] flex items-center justify-center text-red-400 hover:text-red-300 transition-all duration-200"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  title="Reject"
+                                >
+                                  <AlertCircle className="w-5 h-5" />
+                                </motion.button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Friend Requests Section */}
+                {pendingRequests.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-white font-medium text-lg">Friend Requests</h3>
+                    {pendingRequests.map((request, index) => (
+                      <motion.div
+                        key={request.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05, duration: 0.3 }}
+                      >
+                        <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-[1.5rem] flex items-center justify-center text-white font-semibold text-lg border-2 border-white/20">
+                                  {request.username?.charAt(0) || request.email.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <h4 className="text-white font-medium">
+                                    {request.username || request.email}
+                                  </h4>
+                                  <p className="text-white/60 text-sm">
+                                    {request.email}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex space-x-2">
+                                <motion.button
+                                  onClick={() => acceptFriendRequest(request.id)}
+                                  className="w-10 h-10 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 rounded-[1rem] flex items-center justify-center text-green-400 hover:text-green-300 transition-all duration-200"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  title="Accept"
+                                >
+                                  <Check className="w-5 h-5" />
+                                </motion.button>
+
+                                <motion.button
+                                  onClick={() => rejectFriendRequest(request.id)}
+                                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 rounded-[1rem] flex items-center justify-center text-red-400 hover:text-red-300 transition-all duration-200"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  title="Reject"
+                                >
+                                  <AlertCircle className="w-5 h-5" />
+                                </motion.button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {pendingRequests.length === 0 && inviteRequests.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center py-12"
+                  >
+                    <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                    <h3 className="text-white text-lg font-medium mb-2">No pending requests</h3>
+                    <p className="text-white/60 text-sm">
+                      You'll see invite and friend requests here
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
             {activeTab === 'invites' && (
               <motion.div
                 key="invites"
@@ -605,7 +747,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                         Code refreshes daily
                       </p>
                     </div>
-                    
+
                     <div className="flex space-x-2">
                       <Button
                         onClick={copyInviteCode}
@@ -625,7 +767,7 @@ export default function ContactsList({ onSelectContact, onCreateGroup, onBack }:
                           </>
                         )}
                       </Button>
-                      
+
                       <Button
                         onClick={generateNewInviteCode}
                         className="bg-purple-500 hover:bg-purple-600 text-white"
