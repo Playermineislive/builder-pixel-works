@@ -120,6 +120,8 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Contact[]>([]);
+  const [inviteRequests, setInviteRequests] = useState<InviteRequest[]>([]);
+  const [inviteNotifications, setInviteNotifications] = useState<InviteNotification[]>([]);
   const [currentInviteCode, setCurrentInviteCode] = useState<InviteCode | null>(null);
   const [userProfile, setUserProfile] = useState<{
     id: string;
