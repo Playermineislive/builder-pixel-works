@@ -157,25 +157,72 @@ export default function EnhancedAuth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Enhanced validation
+    if (!email.trim()) {
+      setError("Email is required");
+      emailRef.current?.focus();
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      setError("Please enter a valid email address");
+      emailRef.current?.focus();
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Password is required");
+      passwordRef.current?.focus();
+      return;
+    }
+
+    if (!isLogin) {
+      if (password.length < 8) {
+        setError("Password must be at least 8 characters long");
+        passwordRef.current?.focus();
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        confirmPasswordRef.current?.focus();
+        return;
+      }
+
+      if (passwordStrength < 60) {
+        setError("Password is too weak. Please include uppercase, lowercase, numbers and special characters");
+        passwordRef.current?.focus();
+        return;
+      }
+    }
+
+    if (!isOnline) {
+      setError("No internet connection. Please check your network.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       if (isLogin) {
         await login(email, password);
       } else {
-        if (password !== confirmPassword) {
-          throw new Error("Passwords do not match");
-        }
-        if (passwordStrength < 60) {
-          throw new Error("Password is too weak");
-        }
         await signup(email, password);
       }
 
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || "Authentication failed");
+      console.error('Auth error:', err);
+      const errorMessage = err.message || "Authentication failed. Please try again.";
+      setError(errorMessage);
+
+      // Shake animation for error
+      document.querySelector('.auth-form')?.classList.add('animate-pulse');
+      setTimeout(() => {
+        document.querySelector('.auth-form')?.classList.remove('animate-pulse');
+      }, 600);
     } finally {
       setIsLoading(false);
     }
@@ -529,7 +576,7 @@ export default function EnhancedAuth() {
                 </motion.div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="auth-form space-y-4">
                   {/* Email field */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -781,8 +828,8 @@ export default function EnhancedAuth() {
                   >
                     <Button
                       type="submit"
-                      disabled={isLoading || !isOnline}
-                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                      disabled={isLoading || !isOnline || (!isLogin && passwordStrength < 60 && password)}
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <motion.div
