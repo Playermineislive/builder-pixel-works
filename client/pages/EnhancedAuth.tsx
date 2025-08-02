@@ -148,14 +148,21 @@ export default function EnhancedAuth() {
     setIsLoading(true);
 
     try {
+      let result;
       if (isLogin) {
-        await login(email, password);
+        result = await login(email, password);
       } else {
-        await signup(email, password);
+        result = await signup(email, password);
       }
 
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      if (result.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+        // Auth context will handle the state update and AppEntryPoint will transition
+      } else {
+        // Handle auth failure
+        setError(result.message || "Authentication failed. Please try again.");
+      }
     } catch (err: any) {
       console.error('Auth error:', err);
       const errorMessage = err.message || "Authentication failed. Please try again.";
