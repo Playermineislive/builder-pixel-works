@@ -117,13 +117,13 @@ export default function EnhancedAuth() {
       });
     }, 12000); // Increased time for better UX
 
-    // Mouse tracking for interactive effects
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      });
-    };
+    // Mouse tracking disabled for better performance
+    // const handleMouseMove = (e: MouseEvent) => {
+    //   setMousePosition({
+    //     x: (e.clientX / window.innerWidth) * 100,
+    //     y: (e.clientY / window.innerHeight) * 100,
+    //   });
+    // };
 
     // Network status
     const handleOnline = () => setIsOnline(true);
@@ -131,14 +131,16 @@ export default function EnhancedAuth() {
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    window.addEventListener("mousemove", handleMouseMove);
+    // Mouse tracking disabled for performance
+    // window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
       clearTimeout(featuresTimer);
       clearInterval(themeInterval);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("mousemove", handleMouseMove);
+      // Mouse tracking disabled for performance
+      // window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [backgroundThemes.length]);
 
@@ -258,92 +260,26 @@ export default function EnhancedAuth() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden overflow-y-auto will-change-transform">
-      {/* Dynamic background with upward transition */}
+      {/* Simplified static background */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
-          background: backgroundThemes[currentTheme].gradient,
-          backgroundSize: '400% 400%'
+          background: backgroundThemes[currentTheme].gradient
         }}
         key={currentTheme}
-        initial={{
-          opacity: 0,
-          backgroundPosition: '50% 100%'
-        }}
-        animate={{
-          opacity: 1,
-          backgroundPosition: ['50% 100%', '50% 0%', '50% 100%']
-        }}
-        transition={{
-          opacity: { duration: 1 },
-          backgroundPosition: {
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }
-        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       />
 
-      {/* Secondary animated background layer */}
-      <motion.div
-        className="fixed inset-0 pointer-events-none z-0 opacity-60"
+      {/* Subtle static overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 opacity-20"
         style={{
           background: `linear-gradient(45deg,
             rgba(139, 92, 246, 0.1) 0%,
-            rgba(219, 39, 119, 0.1) 25%,
-            rgba(59, 130, 246, 0.1) 50%,
-            rgba(16, 185, 129, 0.1) 75%,
-            rgba(245, 158, 11, 0.1) 100%)`,
-          backgroundSize: '300% 300%'
-        }}
-        animate={{
-          backgroundPosition: ['0% 100%', '100% 0%', '0% 100%']
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-
-      {/* Interactive mouse gradient with enhanced effect */}
-      <motion.div
-        className="fixed inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          background: `radial-gradient(800px circle at ${mousePosition.x}% ${mousePosition.y}%,
-            rgba(255,255,255,0.15),
-            rgba(139, 92, 246, 0.1) 40%,
-            transparent 70%)`,
-        }}
-        animate={{
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-
-      {/* Flowing wave effect */}
-      <motion.div
-        className="fixed inset-0 pointer-events-none z-0 opacity-20"
-        style={{
-          background: `repeating-linear-gradient(
-            90deg,
-            transparent 0px,
-            rgba(255,255,255,0.1) 1px,
-            transparent 2px,
-            transparent 50px
-          )`
-        }}
-        animate={{
-          x: ['-100%', '100%']
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
+            rgba(219, 39, 119, 0.1) 50%,
+            rgba(59, 130, 246, 0.1) 100%)`
         }}
       />
 
