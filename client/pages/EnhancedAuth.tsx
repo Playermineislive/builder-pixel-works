@@ -347,32 +347,28 @@ export default function EnhancedAuth() {
         }}
       />
 
-      {/* Enhanced animated particles floating upward */}
+      {/* Optimized particles with reduced count and simpler animations */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full"
+            className="absolute rounded-full opacity-60"
             style={{
               left: `${Math.random() * 100}%`,
               top: `110%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              background: `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`,
-              boxShadow: `0 0 ${Math.random() * 20 + 10}px rgba(139, 92, 246, ${Math.random() * 0.5 + 0.2})`
+              width: `${Math.random() * 4 + 2}px`,
+              height: `${Math.random() * 4 + 2}px`,
+              background: `rgba(255, 255, 255, 0.2)`,
             }}
             animate={{
               y: [0, -window.innerHeight - 100],
-              x: [0, (Math.random() - 0.5) * 100],
-              opacity: [0, 1, 1, 0],
-              scale: [0, 1, 1, 0],
-              rotate: [0, 360]
+              opacity: [0, 0.6, 0],
             }}
             transition={{
-              duration: Math.random() * 8 + 6,
+              duration: Math.random() * 6 + 8,
               repeat: Infinity,
-              delay: Math.random() * 5,
-              ease: "easeOut",
+              delay: Math.random() * 4,
+              ease: "linear",
             }}
           />
         ))}
