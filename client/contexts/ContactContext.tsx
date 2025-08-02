@@ -211,8 +211,12 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     const pollInviteRequests = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        if (!token) return;
+        if (!token) {
+          console.log('No auth token found for polling invite requests');
+          return;
+        }
 
+        console.log('Polling for invite requests...');
         const response = await fetch('/api/invites', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -221,7 +225,11 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
         if (response.ok) {
           const data = await response.json();
+          console.log('Poll response:', data);
+
           if (data.success && data.requests) {
+            console.log(`Found ${data.requests.length} pending invite requests`);
+
             // Convert server requests to our format
             const notifications = data.requests.map((req: any) => ({
               id: req.id,
@@ -238,9 +246,14 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
             setInviteNotifications(prev => {
               const existing = new Set(prev.map(n => n.id));
               const newNotifications = notifications.filter((n: any) => !existing.has(n.id));
+              if (newNotifications.length > 0) {
+                console.log(`Adding ${newNotifications.length} new invite notifications`);
+              }
               return newNotifications.length > 0 ? [...prev, ...newNotifications] : prev;
             });
           }
+        } else {
+          console.error('Failed to poll invite requests:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('Failed to poll invite requests:', error);
