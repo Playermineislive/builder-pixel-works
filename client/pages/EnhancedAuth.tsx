@@ -158,6 +158,11 @@ export default function EnhancedAuth() {
       if (result.success) {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
+        // Clear form state on success
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setError("");
         // Auth context will handle the state update and AppEntryPoint will transition
       } else {
         // Handle auth failure
