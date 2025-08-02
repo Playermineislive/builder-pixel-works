@@ -206,44 +206,121 @@ export default function EnhancedAuth() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
-      {/* Dynamic background */}
+      {/* Dynamic background with upward transition */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: backgroundThemes[currentTheme].gradient }}
-        key={currentTheme}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      />
-
-      {/* Interactive mouse gradient */}
-      <motion.div
-        className="fixed inset-0 opacity-30 pointer-events-none z-0"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1), transparent 40%)`,
+          background: backgroundThemes[currentTheme].gradient,
+          backgroundSize: '400% 400%'
+        }}
+        key={currentTheme}
+        initial={{
+          opacity: 0,
+          backgroundPosition: '50% 100%'
+        }}
+        animate={{
+          opacity: 1,
+          backgroundPosition: ['50% 100%', '50% 0%', '50% 100%']
+        }}
+        transition={{
+          opacity: { duration: 1 },
+          backgroundPosition: {
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
         }}
       />
 
-      {/* Animated particles */}
+      {/* Secondary animated background layer */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-0 opacity-60"
+        style={{
+          background: `linear-gradient(45deg,
+            rgba(139, 92, 246, 0.1) 0%,
+            rgba(219, 39, 119, 0.1) 25%,
+            rgba(59, 130, 246, 0.1) 50%,
+            rgba(16, 185, 129, 0.1) 75%,
+            rgba(245, 158, 11, 0.1) 100%)`,
+          backgroundSize: '300% 300%'
+        }}
+        animate={{
+          backgroundPosition: ['0% 100%', '100% 0%', '0% 100%']
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+
+      {/* Interactive mouse gradient with enhanced effect */}
+      <motion.div
+        className="fixed inset-0 opacity-40 pointer-events-none z-0"
+        style={{
+          background: `radial-gradient(800px circle at ${mousePosition.x}% ${mousePosition.y}%,
+            rgba(255,255,255,0.15),
+            rgba(139, 92, 246, 0.1) 40%,
+            transparent 70%)`,
+        }}
+        animate={{
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* Flowing wave effect */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-0 opacity-20"
+        style={{
+          background: `repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            rgba(255,255,255,0.1) 1px,
+            transparent 2px,
+            transparent 50px
+          )`
+        }}
+        animate={{
+          x: ['-100%', '100%']
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+
+      {/* Enhanced animated particles floating upward */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-white/20 rounded-full"
+            className="absolute rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              top: `110%`,
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              background: `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`,
+              boxShadow: `0 0 ${Math.random() * 20 + 10}px rgba(139, 92, 246, ${Math.random() * 0.5 + 0.2})`
             }}
             animate={{
-              y: [0, -30, 0],
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
+              y: [0, -window.innerHeight - 100],
+              x: [0, (Math.random() - 0.5) * 100],
+              opacity: [0, 1, 1, 0],
+              scale: [0, 1, 1, 0],
+              rotate: [0, 360]
             }}
             transition={{
-              duration: 4 + Math.random() * 2,
+              duration: Math.random() * 8 + 6,
               repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut",
+              delay: Math.random() * 5,
+              ease: "easeOut",
             }}
           />
         ))}
