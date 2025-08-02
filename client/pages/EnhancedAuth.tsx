@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2,
   Shield,
-  MessageCircle,
   Lock,
   Eye,
   EyeOff,
@@ -36,16 +30,7 @@ import {
   Fingerprint,
   Wifi,
   WifiOff,
-  RefreshCw,
-  Heart,
-  Star,
-  Cpu,
   Rocket,
-  Crown,
-  Moon,
-  Sun,
-  Cloud,
-  Waves,
   X,
   Check,
   AlertTriangle,
@@ -65,84 +50,37 @@ export default function EnhancedAuth() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showSuccess, setShowSuccess] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [currentStep, setCurrentStep] = useState(0);
   const [showFeatures, setShowFeatures] = useState(false);
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
-  // Enhanced background themes
-  const backgroundThemes = [
-    {
-      name: "Aurora",
-      gradient:
-        "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
-      particles: "aurora",
-    },
-    {
-      name: "Ocean",
-      gradient:
-        "linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%)",
-      particles: "waves",
-    },
-    {
-      name: "Sunset",
-      gradient:
-        "linear-gradient(135deg, #ff9a56 0%, #ff6b9d 50%, #c44569 100%)",
-      particles: "glow",
-    },
-    {
-      name: "Galaxy",
-      gradient:
-        "linear-gradient(135deg, #2c3e50 0%, #4a00e0 50%, #8e2de2 100%)",
-      particles: "stars",
-    },
-  ];
-
-  const [currentTheme, setCurrentTheme] = useState(0);
+  // Static background theme - no cycling for performance
+  const backgroundTheme = {
+    name: "Aurora",
+    gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+  };
 
   useEffect(() => {
-    // Show features after delay
-    const featuresTimer = setTimeout(() => setShowFeatures(true), 1500);
-
-    // Auto theme cycling disabled for performance
-    // const themeInterval = setInterval(() => {
-    //   setCurrentTheme((prev) => {
-    //     const next = (prev + 1) % backgroundThemes.length;
-    //     return next;
-    //   });
-    // }, 12000);
-
-    // Mouse tracking disabled for better performance
-    // const handleMouseMove = (e: MouseEvent) => {
-    //   setMousePosition({
-    //     x: (e.clientX / window.innerWidth) * 100,
-    //     y: (e.clientY / window.innerHeight) * 100,
-    //   });
-    // };
-
-    // Network status
+    // Show features after delay - no other animations
+    const featuresTimer = setTimeout(() => setShowFeatures(true), 800);
+    
+    // Network status only
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    // Mouse tracking disabled for performance
-    // window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
       clearTimeout(featuresTimer);
-      // clearInterval(themeInterval); // Disabled for performance
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      // Mouse tracking disabled for performance
-      // window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [backgroundThemes.length]);
+  }, []);
 
-  // Password strength calculation
+  // Password strength calculation - optimized
   useEffect(() => {
     if (!password) {
       setPasswordStrength(0);
@@ -169,7 +107,7 @@ export default function EnhancedAuth() {
       emailRef.current?.focus();
       return;
     }
-
+    
     if (!email.includes('@') || !email.includes('.')) {
       setError("Please enter a valid email address");
       emailRef.current?.focus();
@@ -188,13 +126,13 @@ export default function EnhancedAuth() {
         passwordRef.current?.focus();
         return;
       }
-
+      
       if (password !== confirmPassword) {
         setError("Passwords do not match");
         confirmPasswordRef.current?.focus();
         return;
       }
-
+      
       if (passwordStrength < 60) {
         setError("Password is too weak. Please include uppercase, lowercase, numbers and special characters");
         passwordRef.current?.focus();
@@ -222,12 +160,6 @@ export default function EnhancedAuth() {
       console.error('Auth error:', err);
       const errorMessage = err.message || "Authentication failed. Please try again.";
       setError(errorMessage);
-
-      // Shake animation for error
-      document.querySelector('.auth-form')?.classList.add('animate-pulse');
-      setTimeout(() => {
-        document.querySelector('.auth-form')?.classList.remove('animate-pulse');
-      }, 600);
     } finally {
       setIsLoading(false);
     }
@@ -239,7 +171,6 @@ export default function EnhancedAuth() {
     setPassword("");
     setConfirmPassword("");
     setPasswordStrength(0);
-    setCurrentStep(0);
   };
 
   const getPasswordStrengthColor = () => {
@@ -257,83 +188,31 @@ export default function EnhancedAuth() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
-      {/* Simplified static background */}
-      <motion.div
+    <div className="min-h-screen relative overflow-x-hidden">
+      {/* Static optimized background */}
+      <div
         className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          background: backgroundThemes[currentTheme].gradient
-        }}
-        key={currentTheme}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+        style={{ background: backgroundTheme.gradient }}
       />
 
       {/* Subtle static overlay */}
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-20"
         style={{
-          background: `linear-gradient(45deg,
-            rgba(139, 92, 246, 0.1) 0%,
+          background: `linear-gradient(45deg, 
+            rgba(139, 92, 246, 0.1) 0%, 
             rgba(219, 39, 119, 0.1) 50%,
             rgba(59, 130, 246, 0.1) 100%)`
         }}
       />
 
-      {/* Optimized particles with reduced count and simpler animations */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full opacity-60"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `110%`,
-              width: `${Math.random() * 4 + 2}px`,
-              height: `${Math.random() * 4 + 2}px`,
-              background: `rgba(255, 255, 255, 0.2)`,
-            }}
-            animate={{
-              y: [0, -window.innerHeight - 100],
-              opacity: [0, 0.6, 0],
-            }}
-            transition={{
-              duration: Math.random() * 6 + 8,
-              repeat: Infinity,
-              delay: Math.random() * 4,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Simplified static geometric shapes */}
-      <div className="fixed top-20 left-20 w-32 h-32 border border-white/10 rounded-full pointer-events-none z-0 opacity-30" />
-      <div className="fixed bottom-20 right-20 w-24 h-24 bg-white/5 rounded-lg pointer-events-none z-0 opacity-30" />
-
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-8 lg:py-4">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start lg:items-center">
           {/* Left side - Branding and features */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center lg:text-left space-y-8"
-          >
+          <div className="text-center lg:text-left space-y-8">
             {/* Logo and branding */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                delay: 0.3,
-              }}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               <div className="flex items-center justify-center lg:justify-start space-x-4">
                 <div className="relative w-16 h-16">
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-sm" />
@@ -343,103 +222,68 @@ export default function EnhancedAuth() {
                 </div>
 
                 <div>
-                  <motion.h1
-                    className="text-4xl lg:text-5xl font-bold text-white"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
+                  <h1 className="text-4xl lg:text-5xl font-bold text-white">
                     SecureChat
-                  </motion.h1>
-                  <motion.p
-                    className="text-white/80 text-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                  >
+                  </h1>
+                  <p className="text-white/80 text-lg">
                     End-to-End Encrypted Messaging
-                  </motion.p>
+                  </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Features showcase */}
-            <AnimatePresence>
-              {showFeatures && (
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  {[
-                    {
-                      icon: Shield,
-                      title: "Secure",
-                      desc: "End-to-end encryption",
-                    },
-                    {
-                      icon: Sparkles,
-                      title: "Beautiful",
-                      desc: "10+ stunning themes",
-                    },
-                    { icon: Zap, title: "Fast", desc: "Real-time messaging" },
-                    {
-                      icon: Globe,
-                      title: "Connected",
-                      desc: "Weather-based themes",
-                    },
-                  ].map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2 * index, duration: 0.5 }}
-                      className="bg-white/10 rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-colors duration-300 cursor-pointer"
-                      whileHover={{ y: -5, scale: 1.05 }}
-                    >
-                      <feature.icon className="w-8 h-8 text-white mb-2" />
-                      <h3 className="text-white font-semibold">
-                        {feature.title}
-                      </h3>
-                      <p className="text-white/70 text-sm">{feature.desc}</p>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {showFeatures && (
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  {
+                    icon: Shield,
+                    title: "Secure",
+                    desc: "End-to-end encryption",
+                  },
+                  {
+                    icon: Sparkles,
+                    title: "Beautiful",
+                    desc: "10+ stunning themes",
+                  },
+                  { icon: Zap, title: "Fast", desc: "Real-time messaging" },
+                  {
+                    icon: Globe,
+                    title: "Connected",
+                    desc: "Weather-based themes",
+                  },
+                ].map((feature, index) => (
+                  <div
+                    key={index}
+                    className="bg-white/10 rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-colors duration-300 cursor-pointer"
+                  >
+                    <feature.icon className="w-8 h-8 text-white mb-2" />
+                    <h3 className="text-white font-semibold">
+                      {feature.title}
+                    </h3>
+                    <p className="text-white/70 text-sm">{feature.desc}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Theme indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="flex items-center justify-center lg:justify-start space-x-2"
-            >
+            <div className="flex items-center justify-center lg:justify-start space-x-2">
               <span className="text-white/60 text-sm">Current theme:</span>
               <Badge
                 variant="outline"
                 className="bg-white/10 border-white/30 text-white"
               >
-                {backgroundThemes[currentTheme].name}
+                {backgroundTheme.name}
               </Badge>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Right side - Auth form */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="w-full max-w-md mx-auto"
-          >
+          <div className="w-full max-w-md mx-auto">
             <Card className="bg-white/10 border-white/20 shadow-2xl">
               <CardHeader className="text-center pb-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-                >
+                <div>
                   <CardTitle className="text-2xl font-bold text-white flex items-center justify-center space-x-2">
                     {isLogin ? (
                       <KeyRound className="w-6 h-6" />
@@ -453,17 +297,12 @@ export default function EnhancedAuth() {
                       ? "Sign in to continue your secure conversations"
                       : "Create your account and start chatting securely"}
                   </CardDescription>
-                </motion.div>
+                </div>
               </CardHeader>
 
               <CardContent className="space-y-6">
                 {/* Network status */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                  className="flex items-center justify-center space-x-2"
-                >
+                <div className="flex items-center justify-center space-x-2">
                   {isOnline ? (
                     <>
                       <Wifi className="w-4 h-4 text-green-400" />
@@ -475,17 +314,12 @@ export default function EnhancedAuth() {
                       <span className="text-red-400 text-sm">Offline</span>
                     </>
                   )}
-                </motion.div>
+                </div>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="auth-form space-y-4">
                   {/* Email field */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1 }}
-                    className="space-y-2"
-                  >
+                  <div className="space-y-2">
                     <Label
                       htmlFor="email"
                       className="text-white font-medium flex items-center space-x-2"
@@ -502,29 +336,18 @@ export default function EnhancedAuth() {
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setFocusedField("email")}
                         onBlur={() => setFocusedField(null)}
-                        className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300"
+                        className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-colors duration-300"
                         placeholder="Enter your email"
                         required
                       />
-                      <motion.div
-                        className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{
-                          opacity: focusedField === "email" ? 1 : 0,
-                          scale: focusedField === "email" ? 1 : 1.1,
-                        }}
-                        transition={{ duration: 0.2 }}
-                      />
+                      {focusedField === "email" && (
+                        <div className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none" />
+                      )}
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* Password field */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.1 }}
-                    className="space-y-2"
-                  >
+                  <div className="space-y-2">
                     <Label
                       htmlFor="password"
                       className="text-white font-medium flex items-center space-x-2"
@@ -541,7 +364,7 @@ export default function EnhancedAuth() {
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setFocusedField("password")}
                         onBlur={() => setFocusedField(null)}
-                        className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300 pr-12"
+                        className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-colors duration-300 pr-12"
                         placeholder="Enter your password"
                         required
                       />
@@ -556,24 +379,14 @@ export default function EnhancedAuth() {
                           <Eye className="w-4 h-4" />
                         )}
                       </button>
-                      <motion.div
-                        className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{
-                          opacity: focusedField === "password" ? 1 : 0,
-                          scale: focusedField === "password" ? 1 : 1.1,
-                        }}
-                        transition={{ duration: 0.2 }}
-                      />
+                      {focusedField === "password" && (
+                        <div className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none" />
+                      )}
                     </div>
 
                     {/* Password strength indicator */}
                     {!isLogin && password && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="space-y-2"
-                      >
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-white/70">
                             Password strength:
@@ -593,25 +406,18 @@ export default function EnhancedAuth() {
                           </span>
                         </div>
                         <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-                          <motion.div
-                            className={`h-full rounded-full ${getPasswordStrengthColor()}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${passwordStrength}%` }}
-                            transition={{ duration: 0.3 }}
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
+                            style={{ width: `${passwordStrength}%` }}
                           />
                         </div>
-                      </motion.div>
+                      </div>
                     )}
-                  </motion.div>
+                  </div>
 
                   {/* Confirm password field */}
                   {!isLogin && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1.2 }}
-                      className="space-y-2"
-                    >
+                    <div className="space-y-2">
                       <Label
                         htmlFor="confirmPassword"
                         className="text-white font-medium flex items-center space-x-2"
@@ -628,7 +434,7 @@ export default function EnhancedAuth() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           onFocus={() => setFocusedField("confirmPassword")}
                           onBlur={() => setFocusedField(null)}
-                          className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300 pr-12"
+                          className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-colors duration-300 pr-12"
                           placeholder="Confirm your password"
                           aria-describedby="password-match-status"
                           required
@@ -646,24 +452,14 @@ export default function EnhancedAuth() {
                             <Eye className="w-4 h-4" />
                           )}
                         </button>
-                        <motion.div
-                          className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none"
-                          initial={{ opacity: 0, scale: 1.1 }}
-                          animate={{
-                            opacity: focusedField === "confirmPassword" ? 1 : 0,
-                            scale: focusedField === "confirmPassword" ? 1 : 1.1,
-                          }}
-                          transition={{ duration: 0.2 }}
-                        />
+                        {focusedField === "confirmPassword" && (
+                          <div className="absolute inset-0 rounded-md border-2 border-purple-400/50 pointer-events-none" />
+                        )}
                       </div>
 
                       {/* Password match indicator */}
                       {confirmPassword && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="flex items-center space-x-2"
-                        >
+                        <div className="flex items-center space-x-2">
                           {password === confirmPassword ? (
                             <>
                               <Check className="w-4 h-4 text-green-400" />
@@ -679,9 +475,9 @@ export default function EnhancedAuth() {
                               </span>
                             </>
                           )}
-                        </motion.div>
+                        </div>
                       )}
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Error message */}
@@ -724,27 +520,19 @@ export default function EnhancedAuth() {
                   </AnimatePresence>
 
                   {/* Submit button */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.3 }}
-                  >
+                  <div>
                     <Button
                       type="submit"
                       disabled={isLoading || !isOnline || (!isLogin && passwordStrength < 60 && password)}
                       className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
-                        <motion.div
-                          className="flex items-center space-x-2"
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        >
+                        <div className="flex items-center space-x-2">
                           <Loader2 className="w-5 h-5 animate-spin" />
                           <span>
                             {isLogin ? "Signing in..." : "Creating account..."}
                           </span>
-                        </motion.div>
+                        </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           {isLogin ? (
@@ -756,16 +544,11 @@ export default function EnhancedAuth() {
                         </div>
                       )}
                     </Button>
-                  </motion.div>
+                  </div>
                 </form>
 
                 {/* Toggle mode */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.4 }}
-                  className="text-center pt-4 border-t border-white/20"
-                >
+                <div className="text-center pt-4 border-t border-white/20">
                   <p className="text-white/70 text-sm mb-3">
                     {isLogin
                       ? "Don't have an account?"
@@ -779,10 +562,10 @@ export default function EnhancedAuth() {
                   >
                     {isLogin ? "Create Account" : "Sign In"}
                   </Button>
-                </motion.div>
+                </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
