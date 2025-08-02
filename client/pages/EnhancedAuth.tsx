@@ -208,7 +208,7 @@ export default function EnhancedAuth() {
     <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
       {/* Dynamic background */}
       <motion.div
-        className="absolute inset-0"
+        className="fixed inset-0 pointer-events-none z-0"
         style={{ background: backgroundThemes[currentTheme].gradient }}
         key={currentTheme}
         initial={{ opacity: 0 }}
@@ -218,14 +218,14 @@ export default function EnhancedAuth() {
 
       {/* Interactive mouse gradient */}
       <motion.div
-        className="absolute inset-0 opacity-30"
+        className="fixed inset-0 opacity-30 pointer-events-none z-0"
         style={{
           background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(255,255,255,0.1), transparent 40%)`,
         }}
       />
 
       {/* Animated particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
@@ -251,7 +251,7 @@ export default function EnhancedAuth() {
 
       {/* Floating geometric shapes */}
       <motion.div
-        className="absolute top-20 left-20 w-32 h-32 border border-white/20 rounded-full"
+        className="fixed top-20 left-20 w-32 h-32 border border-white/20 rounded-full pointer-events-none z-0"
         animate={{
           rotate: [0, 360],
           scale: [1, 1.1, 1],
@@ -264,7 +264,7 @@ export default function EnhancedAuth() {
       />
 
       <motion.div
-        className="absolute bottom-20 right-20 w-24 h-24 bg-white/10 rounded-lg backdrop-blur-sm"
+        className="fixed bottom-20 right-20 w-24 h-24 bg-white/10 rounded-lg backdrop-blur-sm pointer-events-none z-0"
         animate={{
           rotate: [0, -360],
           y: [0, -20, 0],
@@ -369,7 +369,7 @@ export default function EnhancedAuth() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.2 * index, duration: 0.5 }}
-                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all duration-300"
+                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
                       whileHover={{ y: -5, scale: 1.05 }}
                     >
                       <feature.icon className="w-8 h-8 text-white mb-2" />
@@ -522,7 +522,7 @@ export default function EnhancedAuth() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors z-10"
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -611,7 +611,7 @@ export default function EnhancedAuth() {
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors z-10"
                         >
                           {showConfirmPassword ? (
                             <EyeOff className="w-4 h-4" />
