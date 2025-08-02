@@ -121,8 +121,11 @@ export const handleSendInviteRequest: RequestHandler = (req: any, res) => {
 
     res.json(response);
 
-    // Note: In a real app, this would trigger a WebSocket event to the receiver
+    // Trigger WebSocket event to notify the receiver (if online)
     console.log(`Invite request sent from ${sender.email} to user ${receiverId}`);
+
+    // Note: WebSocket integration would go here - we'll rely on the frontend to poll for requests
+    // In a complete implementation, we'd emit to the receiver's socket here
   } catch (error) {
     console.error("Send invite request error:", error);
     const response: SendInviteResponse = {
