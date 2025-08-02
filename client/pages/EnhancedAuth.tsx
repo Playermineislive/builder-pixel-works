@@ -107,10 +107,15 @@ export default function EnhancedAuth() {
     // Show features after delay
     const featuresTimer = setTimeout(() => setShowFeatures(true), 1500);
 
-    // Auto theme cycling
+    // Auto theme cycling with smooth transition
     const themeInterval = setInterval(() => {
-      setCurrentTheme((prev) => (prev + 1) % backgroundThemes.length);
-    }, 8000);
+      setCurrentTheme((prev) => {
+        const next = (prev + 1) % backgroundThemes.length;
+        // Add transition effect when theme changes
+        document.body.style.transition = 'backdrop-filter 0.8s ease-in-out';
+        return next;
+      });
+    }, 12000); // Increased time for better UX
 
     // Mouse tracking for interactive effects
     const handleMouseMove = (e: MouseEvent) => {
@@ -252,7 +257,7 @@ export default function EnhancedAuth() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto will-change-transform">
       {/* Dynamic background with upward transition */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
@@ -728,6 +733,7 @@ export default function EnhancedAuth() {
                           onBlur={() => setFocusedField(null)}
                           className="bg-white/10 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 transition-all duration-300 pr-12"
                           placeholder="Confirm your password"
+                          aria-describedby="password-match-status"
                           required
                         />
                         <button
