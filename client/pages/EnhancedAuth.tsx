@@ -259,7 +259,7 @@ export default function EnhancedAuth() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto will-change-transform">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
       {/* Simplified static background */}
       <motion.div
         className="fixed inset-0 pointer-events-none z-0"
@@ -310,32 +310,9 @@ export default function EnhancedAuth() {
         ))}
       </div>
 
-      {/* Floating geometric shapes */}
-      <motion.div
-        className="fixed top-20 left-20 w-32 h-32 border border-white/20 rounded-full pointer-events-none z-0"
-        animate={{
-          rotate: [0, 360],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-
-      <motion.div
-        className="fixed bottom-20 right-20 w-24 h-24 bg-white/10 rounded-lg backdrop-blur-sm pointer-events-none z-0"
-        animate={{
-          rotate: [0, -360],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      {/* Simplified static geometric shapes */}
+      <div className="fixed top-20 left-20 w-32 h-32 border border-white/10 rounded-full pointer-events-none z-0 opacity-30" />
+      <div className="fixed bottom-20 right-20 w-24 h-24 bg-white/5 rounded-lg pointer-events-none z-0 opacity-30" />
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-8 lg:py-4">
