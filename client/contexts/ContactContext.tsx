@@ -204,6 +204,56 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
     saveData();
   }, [contacts, groups, pendingRequests, inviteRequests, inviteNotifications, userProfile]);
 
+  // Polling for invite requests
+  useEffect(() => {
+    if (!user) return;
+
+    const pollInviteRequests = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const response = await fetch('/api/invites', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.requests) {
+            // Convert server requests to our format
+            const notifications = data.requests.map((req: any) => ({
+              id: req.id,
+              type: 'invite_request',
+              senderId: req.senderId,
+              senderEmail: req.senderEmail,
+              senderUsername: req.senderUsername,
+              timestamp: req.timestamp,
+              message: `${req.senderEmail} wants to connect with you`,
+              requestId: req.id
+            }));
+
+            // Update notifications if there are new ones
+            setInviteNotifications(prev => {
+              const existing = new Set(prev.map(n => n.id));
+              const newNotifications = notifications.filter((n: any) => !existing.has(n.id));
+              return newNotifications.length > 0 ? [...prev, ...newNotifications] : prev;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to poll invite requests:', error);
+      }
+    };
+
+    // Poll immediately and then every 10 seconds
+    pollInviteRequests();
+    const interval = setInterval(pollInviteRequests, 10000);
+
+    return () => clearInterval(interval);
+  }, [user]);
+
   const generateInitialInviteCode = async () => {
     if (!user) return;
 
