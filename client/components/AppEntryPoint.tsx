@@ -49,7 +49,7 @@ export default function AppEntryPoint() {
   }, [isAuthenticated, showAuth]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full min-h-screen">
       <AnimatePresence mode="wait">
         {/* Loading Screen */}
         {isLoading && (
@@ -95,7 +95,7 @@ export default function AppEntryPoint() {
               stiffness: 100,
               damping: 20,
             }}
-            className="absolute inset-0 z-40"
+            className="fixed inset-0 z-40 overflow-y-auto"
           >
             <EnhancedAuth />
           </motion.div>
