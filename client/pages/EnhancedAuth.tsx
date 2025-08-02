@@ -337,22 +337,12 @@ export default function EnhancedAuth() {
               className="space-y-4"
             >
               <div className="flex items-center justify-center lg:justify-start space-x-4">
-                <motion.div
-                  className="relative w-16 h-16"
-                  animate={{
-                    rotate: [0, 360],
-                  }}
-                  transition={{
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                >
+                <div className="relative w-16 h-16">
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-sm" />
                   <div className="relative w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl">
                     🔒
                   </div>
-                </motion.div>
+                </div>
 
                 <div>
                   <motion.h1
@@ -407,7 +397,7 @@ export default function EnhancedAuth() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.2 * index, duration: 0.5 }}
-                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+                      className="bg-white/10 rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-colors duration-300 cursor-pointer"
                       whileHover={{ y: -5, scale: 1.05 }}
                     >
                       <feature.icon className="w-8 h-8 text-white mb-2" />
