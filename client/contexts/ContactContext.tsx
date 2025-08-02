@@ -660,7 +660,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
       }
 
       // Check if user has valid auth token
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('Please log in to send invite requests');
         return false;
