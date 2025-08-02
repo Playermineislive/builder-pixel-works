@@ -222,7 +222,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
           setCurrentInviteCode(parsedCode);
 
           // Re-register with server in case it was restarted
-          const token = localStorage.getItem('auth_token');
+          const token = localStorage.getItem('authToken');
           if (token) {
             try {
               await fetch('/api/invites/register-code', {
@@ -262,7 +262,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({ children }) =>
 
     // Register the code with the server
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('authToken');
       if (token) {
         await fetch('/api/invites/register-code', {
           method: 'POST',
