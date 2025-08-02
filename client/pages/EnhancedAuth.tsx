@@ -107,15 +107,13 @@ export default function EnhancedAuth() {
     // Show features after delay
     const featuresTimer = setTimeout(() => setShowFeatures(true), 1500);
 
-    // Auto theme cycling with smooth transition
-    const themeInterval = setInterval(() => {
-      setCurrentTheme((prev) => {
-        const next = (prev + 1) % backgroundThemes.length;
-        // Add transition effect when theme changes
-        document.body.style.transition = 'backdrop-filter 0.8s ease-in-out';
-        return next;
-      });
-    }, 12000); // Increased time for better UX
+    // Auto theme cycling disabled for performance
+    // const themeInterval = setInterval(() => {
+    //   setCurrentTheme((prev) => {
+    //     const next = (prev + 1) % backgroundThemes.length;
+    //     return next;
+    //   });
+    // }, 12000);
 
     // Mouse tracking disabled for better performance
     // const handleMouseMove = (e: MouseEvent) => {
@@ -136,7 +134,7 @@ export default function EnhancedAuth() {
 
     return () => {
       clearTimeout(featuresTimer);
-      clearInterval(themeInterval);
+      // clearInterval(themeInterval); // Disabled for performance
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       // Mouse tracking disabled for performance
@@ -435,7 +433,7 @@ export default function EnhancedAuth() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="w-full max-w-md mx-auto"
           >
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+            <Card className="bg-white/10 border-white/20 shadow-2xl">
               <CardHeader className="text-center pb-6">
                 <motion.div
                   initial={{ scale: 0 }}
